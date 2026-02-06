@@ -1,13 +1,30 @@
 #!/bin/bash
+# locale-config.sh — Gentoo installer module for locale and language configuration.
+# Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 # -----------------------------------------------------------
 # Gentoo Installer Module: Locale Configuration
 # -----------------------------------------------------------
 # Provides:
-#   - Language-group selection (English, Spanish, etc.)
-#   - Locale selection with human-readable descriptions
-#   - Automatic /etc/locale.gen generation
-#   - Automatic locale-gen execution
-#   - Automatic eselect locale configuration
+#   - Language-group selection (English, Spanish, etc.).
+#   - Locale selection with human-readable descriptions.
+#   - Automatic /etc/locale.gen generation.
+#   - Automatic locale-gen execution.
+#   - Automatic eselect locale configuration.
 #
 # Notes:
 #   This script is intended to be called from the main
@@ -68,9 +85,9 @@ if [ "${#CODE_BY_INDEX[@]}" -eq 0 ]; then
     exit 1
 fi
 
-#############################################
-# 1) Language group selection
-#############################################
+##############################
+# 1) Language group selection.
+##############################
 
 echo ">>> Building language groups menu..."
 
@@ -101,14 +118,14 @@ rm -f "$TMP_LANG"
 
 echo ">>> You selected language group: $CHOSEN_LANG"
 
-#############################################
-# 2) Locale selection within that language
-#############################################
+###########################################
+# 2) Locale selection within that language.
+###########################################
 
 echo ">>> Building locale list for '$CHOSEN_LANG'..."
 
 
-# Build "global_idx<TAB>description" for that base language, sorted by description
+# Build "global_idx<TAB>description" for that base language, sorted by description.
 locale_lines=$(
     for i in "${!CODE_BY_INDEX[@]}"; do
         if [[ "${LANG_BY_INDEX[$i]}" == "$CHOSEN_LANG" ]]; then
@@ -155,7 +172,7 @@ echo ">>> Updating /etc/locale.gen so only this locale is active..."
 
 cp /etc/locale.gen /etc/locale.gen.bak
 
-# Rewrite /etc/locale.gen: only CHOSEN_CODE is uncommented
+# Rewrite /etc/locale.gen: only CHOSEN_CODE is uncommented.
 awk -v code="$CHOSEN_CODE" '
 /^[[:space:]]*#/ {
     line = $0
@@ -192,9 +209,9 @@ rm -f /etc/locale.gen.bak
 echo ">>> Running locale-gen..."
 locale-gen
 
-#############################################
-# 3) Auto-select eselect locale
-#############################################
+################################
+# 3) Auto-select eselect locale.
+################################
 
 echo ">>> Auto-selecting eselect locale..."
 
@@ -211,6 +228,35 @@ else
     read -p ">>> Enter the number or name of the locale you want to set: " LOCALE_CHOICE
     LANG=C LC_ALL=C eselect locale set "${LOCALE_CHOICE}"
 fi
+
+#######################################################################################
+# 4) Fix L10N for package installation so we don't install multiple unneeded languages.
+#######################################################################################
+# Auto-detect L10N from selected LANG.
+LANG_VAL=$(locale | awk -F= '/^LANG=/{gsub(/"/,"",$2);print $2}')
+
+# Fallback if LANG somehow isn't set.
+if [ -z "$LANG_VAL" ]; then
+    echo ">>> LANG is empty; defaulting L10N to en-US"
+    L10N_VALUE="en-US"
+else
+    # Strip encoding, e.g. en_US.UTF-8 -> en_US.
+    BASE_LANG=${LANG_VAL%%.*}
+
+    # Convert underscore to dash, e.g. en_US -> en-US.
+    L10N_VALUE=${BASE_LANG/_/-}
+fi
+
+# Handle weird cases like C or POSIX.
+case "$L10N_VALUE" in
+    C|POSIX|"")
+        echo ">>> Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
+        L10N_VALUE="en-US"
+        ;;
+esac
+
+echo ">>> Setting package L10N to ${L10N_VALUE}..."
+echo "*/* L10N: -* ${L10N_VALUE}" > /etc/portage/package.use/localization
 
 # Reload env inside chroot
 env-update >/dev/null 2>&1

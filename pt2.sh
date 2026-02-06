@@ -1,5 +1,20 @@
 #!/bin/bash
 # This script automates the installation of Gentoo Linux with a distribution binary kernel.
+# Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # Finish chroot'ing into the system.
 source /etc/profile
@@ -53,39 +68,68 @@ bash "$SCRIPT_DIR"/modules/timezone-selector.sh
 # Configure locale.
 bash "$SCRIPT_DIR"/modules/locale-config.sh
 
-# Auto-detect L10N from selected LANG.
-LANG_VAL=$(locale | awk -F= '/^LANG=/{gsub(/"/,"",$2);print $2}')
+# Set the root password using dialog.
+while true; do
+    rootpass1="$(dialog --stdout --insecure --no-cancel --passwordbox 'Enter ROOT password:' 10 50)"
+    rootpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter ROOT password:' 10 50)"
 
-# Fallback if LANG somehow isn't set.
-if [ -z "$LANG_VAL" ]; then
-    echo ">>> LANG is empty; defaulting L10N to en-US"
-    L10N_VALUE="en-US"
-else
-    # Strip encoding, e.g. en_US.UTF-8 -> en_US.
-    BASE_LANG=${LANG_VAL%%.*}
+    if [ "$rootpass1" != "$rootpass2" ]; then
+        dialog --title "Error" --msgbox "Root passwords do NOT match! Please try again." 7 50
+        continue
+    fi
 
-    # Convert underscore to dash, e.g. en_US -> en-US.
-    L10N_VALUE=${BASE_LANG/_/-}
-fi
+    if echo -e "$rootpass1\n$rootpass1" | passwd >/dev/null 2>&1; then
+        dialog --title "Success" --msgbox "Root password has been set." 7 40
+        break
+    else
+        dialog --title "Error" --msgbox "Failed to set root password! Try again." 7 50
+    fi
+done
 
-# Handle weird cases like C or POSIX.
-case "$L10N_VALUE" in
-    C|POSIX|"")
-        echo ">>> Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
-        L10N_VALUE="en-US"
-        ;;
-esac
-
-echo ">>> Setting package L10N to ${L10N_VALUE}..."
-echo "*/* L10N: -* ${L10N_VALUE}" > /etc/portage/package.use/localization
-
-# Set the root password.
-passwd
 
 # Add user to the system.
-read -p "Enter your name for a user account (all lowercase): " name
-useradd -m -G users,wheel,audio,cdrom,cdrw,cron,usb,lp,video -s /bin/bash "$name"
-passwd "$name"
-chfn "$name"
+while true; do
+    name="$(dialog --stdout --no-cancel --inputbox 'Enter the username for the new account (all lowercase):' 10 50)"
+
+    if [ -z "$name" ]; then
+        dialog --title "Error" --msgbox "Username cannot be empty! Please try again." 7 50
+        continue
+    fi
+
+    if ! printf '%s\n' "$name" | grep -qE '^[a-z][a-z0-9_-]*$'; then
+        dialog --title "Error" --msgbox "Username must be lowercase and may contain letters, digits, underscores, or dashes." 9 60
+        continue
+    fi
+
+    if id "$name" >/dev/null 2>&1; then
+        dialog --title "Error" --msgbox "User '$name' already exists! Choose a different name." 7 60
+        continue
+    fi
+
+    if useradd -m -G users,wheel,audio,cdrom,cdrw,cron,usb,lp,video -s /bin/bash "$name"; then
+        dialog --title "Success" --msgbox "User '$name' created successfully." 7 50
+        break
+    else
+        dialog --title "Error" --msgbox "Failed to create user '$name'. Try again." 7 60
+    fi
+done
+
+# Set the user's password.
+while true; do
+    userpass1="$(dialog --stdout --insecure --no-cancel --passwordbox "Enter password for user: $name" 10 50)"
+    userpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter password:' 10 50)"
+
+    if [ "$userpass1" != "$userpass2" ]; then
+        dialog --title "Error" --msgbox "User passwords do NOT match. Please try again." 7 60
+        continue
+    fi
+
+    if echo -e "$userpass1\n$userpass1" | passwd "$name" >/dev/null 2>&1; then
+        dialog --title "Success" --msgbox "Password for '$name' has been set." 7 50
+        break
+    else
+        dialog --title "Error" --msgbox "Failed to set password for '$name'. Try again." 7 60
+    fi
+done
 
 bash "$SCRIPT_DIR"/pt3.sh
