@@ -233,6 +233,8 @@ fi
 if ask_yes_no "Enable printing support?" yes; then
     echo "net-print/cups zeroconf" > /etc/portage/package.use/cups
     chmod go+r /etc/portage/package.use/cups
+    echo "net-print/hplip scanner hpijs" > /etc/portage/package.use/hplip
+    chmod go+r /etc/portage/package.use/hplip
     echo ">>> Printing support enabled."
 else
     echo ">>> Printing support not enabled."
