@@ -35,8 +35,9 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
 
 ## Script Overview
 ### setup.sh
-Runs outside the chroot environment of the Gentoo LiveCD/DVD. Handles:
+Runs outside the chroot environment of the Gentoo LiveCD/DVD.
 
+Handles:
 * Automatic disk/partition setup.
 * Filesystem creation.
 * Partition mounting.
@@ -46,8 +47,9 @@ Runs outside the chroot environment of the Gentoo LiveCD/DVD. Handles:
 * Chroot preparation.
 
 ### pt2.sh
-Runs inside the Gentoo environment. Handles:
+Runs inside the Gentoo environment.
 
+Handles:
 * Configures portage / updates the Gentoo repository
 * Mirror selection
 * Profile selection
@@ -58,8 +60,8 @@ Runs inside the Gentoo environment. Handles:
 * User creation
 
 ### pt3.sh (**VERY** big script!)
-Handles:
 
+Handles:
 * Hostname configuration
 * Desktop environment installer (_dialog-based_)
     * KDE games installation when installing KDE (_Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut_)
