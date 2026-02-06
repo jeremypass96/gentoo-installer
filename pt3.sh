@@ -114,6 +114,7 @@ USE_FILES=(
   grub
   networkmanager
   cups
+  hplip
 )
 
 BACKUP_DIR="/etc/portage/package.use/.install-backup.$(date +%s)"
