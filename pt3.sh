@@ -209,7 +209,6 @@ if ask_yes_no "Enable global 'dist-kernel' USE flag for all packages (*/* dist-k
     chmod go+r /etc/portage/package.use/module-rebuild
     echo ">>> Enabled global dist-kernel USE flag."
 else
-    rm -f /etc/portage/package.use/module-rebuild
     echo ">>> Not enabling global dist-kernel USE flag."
 fi
 
@@ -224,7 +223,7 @@ if ask_yes_no "Are you on a laptop and want to install wireless networking tools
     echo "net-misc/networkmanager -wext" > /etc/portage/package.use/networkmanager
     chmod go+r /etc/portage/package.use/networkmanager
 else
-    echo "net-misc/networkmanager --bluetooth -wifi -wext" > /etc/portage/package.use/networkmanager
+    echo "net-misc/networkmanager -bluetooth -wifi -wext" > /etc/portage/package.use/networkmanager
     chmod go+r /etc/portage/package.use/networkmanager
 fi
 
@@ -272,13 +271,13 @@ else
 fi
 
 # Clean up any orphaned/unneeded dependencies.
-emerge -pv --depclean
-emerge -a --depclean
+emerge -pvc
+emerge -ac
 emerge @preserved-rebuild
 
-# ------------------------------------------------
+# ------------------------------
 # Desktop-specific installation.
-# ------------------------------------------------
+# ------------------------------
 if [ "$INSTALL_PLASMA" = true ]; then
     echo ">>> Installing KDE Plasma..."
     emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-plasma/plasma-firewall kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs
@@ -314,7 +313,6 @@ fi
 
 if [ "$INSTALL_XFCE" = true ]; then
     echo ">>> Installing Xfce..."
-
     emerge -1 xfce-extra/xfce4-notifyd
     emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol
     env-update && . /etc/profile
@@ -337,9 +335,9 @@ if [ "$INSTALL_MATE" = true ]; then
     env-update && source /etc/profile
 fi
 
-# ------------------------------------------------
-# Display Manager for Xfce / MATE: LightDM
-# ------------------------------------------------
+# --------------------------------------
+# Display Manager for Xfce/MATE: LightDM
+# --------------------------------------
 if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
     echo ">>> Installing LightDM display manager for Xfce/MATE..."
     emerge -qv x11-misc/lightdm x11-misc/lightdm-gtk-greeter
@@ -387,9 +385,9 @@ emerge -qv sys-kernel/installkernel
 # Update environment variables.
 env-update
 
-# -----------------------------------------------------------
+# ----------------
 # Kernel Selection
-# -----------------------------------------------------------
+# ----------------
 TMP_KERNEL=$(mktemp)
 
 dialog --clear \
@@ -439,6 +437,9 @@ rc-update add cronie default
 
 # Add file indexing.
 emerge -qv sys-apps/plocate
+
+# Install easy-to-use 'find' utility, fd.
+emerge -qv sys-apps/fd
 
 # Install and start Chrony.
 emerge -qv net-misc/chrony
