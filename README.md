@@ -63,10 +63,10 @@ Handles:
 
 Handles:
 * Hostname configuration
+* USE flag configuration
 * Desktop environment installer (_dialog-based_)
     * KDE games installation when installing KDE (_Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut_)
     * Papirus icon theme installation
-* USE flag configuration
 * Wireless networking installation (_optional, dialog-based_)
 * CUPS installation (_optional, dialog-based_)
 * Kernel installation
