@@ -68,6 +68,7 @@ done < "$REGION_FILE"
 
 # Ask user for region
 REGION_CHOICE=$(dialog --clear \
+    --no-cancel \
     --title "Select Timezone Region" \
     --menu "Choose your geographical region:" 23 60 15 \
     "${MENU_ITEMS[@]}" \
@@ -98,6 +99,7 @@ done < "$ZONE_FILE"
 
 # Ask user for city/timezone
 ZONE_CHOICE=$(dialog --clear \
+    --no-cancel \
     --title "Select Timezone" \
     --menu "Choose your specific timezone:" 20 60 15 \
     "${ZONE_ITEMS[@]}" \

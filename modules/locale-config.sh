@@ -108,6 +108,7 @@ TMP_LANG=$(mktemp)
 
 dialog --clear \
        --backtitle "Gentoo Install: Locale" \
+       --no-cancel \
        --title "Select language group" \
        --menu "Choose a language family (e.g. English, Spanish, French):" \
        0 0 0 \
@@ -156,6 +157,7 @@ TMP_LOCALE=$(mktemp)
 
 dialog --clear \
        --backtitle "Gentoo Install: Locale" \
+       --no-cancel \
        --title "Select specific locale" \
        --menu "Choose the specific locale you want to generate:" \
        0 0 0 \
