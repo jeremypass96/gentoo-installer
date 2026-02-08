@@ -70,6 +70,7 @@ TMP_PROFILE=$(mktemp)
 
 dialog --clear \
        --backtitle "Gentoo Installer: Profile Selector" \
+       --no-cancel \
        --title "Select System Profile" \
        --menu "Choose the system profile to use:" \
        0 0 0 \
