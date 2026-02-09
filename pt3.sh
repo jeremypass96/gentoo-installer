@@ -223,7 +223,7 @@ if ask_yes_no "Are you on a laptop and want to install wireless networking tools
     echo "net-misc/networkmanager -wext" > /etc/portage/package.use/networkmanager
     chmod go+r /etc/portage/package.use/networkmanager
 else
-    echo "net-misc/networkmanager -bluetooth -wifi -wext" > /etc/portage/package.use/networkmanager
+    echo "net-misc/networkmanager -wifi -wext" > /etc/portage/package.use/networkmanager
     chmod go+r /etc/portage/package.use/networkmanager
 fi
 
@@ -248,6 +248,20 @@ if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -mad -lame -mpg12
     echo ">>> Global MP3 support disabled via USE flags."
 else
     echo ">>> Leaving MP3 support enabled globally."
+fi
+
+#-------------------------------------
+# Optional: Disable bluetooth support.
+# ------------------------------------
+if ask_yes_no "Enable bluetooth support?" no; then
+    if ! grep -q -- "-bluetooth" /etc/portage/make.conf; then
+        if grep -q '^USE=' /etc/portage/make.conf; then
+        sed -i '/^USE=/ s/"$/ -bluetooth"/' /etc/portage/make.conf
+    else
+        echo 'USE="-bluetooth"' >> /etc/portage/make.conf
+    fi
+fi
+    echo ">>> Bluetooth support disabled."
 fi
 
 # ---------------------------------
