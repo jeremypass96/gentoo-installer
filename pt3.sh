@@ -676,9 +676,6 @@ else
     grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
-# Tweak /etc/rc.conf.
-sed -i 's/#rc_autostart_user="YES"/rc_autostart_user="YES"/' /etc/rc.conf
-
 echo "This ends the Gentoo installation script. Reboot and enjoy!"
 
 # Exit chroot.
