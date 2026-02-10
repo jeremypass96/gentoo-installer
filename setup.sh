@@ -91,7 +91,6 @@ if [[ -d /sys/firmware/efi ]]; then
     parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
     parted -s "$DRIVE" set 1 esp on
     mkfs.vfat -F 32 "$EFI_PARTITION"
-    mkdir -p /efi/EFI
 
     echo ">>> Creating and formatting root partition..."
     parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
@@ -101,8 +100,8 @@ if [[ -d /sys/firmware/efi ]]; then
     mount "$ROOT_PARTITION" /mnt/gentoo
 
     echo ">>> Mounting EFI system partition..."
-    mkdir -p /mnt/gentoo/efi
-    mount "$EFI_PARTITION" /mnt/gentoo/efi
+    mkdir -p /mnt/gentoo/boot/efi
+    mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
 else
     echo ">>> BIOS detected — creating MBR partition table on $DRIVE..."
     parted -s "$DRIVE" mklabel msdos

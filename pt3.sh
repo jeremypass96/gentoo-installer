@@ -678,12 +678,12 @@ DISK_NAME=$(lsblk -no PKNAME "$ROOT_DEV")
 DRIVE="/dev/${DISK_NAME}"
 if [[ -d /sys/firmware/efi ]]; then
     echo ">>> UEFI detected — installing GRUB for EFI..."
-    mount "${DRIVE}1" /efi
-    mkdir -p /efi/EFI
-    grub-install --efi-directory=/efi --bootloader-id=Gentoo
-    echo "GRUB_CFG=/efi/EFI/Gentoo/grub.cfg" > /etc/env.d/99grub
+    mount "${DRIVE}1" /boot/efi
+    mkdir -p /boot/efi/EFI
+    grub-install --efi-directory=/boot/efi --bootloader-id=Gentoo
+    echo "GRUB_CFG=/boot/efi/EFI/Gentoo/grub.cfg" > /etc/env.d/99grub
     env-update
-    grub-mkconfig -o /efi/EFI/Gentoo/grub.cfg
+    grub-mkconfig -o /boot/efi/EFI/Gentoo/grub.cfg
 else
     echo ">>> BIOS detected — installing GRUB for BIOS on $DRIVE..."
     grub-install "$DRIVE"
