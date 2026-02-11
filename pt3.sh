@@ -66,8 +66,7 @@ else
         plasma  "KDE Plasma" \
         xfce    "Xfce" \
         mate    "MATE" \
-        none    "No desktop (CLI only)" \
-        custom  "No automated desktop (I'll configure it myself)" \
+        none    "No desktop (CLI-only, or you'll configure it later yourself.)" \
         2>"$TMP_DESKTOP"
 
     if [ $? -ne 0 ]; then
@@ -87,7 +86,7 @@ case "$DESKTOP_CHOICE" in
     plasma) INSTALL_PLASMA=true ;;
     xfce)   INSTALL_XFCE=true ;;
     mate)   INSTALL_MATE=true ;;
-    none|custom|*) ;;
+    none|*) ;;
 esac
 
 echo ">>> Desktop choice: ${DESKTOP_CHOICE}"
@@ -484,7 +483,7 @@ TMP_BROWSER=$(mktemp)
         chromium  "Chromium (Open-source version of Google Chrome.)" \
         vivaldi   "Vivaldi" \
         ungchromium  "Ungoogled Chromium" \
-        cromite   "Similar to Brave. A fork of the Bromite Android browser that runs on PCs."
+        cromite   "Similar to Brave. A fork of the Bromite Android browser that runs on PCs." \
         none      "No web browser." \
         2>"$TMP_BROWSER"
 
@@ -554,16 +553,16 @@ else
 fi
 
 if [ "$INSTALL_UNG_CHROMIUM" = true ]; then
-    eselect repository enable pf4publicy
-    emerge --sync pf4publicy
+    eselect repository enable pf4public
+    emerge --sync pf4public
     emerge -qv www-client/ungoogled-chromium-bin
 else
     echo ">>> Skipping Ungoogled Chromium installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_CROMITE" = true ]; then
-    eselect repository enable pf4publicy
-    emerge --sync pf4publicy
+    eselect repository enable pf4public
+    emerge --sync pf4public
     echo "www-client/cromite-bin ~amd64" > /etc/portage/package.accept_keywords/cromite-bin
     chmod 644 /etc/portage/package.accept_keywords/cromite-bin
     emerge -qv www-client/cromite-bin
