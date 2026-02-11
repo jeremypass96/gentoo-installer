@@ -56,7 +56,8 @@ else
             dialog --clear \
                    --backtitle "Gentoo Install: Disk Selection" \
                    --title "Select target disk" \
-                   --menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED):" \
+                   --no-cancel \
+                   --menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
                    18 72 8 \
                    "${MENU_ITEMS[@]}" \
                    3>&1 1>&2 2>&3
