@@ -132,19 +132,19 @@ fi
 # Generate fstab.
 if [[ -d /sys/firmware/efi ]]; then
 cat << EOF >> /etc/fstab
-$EFI_PARTITION      /efi         vfat    noauto,noatime        1 2
-/swapfile           none         swap    sw                    0 0
-$ROOT_PARTITION      /           xfs     defaults,noatime      0 1
+$EFI_PARTITION      /boot/efi        vfat        defaults              0 2
+/swapfile           none             swap        sw                    0 0
+$ROOT_PARTITION     /                xfs         defaults,noatime      0 1
 
-/dev/cdrom          /mnt/cdrom   auto    noauto,user           0 0
+/dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0
 EOF
 else
 cat << EOF >> /etc/fstab
-$BOOT_PARTITION     /boot       xfs      defaults             0 2
-/swapfile           none        swap     sw                   0 0
-$ROOT_PARTITION     /           xfs      defaults,noatime     0 1
+$BOOT_PARTITION     /boot           xfs          defaults              0 2
+/swapfile           none            swap         sw                    0 0
+$ROOT_PARTITION     /               xfs          defaults,noatime      0 1
 
-/dev/cdrom          /mnt/cdrom   auto    noauto,user          0 0
+/dev/cdrom          /mnt/cdrom      auto         noauto,user           0 0
 EOF
 fi
 
@@ -157,15 +157,16 @@ if command -v dialog >/dev/null 2>&1; then
                --backtitle "Gentoo Install: Swapfile" \
                --title "Swapfile size" \
                --menu "Select swapfile size (MiB):" 15 60 5 \
-               2048 "2 GiB (light systems)" \
-               4096 "4 GiB (8 GiB RAM typical)" \
+               2048 "2 GiB" \
+               4096 "4 GiB" \
+               6144 "6 GiB" \
                8192 "8 GiB (default)" \
                16384 "16 GiB (heavy workloads)" \
                3>&1 1>&2 2>&3
     )
     clear
 
-    # If user pressed ESC, keep default
+    # If user pressed ESC, keep default.
     if [ -n "$CHOSEN_SWAP" ]; then
         SWAP_SIZE_MB="$CHOSEN_SWAP"
     fi
@@ -183,15 +184,12 @@ if [ "$SWAP_SIZE_MB" -gt 0 ]; then
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
-else
-    echo ">>> Skipping swapfile creation."
 fi
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
 mkdir -p /mnt/gentoo/gentoo-installer
 cp -rv $SCRIPT_DIR/pt2.sh /mnt/gentoo/gentoo-installer
 cp -rv $SCRIPT_DIR/pt3.sh /mnt/gentoo/gentoo-installer
-# Copy over the rest of the scripts, just in case!
 mkdir -p /mnt/gentoo/gentoo-installer/modules
 cp -v $SCRIPT_DIR/modules/*.sh /mnt/gentoo/gentoo-installer/modules
 
