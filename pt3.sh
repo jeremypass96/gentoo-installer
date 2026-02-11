@@ -564,7 +564,7 @@ if [ "$INSTALL_CROMITE" = true ]; then
     eselect repository enable pf4public
     emerge --sync pf4public
     echo "www-client/cromite-bin ~amd64" > /etc/portage/package.accept_keywords/cromite-bin
-    chmod 644 /etc/portage/package.accept_keywords/cromite-bin
+    chmod go+r /etc/portage/package.accept_keywords/cromite-bin
     emerge -qv www-client/cromite-bin
 else
     echo ">>> Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
