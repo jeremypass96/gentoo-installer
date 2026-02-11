@@ -72,4 +72,4 @@ Handles:
 * Kernel installation
 * NetworkManager installation
 * System tools installation
-* Web browser installater (_dialog-based_)
+* Web browser installer (_dialog-based_)
