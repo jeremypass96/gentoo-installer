@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 # common.sh — Gentoo installer module for providing shared utility functions.
 # Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
 #
