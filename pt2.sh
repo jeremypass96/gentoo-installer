@@ -70,11 +70,11 @@ bash "$SCRIPT_DIR"/modules/locale-config.sh
 
 # Set the root password using dialog.
 while true; do
-    rootpass1="$(dialog --stdout --insecure --no-cancel --passwordbox 'Enter ROOT password:' 10 50)"
-    rootpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter ROOT password:' 10 50)"
+    rootpass1="$(dialog --stdout --insecure --no-cancel --passwordbox 'Enter root password:' 10 50)"
+    rootpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter root password to confirm:' 10 50)"
 
     if [ "$rootpass1" != "$rootpass2" ]; then
-        dialog --title "Error" --msgbox "Root passwords do NOT match! Please try again." 7 50
+        dialog --title "Error" --msgbox "Root passwords do not match! Please try again." 7 50
         continue
     fi
 
@@ -117,10 +117,10 @@ done
 # Set the user's password.
 while true; do
     userpass1="$(dialog --stdout --insecure --no-cancel --passwordbox "Enter password for user: $name" 10 50)"
-    userpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter password:' 10 50)"
+    userpass2="$(dialog --stdout --insecure --no-cancel --passwordbox 'Re-enter password to confirm:' 10 50)"
 
     if [ "$userpass1" != "$userpass2" ]; then
-        dialog --title "Error" --msgbox "User passwords do NOT match. Please try again." 7 60
+        dialog --title "Error" --msgbox "User passwords do not match! Please try again." 7 60
         continue
     fi
 
