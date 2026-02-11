@@ -479,10 +479,12 @@ TMP_BROWSER=$(mktemp)
         --menu "Choose a web browser to install:" \
         0 0 0 \
         brave     "Brave (Privacy-based browser with ad-blocking, fingerprinting protection, etc.)" \
-        firefox   "Mozilla Firefox" \
-        chrome    "Google Chrome" \
+        firefox   "Mozilla Firefox (not recommended!)" \
+        chrome    "Google Chrome (not recommended!)" \
         chromium  "Chromium (Open-source version of Google Chrome.)" \
         vivaldi   "Vivaldi" \
+        ungchromium  "Ungoogled Chromium" \
+        cromite   "Similar to Brave. A fork of the Bromite Android browser that runs on PCs."
         none      "No web browser." \
         2>"$TMP_BROWSER"
 
@@ -499,6 +501,8 @@ INSTALL_FIREFOX=false
 INSTALL_CHROME=false
 INSTALL_CHROMIUM=false
 INSTALL_VIVALDI=false
+INSTALL_UNG_CHROMIUM=false
+INSTALL_CROMITE=false
 
 case "$BROWSER_CHOICE" in
     brave)    INSTALL_BRAVE=true ;;
@@ -506,6 +510,8 @@ case "$BROWSER_CHOICE" in
     chrome)   INSTALL_CHROME=true ;;
     chromium) INSTALL_CHROMIUM=true ;;
     vivaldi)  INSTALL_VIVALDI=true ;;
+    ungchromium) INSTALL_UNG_CHROMIUM=true ;;
+    cromite)  INSTALL_CROMITE=true ;;
     none|*) ;;
 esac
 
@@ -530,8 +536,6 @@ else
 fi
 
 if [ "$INSTALL_CHROME" = true ]; then
-    echo "www-client/google-chrome google-chrome" >> /etc/portage/package.license
-    chmod go+r /etc/portage/package.license
     emerge -qv www-client/google-chrome
 else
     echo ">>> Skipping Google Chrome installation (Browser choice: ${BROWSER_CHOICE})."
@@ -544,16 +548,32 @@ else
 fi
 
 if [ "$INSTALL_VIVALDI" = true ]; then
-    echo "www-client/vivaldi Vivaldi" >> /etc/portage/package.license
-    chmod go+r /etc/portage/package.license
     emerge -qv www-client/vivaldi
 else
     echo ">>> Skipping Vivaldi installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
-if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL_CHROME" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ]; then
+if [ "$INSTALL_UNG_CHROMIUM" = true ]; then
+    eselect repository enable pf4publicy
+    emerge --sync pf4publicy
+    emerge -qv www-client/ungoogled-chromium-bin
+else
+    echo ">>> Skipping Ungoogled Chromium installation (Browser choice: ${BROWSER_CHOICE})."
+fi
+
+if [ "$INSTALL_CROMITE" = true ]; then
+    eselect repository enable pf4publicy
+    emerge --sync pf4publicy
+    echo "www-client/cromite-bin ~amd64" > /etc/portage/package.accept_keywords/cromite-bin
+    chmod 644 /etc/portage/package.accept_keywords/cromite-bin
+    emerge -qv www-client/cromite-bin
+else
+    echo ">>> Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
+fi
+
+if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL_CHROME" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false] && [ "$INSTALL_CROMITE" = false]; then
     echo ">>> No web browser installed (choice: ${BROWSER_CHOICE})."
-    echo ">>> Script assumes you are installing a CLI-only system with no DE."
+    echo ">>> I assume you are installing a CLI-only system with no DE."
 fi
 
 # Install Nerd fonts.
