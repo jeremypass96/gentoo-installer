@@ -570,7 +570,7 @@ else
     echo ">>> Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
-if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL_CHROME" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false] && [ "$INSTALL_CROMITE" = false]; then
+if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL_CHROME" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false ] && [ "$INSTALL_CROMITE" = false ]; then
     echo ">>> No web browser installed (choice: ${BROWSER_CHOICE})."
     echo ">>> I assume you are installing a CLI-only system with no DE."
 fi
