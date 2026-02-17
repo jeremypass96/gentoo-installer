@@ -197,6 +197,7 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
                     sleep 0.5
                 done
 
+                wait "$DD_PID"
                 echo 100
             ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GiB swapfile..." 10 70 0
 
