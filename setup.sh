@@ -150,22 +150,22 @@ EOF
 fi
 
 # Make swapfile and activate it.
-SWAP_SIZE_GB=8   # default in GiB
+SWAP_SIZE_GB=8
 
 if command -v dialog >/dev/null 2>&1; then
     CHOSEN_SWAP=$(
         dialog --clear \
                --backtitle "Gentoo Install: Swapfile" \
                --title "Swapfile size" \
-               --menu "Select swapfile size (GiB):" 15 60 5 \
-               2 "2 GiB" \
-               4 "4 GiB" \
-               6 "6 GiB" \
-               8 "8 GiB (default)" \
-               10 "10 GiB" \
-               12 "12 GiB" \
-               14 "14 GiB" \
-               16 "16 GiB" \
+               --menu "Select swapfile size (GB):" 15 35 5 \
+               2 "2 GB" \
+               4 "4 GB" \
+               6 "6 GB" \
+               8 "8 GB (default)" \
+               10 "10 GB" \
+               12 "12 GB" \
+               14 "14 GB" \
+               16 "16 GB" \
                3>&1 1>&2 2>&3
     )
     clear
@@ -175,7 +175,7 @@ if command -v dialog >/dev/null 2>&1; then
         SWAP_SIZE_GB="$CHOSEN_SWAP"
     fi
 else
-    read -r -p "Swapfile size in GiB [8]: " INPUT_SWAP
+    read -r -p "Swapfile size in GB [8]: " INPUT_SWAP
     case "$INPUT_SWAP" in
         "" )  ;;              # keep default
         * )  SWAP_SIZE_GB="$INPUT_SWAP" ;;
@@ -187,19 +187,20 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
         COUNT_MB=$((SWAP_SIZE_GB * 1024))
 
             (
-                dd if=/dev/zero of=/swapfile bs=1M count="$COUNT_MB" &
+                dd if=/dev/zero of=/swapfile bs=1M count="$COUNT_MB" status=none &
                 DD_PID=$!
 
                 while kill -0 "$DD_PID" 2>/dev/null; do
                     BYTES_WRITTEN=$(stat -c %s /swapfile 2>/dev/null || echo 0)
                     PERCENT=$(( BYTES_WRITTEN * 100 / TOTAL_BYTES ))
                     echo "$PERCENT"
-                    sleep 0.5
+                    sleep 0.05
                 done
 
                 wait "$DD_PID"
                 echo 100
-            ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GiB swapfile..." 10 70 0
+            ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
+            dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
 
             chmod 600 /swapfile
             mkswap /swapfile
