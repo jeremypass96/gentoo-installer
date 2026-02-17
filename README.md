@@ -7,7 +7,7 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
 * Automatic disk partitioning and formatting.
 * Automatic fstab generation.
 * Automatic swapfile creation.
-* Fetches and extracts Stage3.
+* Automatically downloads and extracts Stage3.
 * Automatic kernel installation (_binary or source_).
 * CPU optimization detection (_-march, -mtune_).
 * GPU / VIDEO_CARDS detection (_Radeon, AMDGPU, Intel, NVIDIA_).
@@ -43,7 +43,7 @@ Handles:
 * Filesystem creation.
 * Partition mounting.
 * Fstab generation.
-* Swapfile generation.
+* Swapfile creation (_dialog-based_).
 * Stage3 download and extraction.
 * Chroot preparation.
 
@@ -51,26 +51,26 @@ Handles:
 Runs inside the Gentoo environment.
 
 Handles:
-* Configures portage / updates the Gentoo repository
-* Mirror selection
-* Profile selection
-* Automatic CPU optimizations
-* GPU auto-detection
-* Timezone configuration
-* Locale configuration
-* User creation
+* Configures portage/updates the Gentoo repository.
+* Mirror selection w/ Gentoo's "mirrorselect" tool.
+* Profile selection (_dialog-based_).
+* Automatic CPU optimizations.
+* GPU auto-detection.
+* Timezone configuration.
+* Locale configuration.
+* User creation.
 
 ### pt3.sh (**VERY** big script!)
 
 Handles:
-* Hostname configuration
-* USE flag configuration
-* Desktop environment installer (_dialog-based_)
-    * KDE games installation when installing KDE (_Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut_)
-    * Papirus icon theme installation
-* Wireless networking installation (_optional, dialog-based_)
-* CUPS installation (_optional, dialog-based_)
-* Kernel installation
-* NetworkManager installation
-* System tools installation
-* Web browser installer (_dialog-based_)
+* Hostname configuration.
+* USE flag configuration.
+* Desktop environment installer (_dialog-based_).
+    * KDE games installation when installing KDE (_Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut_).
+    * Papirus icon theme installation.
+* Wireless networking installation (_optional, dialog-based_).
+* CUPS installation (_optional, dialog-based_).
+* Kernel installation.
+* NetworkManager installation.
+* System tools installation.
+* Web browser installer (_dialog-based_).
