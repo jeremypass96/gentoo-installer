@@ -24,8 +24,9 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
     * Brave
     * Firefox
     * Chrome
-    * Chromium
+    * Ungoogled Chromium
     * Vivaldi
+    * Cromite
 
 * Optional KDE games installer.
 * Automatic USE flag population.
