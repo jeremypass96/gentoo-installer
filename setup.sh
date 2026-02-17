@@ -150,41 +150,58 @@ EOF
 fi
 
 # Make swapfile and activate it.
-SWAP_SIZE_MB=8192   # default
+SWAP_SIZE_GB=8   # default in GiB
 
 if command -v dialog >/dev/null 2>&1; then
     CHOSEN_SWAP=$(
         dialog --clear \
                --backtitle "Gentoo Install: Swapfile" \
                --title "Swapfile size" \
-               --menu "Select swapfile size (MiB):" 15 60 5 \
-               2048 "2 GiB" \
-               4096 "4 GiB" \
-               6144 "6 GiB" \
-               8192 "8 GiB (default)" \
-               16384 "16 GiB (heavy workloads)" \
+               --menu "Select swapfile size (GiB):" 15 60 5 \
+               2 "2 GiB" \
+               4 "4 GiB" \
+               6 "6 GiB" \
+               8 "8 GiB (default)" \
+               10 "10 GiB" \
+               12 "12 GiB" \
+               14 "14 GiB" \
+               16 "16 GiB" \
                3>&1 1>&2 2>&3
     )
     clear
 
     # If user pressed ESC, keep default.
     if [ -n "$CHOSEN_SWAP" ]; then
-        SWAP_SIZE_MB="$CHOSEN_SWAP"
+        SWAP_SIZE_GB="$CHOSEN_SWAP"
     fi
 else
-    read -r -p "Swapfile size in MiB [8192]: " INPUT_SWAP
+    read -r -p "Swapfile size in GiB [8]: " INPUT_SWAP
     case "$INPUT_SWAP" in
         "" )  ;;              # keep default
-        * )  SWAP_SIZE_MB="$INPUT_SWAP" ;;
+        * )  SWAP_SIZE_GB="$INPUT_SWAP" ;;
     esac
 fi
 
-if [ "$SWAP_SIZE_MB" -gt 0 ]; then
-    echo ">>> Creating ${SWAP_SIZE_MB} MiB swapfile..."
-    dd if=/dev/zero of=/swapfile bs=1M count="$SWAP_SIZE_MB"
-    chmod 600 /swapfile
-    mkswap /swapfile
-    swapon /swapfile
+if [ "$SWAP_SIZE_GB" -gt 0 ]; then
+        TOTAL_BYTES=$((SWAP_SIZE_GB * 1024 * 1024 * 1024))
+
+            (
+                dd if=/dev/zero of=/swapfile bs=1M count="$SWAP_SIZE_GB" &
+                DD_PID=$!
+
+                while kill -0 "$DD_PID" 2>/dev/null; do
+                    BYTES_WRITTEN=$(stat -c %s /swapfile 2>/dev/null || echo 0)
+                    PERCENT=$(( BYTES_WRITTEN * 100 / TOTAL_BYTES ))
+                    echo "$PERCENT"
+                    sleep 0.5
+                done
+
+                echo 100
+            ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GiB swapfile..." 10 70 0
+
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
 fi
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
@@ -220,8 +237,8 @@ gpg --output "${STAGE3}.DIGESTS.verified" --verify "${STAGE3}.DIGESTS"
 gpg --output "${STAGE3}.sha256.verified" --verify  "${STAGE3}.sha256"
 
 echo ">>> Extracting stage3 tarball..."
-UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk 'NR==2 {print $5}')
-xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
+UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
+xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
