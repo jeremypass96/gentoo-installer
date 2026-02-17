@@ -633,19 +633,24 @@ echo "" >> /etc/skel/.zshrc
 echo "# Disable highlighting of pasted text." >> /etc/skel/.zshrc
 echo "zle_highlight=('paste:none')" >> /etc/skel/.zshrc
 echo "" >> /etc/skel/.zshrc
-echo "# Apply sensible history settings." >> /etc/skel/.zshrc
-echo "setopt HIST_EXPIRE_DUPS_FIRST" >> /etc/skel/.zshrc
-echo "setopt HIST_FIND_NO_DUPS" >> /etc/skel/.zshrc
-echo "setopt HIST_IGNORE_ALL_DUPS" >> /etc/skel/.zshrc
-echo "setopt HIST_IGNORE_DUPS" >> /etc/skel/.zshrc
-echo "setopt HIST_IGNORE_SPACE" >> /etc/skel/.zshrc
-echo "setopt HIST_SAVE_NO_DUPS" >> /etc/skel/.zshrc
-echo alias ls='"lsd"' >> /etc/skel/.zshrc
-echo alias cat='"bat"' >> /etc/skel/.zshrc
-echo fastfetch >> /etc/skel/.zshrc
-echo "autoload -U compinit" >> /etc/skel/.zshrc
-echo compinit >> /etc/skel/.zshrc
-echo "zstyle ':completion::complete:*' use-cache 1" >> /etc/skel/.zshrc
+cat << EOF >> /etc/skel/.zshrc
+# Apply sensible history settings.
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_SAVE_NO_DUPS
+# Make a couple sensible aliases.
+alias ls="lsd"
+alias cat="bat"
+# Run fastfetch.
+fastfetch
+# Enable Gentoo autocompletion.
+autoload -U compinit
+compinit
+zstyle ':completion::complete:*' use-cache 1
+EOF
 cp -v /etc/skel/.zshrc /home/"$username"/.zshrc
 cp -v /etc/skel/.zshrc ~/.zshrc
 
