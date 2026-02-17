@@ -189,10 +189,10 @@ fi
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
 mkdir -p /mnt/gentoo/gentoo-installer
-cp -rv $SCRIPT_DIR/pt2.sh /mnt/gentoo/gentoo-installer
-cp -rv $SCRIPT_DIR/pt3.sh /mnt/gentoo/gentoo-installer
+cp -rv "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
+cp -rv "$SCRIPT_DIR"/pt3.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
-cp -v $SCRIPT_DIR/modules/*.sh /mnt/gentoo/gentoo-installer/modules
+cp -v "$SCRIPT_DIR"/modules/*.sh /mnt/gentoo/gentoo-installer/modules
 
 # Enter the /mnt/gentoo directory.
 cd /mnt/gentoo || exit
@@ -215,7 +215,7 @@ wget "${BASEURL}/${STAGE3}.asc"
 echo ">>> Verifying stage3 checksums..."
 sha256sum --check "${STAGE3}.sha256"
 gpg --import /usr/share/openpgp-keys/gentoo-release.asc
-gpg --verify "${STAGE3}".asc
+gpg --verify "${STAGE3}.asc"
 gpg --output "${STAGE3}.DIGESTS.verified" --verify "${STAGE3}.DIGESTS"
 gpg --output "${STAGE3}.sha256.verified" --verify  "${STAGE3}.sha256"
 

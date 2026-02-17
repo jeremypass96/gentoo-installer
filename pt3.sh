@@ -435,9 +435,9 @@ rc-update add NetworkManager default
 
 # Fix /etc/hosts.
 if grep -q '^127\.0\.0\.1' /etc/hosts; then
-    sed -i 's/^127\.0\.0\.1.*/127.0.0.1   '$HOSTNAME'/' /etc/hosts
+    sed -i 's/^127\.0\.0\.1.*/127.0.0.1   '"$HOSTNAME"'/' /etc/hosts
 else
-    echo '127.0.0.1   '$HOSTNAME'' >> /etc/hosts
+    echo '127.0.0.1   '"$HOSTNAME"'' >> /etc/hosts
 fi
 
 # Install system logger.
@@ -474,6 +474,7 @@ emerge -qv app-eselect/eselect-repository
 TMP_BROWSER=$(mktemp)
     dialog --clear \
         --backtitle "Gentoo Installer" \
+        --no-cancel \
         --title "Web Browser" \
         --menu "Choose a web browser to install:" \
         0 0 0 \
@@ -486,12 +487,7 @@ TMP_BROWSER=$(mktemp)
         cromite   "Similar to Brave. A fork of the Bromite Android browser that runs on PCs." \
         none      "No web browser." \
         2>"$TMP_BROWSER"
-
-        if [ $? -ne 0 ]; then
-        BROWSER_CHOICE="none"
-    else
         BROWSER_CHOICE=$(<"$TMP_BROWSER")
-    fi
 
     rm -f "$TMP_BROWSER"
 
@@ -622,7 +618,7 @@ cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/sk
 sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="gentoo"/' /etc/skel/.zshrc
 sed -i 's/# HYPHEN_INSENSITIVE="true"/HYPHEN_INSENSITIVE="true"/' /etc/skel/.zshrc
-sed -i 's/'"# zstyle ':omz:update' mode disabled"'/'"zstyle ':omz:update' mode disabled"'/' /etc/skel/.zshrc
+sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" /etc/skel/.zshrc
 sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
 sed -i 's/# COMPLETION_WAITING_DOTS="true"/COMPLETION_WAITING_DOTS="true"/' /etc/skel/.zshrc
 sed -i 's/# DISABLE_UNTRACKED_FILES_DIRTY="true"/DISABLE_UNTRACKED_FILES_DIRTY="true"/' /etc/skel/.zshrc
