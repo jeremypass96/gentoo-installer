@@ -184,9 +184,10 @@ fi
 
 if [ "$SWAP_SIZE_GB" -gt 0 ]; then
         TOTAL_BYTES=$((SWAP_SIZE_GB * 1024 * 1024 * 1024))
+        COUNT_MB=$((SWAP_SIZE_GB * 1024))
 
             (
-                dd if=/dev/zero of=/swapfile bs=1M count="$SWAP_SIZE_GB" &
+                dd if=/dev/zero of=/swapfile bs=1M count="$COUNT_MB" &
                 DD_PID=$!
 
                 while kill -0 "$DD_PID" 2>/dev/null; do
