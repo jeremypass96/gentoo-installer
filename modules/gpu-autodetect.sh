@@ -224,9 +224,12 @@ fi
 
 if [ "$GPU_VENDOR" = "virtualbox" ]; then
     emerge -qv app-emulation/virtualbox-guest-additions
-    rc-update add virtualbox-guest-additions dbus
+    rc-update add virtualbox-guest-additions
+    rc-update add dbus
     rc-service virtualbox-guest-additions start
     gpasswd -a "$name" vboxguest
+    modprobe vboxdrv
+    echo vboxdrv > /etc/modules-load.d/virtualbox.conf
 fi
 
 # ---------------------------------------
