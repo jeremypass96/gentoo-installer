@@ -29,12 +29,7 @@ require_root() {
 
 # Returns 0 if in chroot, 1 if not.
 is_in_chroot() {
-    if [ -e /proc/1/root ]; then
-        if [ "$(readlink /proc/1/root)" != "/" ]; then
-            return 0  # in chroot
-        fi
-    fi
-    return 1  # not in chroot
+    [ -f "/.gentoo-installer-chroot" ]
 }
 
 require_chroot() {
