@@ -279,4 +279,5 @@ echo "This ends part 1 of the Gentoo installation script. Run ./pt2.sh for part 
 
 echo ">>> Chroot'ing into the Gentoo install..."
 # Chroot into the new environment (also mounts filesystems).
+touch /mnt/gentoo/.gentoo-installer-chroot
 arch-chroot /mnt/gentoo
