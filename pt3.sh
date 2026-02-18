@@ -597,7 +597,7 @@ chmod go+r /etc/portage/package.use/noto-font
 emerge --quiet --verbose --changed-use --deep --update @world
 
 # Clean up any orphaned/unneeded dependencies.
-emerge -pv --depclean
+emerge -p --depclean
 emerge -a --depclean
 emerge @preserved-rebuild
 
