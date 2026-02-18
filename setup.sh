@@ -133,7 +133,7 @@ fi
 
 # Generate fstab.
 if [[ -d /sys/firmware/efi ]]; then
-cat << EOF >> /etc/fstab
+cat << EOF >> /boot/gentoo/etc/fstab
 $EFI_PARTITION      /boot/efi        vfat        defaults              0 2
 /swapfile           none             swap        sw                    0 0
 $ROOT_PARTITION     /                xfs         defaults,noatime      0 1
@@ -141,7 +141,7 @@ $ROOT_PARTITION     /                xfs         defaults,noatime      0 1
 /dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0
 EOF
 else
-cat << EOF >> /etc/fstab
+cat << EOF >> /boot/gentoo/etc/fstab
 $BOOT_PARTITION     /boot           xfs          defaults              0 2
 /swapfile           none            swap         sw                    0 0
 $ROOT_PARTITION     /               xfs          defaults,noatime      0 1
