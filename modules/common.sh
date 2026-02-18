@@ -105,7 +105,7 @@ run_step() {
 pause_msg() {
     local msg="$1"
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "$msg" 10 70
+        dialog --clear --msgbox "$msg" 15 70
     else
         echo "$msg"
         read -r -p "Press Enter to continue..."
