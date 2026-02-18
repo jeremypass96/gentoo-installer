@@ -65,7 +65,7 @@ case "$GPU_LINE" in
 
     *VirtualBox*|*InnoTek*|*Oracle\ Corporation*|*VBoxVGA*|*VMSVGA*)
         GPU_VENDOR="virtualbox"
-        VIDEO_FLAGS="virtualbox"
+        VIDEO_FLAGS=""
         ;;
 
     *Red\ Hat*|*QXL*|*Spice*)
@@ -214,6 +214,19 @@ fi
 if [ "$GPU_VENDOR" = "unknown" ]; then
     echo ">>> Unknown GPU vendor. Not modifying VIDEO_CARDS."
     exit 0
+fi
+
+if [ "$GPU_VENDOR" = "vmware" ]; then
+    emerge -qv app-emulation/open-vm-tools
+    rc-service vmware-tools start
+    rc-update add vmware-tools
+fi
+
+if [ "$GPU_VENDOR" = "virtualbox" ]; then
+    emerge -qv app-emulation/virtualbox-guest-additions
+    rc-update add virtualbox-guest-additions dbus
+    rc-service virtualbox-guest-additions start
+    gpasswd -a "$name" vboxguest
 fi
 
 # ---------------------------------------
