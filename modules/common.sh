@@ -29,18 +29,12 @@ require_root() {
 
 # Returns 0 if in chroot, 1 if not.
 is_in_chroot() {
-    # Compare / and /proc/1/root; if they differ, we're in a chroot.
-    local root_dev root_ino initroot_dev initroot_ino
-    root_dev=$(stat -c '%d' /)
-    root_ino=$(stat -c '%i' /)
-    initroot_dev=$(stat -c '%d' /proc/1/root)
-    initroot_ino=$(stat -c '%i' /proc/1/root)
-
-    if [ "$root_dev:$root_ino" = "$initroot_dev:$initroot_ino" ]; then
-        return 1  # NOT in chroot
-    else
-        return 0  # in chroot
+    if [ -e /proc/1/root ]; then
+        if [ "$(readlink /proc/1/root)" != "/" ]; then
+            return 0  # in chroot
+        fi
     fi
+    return 1  # not in chroot
 }
 
 require_chroot() {
