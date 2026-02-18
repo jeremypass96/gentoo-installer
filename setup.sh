@@ -76,8 +76,7 @@ else
     fi
 fi
 
-pause_msg "TARGET DISK SELECTED:\n\n$DRIVE\n\nThis disk will be ERASED and repartitioned.\n\nIf this is NOT correct, stop now."
-countdown 5
+pause_msg "TARGET DISK SELECTED:\n\n$DRIVE\n\nThis disk will be ERASED and repartitioned.\n\nIf this is NOT correct, please stop now."
 
 if [[ -d /sys/firmware/efi ]]; then
     pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
