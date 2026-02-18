@@ -159,19 +159,7 @@ else
 fi
 
 # Generate fstab.
-if [[ -d /sys/firmware/efi ]]; then
-FSTAB_CONTENT="$EFI_PARTITION      /boot/efi        vfat        defaults              0 2
-/swapfile           none             swap        sw                    0 0
-$ROOT_PARTITION     /                xfs         defaults,noatime      0 1
-
-/dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0"
-else
-FSTAB_CONTENT="$BOOT_PARTITION     /boot           xfs         defaults              0 2
-/swapfile           none            swap         sw                    0 0
-$ROOT_PARTITION     /               xfs          defaults,noatime      0 1
-
-/dev/cdrom          /mnt/cdrom      auto         noauto,user           0 0"
-fi
+FSTAB_CONTENT=$(genfstab /mnt/gentoo)
 
 if command -v dialog >/dev/null 2>&1; then
     dialog --clear \
@@ -183,23 +171,7 @@ else
     echo "$FSTAB_CONTENT"
 fi
 
-if [[ -d /sys/firmware/efi ]]; then
-cat << EOF > /mnt/gentoo/etc/fstab
-$EFI_PARTITION      /boot/efi        vfat        defaults              0 2
-/swapfile           none             swap        sw                    0 0
-$ROOT_PARTITION     /                xfs         defaults,noatime      0 1
-
-/dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0
-EOF
-else
-cat << EOF > /mnt/gentoo/etc/fstab
-$BOOT_PARTITION     /boot           xfs          defaults              0 2
-/swapfile           none            swap         sw                    0 0
-$ROOT_PARTITION     /               xfs          defaults,noatime      0 1
-
-/dev/cdrom          /mnt/cdrom      auto         noauto,user           0 0
-EOF
-fi
+genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
 
 if command -v dialog >/dev/null 2>&1; then
     dialog --clear --msgbox "fstab successfully generated." 6 40
