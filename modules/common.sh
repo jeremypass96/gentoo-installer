@@ -91,7 +91,8 @@ run_step() {
     local msg="$1"; shift
 
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --infobox "$msg" 5 70
+        dialog --clear --infobox "$msg" 5 70 < /dev/tty > /dev/tty
+        sleep 0.25
     else
         echo ">>> $msg"
     fi
