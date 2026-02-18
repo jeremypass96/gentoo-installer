@@ -651,7 +651,7 @@ autoload -U compinit
 compinit
 zstyle ':completion::complete:*' use-cache 1
 EOF
-cp -v /etc/skel/.zshrc /home/"$username"/.zshrc
+cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc ~/.zshrc
 
 # Install and configure fastfetch.
@@ -659,10 +659,10 @@ mkdir -p /etc/skel/.config/fastfetch && cd /etc/skel/.config/fastfetch
 wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
 cd || exit
 emerge -qv app-misc/fastfetch
-mkdir -p /home/"$username"/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc /home/"$username"/.config/fastfetch
+mkdir -p /home/"$name"/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc /home/"$name"/.config/fastfetch
 chmod go+r /etc/skel/.config/fastfetch/config.jsonc
-chown -R "$username":"$username" /home/"$username"/.config/fastfetch
-chmod go+r /home/"$username"/.config/fastfetch/config.jsonc
+chown -R "$name":"$name" /home/"$name"/.config/fastfetch
+chmod go+r /home/"$name"/.config/fastfetch/config.jsonc
 mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~/.config/fastfetch/
 
 # Install and configure LSD (LSDeluxe).
@@ -670,14 +670,14 @@ mkdir -p /etc/skel/.config/lsd/ && cd /etc/skel/.config/lsd
 wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
 cd || exit
 emerge -qv sys-apps/lsd
-mkdir -p /home/"$username"/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml /home/"$username"/.config/lsd
+mkdir -p /home/"$name"/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml /home/"$name"/.config/lsd
 chmod go+r /etc/skel/.config/lsd/config.yaml
-chown -R "$username":"$username" /home/"$username"/.config/lsd
-chmod go+r /home/"$username"/.config/lsd/config.yaml
+chown -R "$name":"$name" /home/"$name"/.config/lsd
+chmod go+r /home/"$name"/.config/lsd/config.yaml
 mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
 
 # Fix user's config permissions!
-chown -R "$username":"$username" .config
+chown -R "$name":"$name" .config
 
 # Remove leftover junk.
 rm /stage3-*.tar.*
