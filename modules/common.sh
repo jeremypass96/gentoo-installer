@@ -83,3 +83,44 @@ ask_yes_no() {
         done
     fi
 }
+
+# Dialog helpers.
+run_step() {
+    # Shows a dialog infobox, then runs the command(s) passed to it.
+    # Usage: run_step "Message..." command arg1 arg2 ...
+    local msg="$1"; shift
+
+    if command -v dialog >/dev/null 2>&1; then
+        dialog --clear --infobox "$msg" 5 70
+    else
+        echo ">>> $msg"
+    fi
+
+    "$@" || {
+    pause_msg "ERROR: Command failed:\n\n$*"
+    exit 1
+    }
+}
+
+pause_msg() {
+    local msg="$1"
+    if command -v dialog >/dev/null 2>&1; then
+        dialog --clear --msgbox "$msg" 10 70
+    else
+        echo "$msg"
+        read -r -p "Press Enter to continue..."
+    fi
+}
+
+countdown() {
+    local seconds="${1:-5}"
+    if command -v dialog >/dev/null 2>&1; then
+        for ((i=seconds; i>=1; i--)); do
+            dialog --clear --infobox "Starting in $i..." 3 25
+            sleep 1
+        done
+    else
+        echo "Starting in $seconds..."
+        sleep "$seconds"
+    fi
+}
