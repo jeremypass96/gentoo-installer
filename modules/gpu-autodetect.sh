@@ -58,6 +58,21 @@ GPU_VENDOR="unknown"
 VIDEO_FLAGS=""
 
 case "$GPU_LINE" in
+    *VMware*|*SVGA\ II*|*vmwgfx*)
+        GPU_VENDOR="vmware"
+        VIDEO_FLAGS="vmware"
+        ;;
+
+    *VirtualBox*|*InnoTek*|*Oracle\ Corporation*|*VBoxVGA*|*VMSVGA*)
+        GPU_VENDOR="virtualbox"
+        VIDEO_FLAGS="virtualbox"
+        ;;
+
+    *Red\ Hat*|*QXL*|*Spice*)
+        GPU_VENDOR="qxl"
+        VIDEO_FLAGS="qxl"
+        ;;
+
     *NVIDIA*|*GeForce*)
         GPU_VENDOR="nvidia"
         VIDEO_FLAGS="nvidia"
