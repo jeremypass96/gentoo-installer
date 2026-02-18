@@ -192,7 +192,7 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
                 DD_PID=$!
 
                 while kill -0 "$DD_PID" 2>/dev/null; do
-                    BYTES_WRITTEN=$(stat -c %s /swapfile 2>/dev/null || echo 0)
+                    BYTES_WRITTEN=$(stat -c %s /mnt/gentoo/swapfile 2>/dev/null || echo 0)
                     PERCENT=$(( BYTES_WRITTEN * 100 / TOTAL_BYTES ))
                     echo "$PERCENT"
                     sleep 0.05
@@ -203,9 +203,9 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
             ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
             dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
 
-            chmod 600 /swapfile
-            mkswap /swapfile
-            swapon /swapfile
+            chmod 600 /mnt/gentoo/swapfile
+            mkswap /mnt/gentoo/swapfile
+            swapon /mnt/gentoo/swapfile
 fi
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
