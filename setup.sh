@@ -76,9 +76,6 @@ else
     fi
 fi
 
-pause_msg "TARGET DISK SELECTED:\n\n$DRIVE\n\nThis disk will be ERASED and repartitioned.\n\nIf this is NOT correct, stop now."
-countdown 5
-
 if [[ -d /sys/firmware/efi ]]; then
     pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
 
@@ -184,7 +181,7 @@ else
 fi
 
 if [[ -d /sys/firmware/efi ]]; then
-cat << EOF > /boot/gentoo/etc/fstab
+cat << EOF > /etc/fstab
 $EFI_PARTITION      /boot/efi        vfat        defaults              0 2
 /swapfile           none             swap        sw                    0 0
 $ROOT_PARTITION     /                xfs         defaults,noatime      0 1
@@ -192,7 +189,7 @@ $ROOT_PARTITION     /                xfs         defaults,noatime      0 1
 /dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0
 EOF
 else
-cat << EOF > /boot/gentoo/etc/fstab
+cat << EOF > /etc/fstab
 $BOOT_PARTITION     /boot           xfs          defaults              0 2
 /swapfile           none            swap         sw                    0 0
 $ROOT_PARTITION     /               xfs          defaults,noatime      0 1
@@ -249,7 +246,7 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
                 DD_PID=$!
 
                 while kill -0 "$DD_PID" 2>/dev/null; do
-                    BYTES_WRITTEN=$(stat -c %s /mnt/gentoo/swapfile 2>/dev/null || echo 0)
+                    BYTES_WRITTEN=$(stat -c %s /swapfile 2>/dev/null || echo 0)
                     PERCENT=$(( BYTES_WRITTEN * 100 / TOTAL_BYTES ))
                     echo "$PERCENT"
                     sleep 0.05
@@ -260,9 +257,9 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
             ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
             dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
 
-            chmod 600 /mnt/gentoo/swapfile
-            mkswap /mnt/gentoo/swapfile
-            swapon /mnt/gentoo/swapfile
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
 fi
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
