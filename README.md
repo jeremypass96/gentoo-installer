@@ -42,9 +42,9 @@ Handles:
 * Automatic disk/partition setup.
 * Filesystem creation.
 * Partition mounting.
-* Fstab generation.
 * Swapfile creation (_dialog-based_).
 * Stage3 download and extraction.
+* Fstab generation.
 * Chroot preparation.
 
 ### pt2.sh
