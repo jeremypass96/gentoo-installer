@@ -106,7 +106,7 @@ while true; do
         continue
     fi
 
-    if useradd -m -G users,wheel,audio,cdrom,cdrw,cron,usb,lp,video -s /bin/bash "$name"; then
+    if useradd -m -G users,wheel,audio,cdrom,cdrw,usb,lp,video -s /bin/bash "$name"; then
         dialog --title "Success" --msgbox "User '$name' created successfully." 7 50
         break
     else
