@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "$1")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
