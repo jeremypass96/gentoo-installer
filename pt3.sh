@@ -681,8 +681,11 @@ chown -R "$username":"$username" .config
 
 # Remove leftover junk.
 rm /stage3-*.tar.*
-rm /install_gentoo_pt2.sh
-rm /install_gentoo_pt3.sh
+rm /gentoo-installer/*.sh
+rm /gentoo-installer/modules/*.sh
+rm -rf /gentoo-installer/modules
+rm -rf /gentoo-installer
+rm /.gentoo-installer-chroot
 
 # Install proper adduser script.
 emerge -qv app-admin/superadduser
