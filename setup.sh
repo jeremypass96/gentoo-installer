@@ -213,6 +213,7 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
 
             chmod 600 /mnt/gentoo/swapfile
             mkswap /mnt/gentoo/swapfile
+            swapon /mnt/gentoo/swapfile
 fi
 
 # Generate fstab.
@@ -235,9 +236,6 @@ if command -v dialog >/dev/null 2>&1; then
 else
     echo ">>> fstab successfully generated."
 fi
-
-# Enable /swapfile.
-swapon /mnt/gentoo/swapfile
 
 clear
 
