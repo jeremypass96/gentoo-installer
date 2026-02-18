@@ -92,7 +92,7 @@ run_step() {
 
     if command -v dialog >/dev/null 2>&1; then
         dialog --clear --infobox "$msg" 5 70
-        sleep 0.25
+        sleep 0.5
     else
         echo ">>> $msg"
     fi
