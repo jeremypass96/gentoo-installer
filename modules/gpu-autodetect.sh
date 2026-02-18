@@ -65,7 +65,7 @@ case "$GPU_LINE" in
 
     *VirtualBox*|*InnoTek*|*Oracle\ Corporation*|*VBoxVGA*|*VMSVGA*)
         GPU_VENDOR="virtualbox"
-        VIDEO_FLAGS=""
+        VIDEO_FLAGS="vmware"
         ;;
 
     *Red\ Hat*|*QXL*|*Spice*)
