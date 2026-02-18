@@ -78,7 +78,7 @@ case "$GPU_LINE" in
         VIDEO_FLAGS="nvidia"
         ;;
 
-    *Intel*|*" Corporation UHD"*|*" Iris"*|*"HD Graphics"*)
+    *Intel*|*\ Corporation\ UHD*|*\ Iris*|*HD\ Graphics*)
         GPU_VENDOR="intel"
         # Modern Intel per Gentoo docs
         VIDEO_FLAGS="intel i965 iris"
