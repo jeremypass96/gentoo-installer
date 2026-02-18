@@ -82,8 +82,9 @@ if [[ -d /sys/firmware/efi ]]; then
     echo ">>> UEFI detected — creating GPT partition table on $DRIVE..."
     parted -s "$DRIVE" mklabel gpt
 
-    EFI_PARTITION="${DRIVE}1"
-    ROOT_PARTITION="${DRIVE}2"
+    part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
+    EFI_PARTITION="$(part "$DRIVE" 1)"
+    ROOT_PARTITION="$(part "$DRIVE" 2)"
 
     echo ">>> EFI system partition will be: $EFI_PARTITION"
     echo ">>> Root partition will be: $ROOT_PARTITION"
