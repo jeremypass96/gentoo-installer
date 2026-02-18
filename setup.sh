@@ -220,7 +220,7 @@ if command -v dialog >/dev/null 2>&1; then
     dialog --clear \
            --backtitle "Gentoo Install: fstab Generation" \
            --title "Preview of /etc/fstab" \
-           --msgbox "$FSTAB_CONTENT" 18 80
+           --msgbox "$FSTAB_CONTENT" 14 75
 else
     echo ">>> Preview of /etc/fstab:"
     echo "$FSTAB_CONTENT"
