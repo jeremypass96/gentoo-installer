@@ -284,7 +284,6 @@ else
 fi
 
 # Clean up any orphaned/unneeded dependencies.
-emerge -pvc
 emerge -ac
 emerge @preserved-rebuild
 
@@ -597,8 +596,7 @@ chmod go+r /etc/portage/package.use/noto-font
 emerge --quiet --verbose --changed-use --deep --update @world
 
 # Clean up any orphaned/unneeded dependencies.
-emerge -p --depclean
-emerge -a --depclean
+emerge -ac
 emerge @preserved-rebuild
 
 # To modify NetworkManager connections without needing to enter the root password, adding our new user to the 'plugdev' group.
