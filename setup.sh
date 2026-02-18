@@ -158,27 +158,6 @@ else
     pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
 
-# Generate fstab.
-FSTAB_CONTENT=$(genfstab /mnt/gentoo)
-
-if command -v dialog >/dev/null 2>&1; then
-    dialog --clear \
-           --backtitle "Gentoo Install: fstab Generation" \
-           --title "Preview of /etc/fstab" \
-           --msgbox "$FSTAB_CONTENT" 18 80
-else
-    echo ">>> Preview of /etc/fstab:"
-    echo "$FSTAB_CONTENT"
-fi
-
-genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
-
-if command -v dialog >/dev/null 2>&1; then
-    dialog --clear --msgbox "fstab successfully generated." 6 40
-else
-    echo ">>> fstab successfully generated."
-fi
-
 # Make swapfile and activate it.
 SWAP_SIZE_GB=8
 
@@ -234,8 +213,31 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
 
             chmod 600 /mnt/gentoo/swapfile
             mkswap /mnt/gentoo/swapfile
-            swapon /mnt/gentoo/swapfile
 fi
+
+# Generate fstab.
+FSTAB_CONTENT=$(genfstab /mnt/gentoo)
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear \
+           --backtitle "Gentoo Install: fstab Generation" \
+           --title "Preview of /etc/fstab" \
+           --msgbox "$FSTAB_CONTENT" 18 80
+else
+    echo ">>> Preview of /etc/fstab:"
+    echo "$FSTAB_CONTENT"
+fi
+
+genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear --msgbox "fstab successfully generated." 6 40
+else
+    echo ">>> fstab successfully generated."
+fi
+
+# Enable /swapfile.
+swapon /mnt/gentoo/swapfile
 
 clear
 
