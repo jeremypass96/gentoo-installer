@@ -31,23 +31,27 @@ curl --location gentoo.org --output /dev/null || die "DNS or HTTPS failed (canno
 chronyd -q
 
 # Detect drive(s).
-echo ">>> Detecting available disks..."
-
+run_step "Detecting available disks..." true
 mapfile -t DISKS < <(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}')
 
 if [ "${#DISKS[@]}" -eq 0 ]; then
-    echo "ERROR: No disks detected. Aborting."
+    if command -v dialog >/dev/null 2>&1; then
+        dialog --clear --msgbox "ERROR: No disks detected. Aborting." 7 50
+    else
+        echo "ERROR: No disks detected. Aborting."
+    fi
     exit 1
 elif [ "${#DISKS[@]}" -eq 1 ]; then
     DRIVE="${DISKS[0]}"
-    echo ">>> Automatically selected drive: $DRIVE"
+    if command -v dialog >/dev/null 2>&1; then
+        dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 8 50
+    else
+        echo ">>> Automatically selected drive: $DRIVE"
+    fi
 else
     if command -v dialog >/dev/null 2>&1; then
-        echo ">>> Multiple disks detected, launching dialog selector..."
-
         MENU_ITEMS=()
         for dev in "${DISKS[@]}"; do
-            # Grab size + model for nicer display
             info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
             MENU_ITEMS+=("$dev" "$info")
         done
@@ -57,20 +61,14 @@ else
                    --backtitle "Gentoo Install: Disk Selection" \
                    --title "Select target disk" \
                    --no-cancel \
-                   --menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
+                   --menu "Choose the disk to partition and install Gentoo on (THIS WILL BE WIPED!):" \
                    18 72 8 \
                    "${MENU_ITEMS[@]}" \
                    3>&1 1>&2 2>&3
         )
         clear
 
-        if [ -z "$CHOSEN_DISK" ]; then
-            echo "No disk selected. Aborting."
-            exit 1
-        fi
-
         DRIVE="$CHOSEN_DISK"
-        echo ">>> Selected drive: $DRIVE"
     else
         echo "Multiple disks detected:"
         lsblk -dpno NAME,SIZE,MODEL | grep -E "sd|hd|vd|nvme|mmc"
@@ -78,60 +76,83 @@ else
     fi
 fi
 
+pause_msg "TARGET DISK SELECTED:\n\n$DRIVE\n\nThis disk will be ERASED and repartitioned.\n\nIf this is NOT correct, stop now."
+countdown 5
+
 if [[ -d /sys/firmware/efi ]]; then
-    echo ">>> UEFI detected — creating GPT partition table on $DRIVE..."
-    parted -s "$DRIVE" mklabel gpt
+    pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
+
+    run_step "Creating GPT partition table on $DRIVE..." parted -s "$DRIVE" mklabel gpt
 
     part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
     EFI_PARTITION="$(part "$DRIVE" 1)"
     ROOT_PARTITION="$(part "$DRIVE" 2)"
 
-    echo ">>> EFI system partition will be: $EFI_PARTITION"
-    echo ">>> Root partition will be: $ROOT_PARTITION"
+    pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
 
-    echo ">>> Creating and formatting EFI system partition..."
-    parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
-    parted -s "$DRIVE" set 1 esp on
-    mkfs.vfat -F 32 "$EFI_PARTITION"
+    run_step "Creating and formatting EFI system partition..." parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
+    run_step "Marking EFI partition as ESP..." parted -s "$DRIVE" set 1 esp on
+    run_step "Formatting EFI partition (FAT32)..." mkfs.vfat -F 32 "$EFI_PARTITION"
 
-    echo ">>> Creating and formatting root partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
-    mkfs.xfs -f "$ROOT_PARTITION"
+    run_step "Creating and formatting root partition..." parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+    run_step "Formatting root partition (XFS)..." mkfs.xfs -f "$ROOT_PARTITION"
 
-    echo ">>> Mounting root partition..."
-    mount "$ROOT_PARTITION" /mnt/gentoo
+    run_step "Mounting root partition to /mnt/gentoo..." mount "$ROOT_PARTITION" /mnt/gentoo
 
-    echo ">>> Mounting EFI system partition..."
-    mkdir -p /mnt/gentoo/boot/efi
-    mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
+    run_step "Mounting EFI system partition..." mkdir -p /mnt/gentoo/boot/efi
+    run_step "Mounting EFI partition to /mnt/gentoo/boot/efi..." mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
+
+    pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
 else
-    echo ">>> BIOS detected — creating MBR partition table on $DRIVE..."
-    parted -s "$DRIVE" mklabel msdos
+    pause_msg "BIOS detected.\n\nAbout to create an MBR partition table on:\n\n$DRIVE"
+
+    run_step "Creating MBR partition table on $DRIVE..." parted -s "$DRIVE" mklabel msdos
 
     BOOT_PARTITION="${DRIVE}1"
     ROOT_PARTITION="${DRIVE}2"
 
-    echo ">>> Boot partition will be: $BOOT_PARTITION"
-    echo ">>> Root partition will be: $ROOT_PARTITION"
+    pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
-    echo ">>> Creating and formatting boot partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
-    parted -s "$DRIVE" set 1 boot on
-    mkfs.xfs -f "$BOOT_PARTITION"
+    run_step "Creating and formatting boot partition..." parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
+    run_step "Setting boot flag..." parted -s "$DRIVE" set 1 boot on
+    run_step "Formatting boot partition (XFS)..." mkfs.xfs -f "$BOOT_PARTITION"
 
-    echo ">>> Creating and formatting root partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
-    mkfs.xfs -f "$ROOT_PARTITION"
+    run_step "Creating and formatting root partition..." parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+    run_step "Formatting root partition (XFS)..." mkfs.xfs -f "$ROOT_PARTITION"
 
-    echo ">>> Mounting root partition..."
-    mount "$ROOT_PARTITION" /mnt/gentoo
+    run_step "Mounting root partition to /mnt/gentoo..." mount "$ROOT_PARTITION" /mnt/gentoo
 
-    echo ">>> Mounting boot partition..."
-    mkdir -p /mnt/gentoo/boot
-    mount "$BOOT_PARTITION" /mnt/gentoo/boot
+    run_step "Creating /mnt/gentoo/boot..." mkdir -p /mnt/gentoo/boot
+    run_step "Mounting boot partition to /mnt/gentoo/boot..." mount "$BOOT_PARTITION" /mnt/gentoo/boot
+
+    pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
 
 # Generate fstab.
+if [[ -d /sys/firmware/efi ]]; then
+FSTAB_CONTENT="$EFI_PARTITION      /boot/efi        vfat        defaults              0 2
+/swapfile           none             swap        sw                    0 0
+$ROOT_PARTITION     /                xfs         defaults,noatime      0 1
+
+/dev/cdrom          /mnt/cdrom       auto        noauto,user           0 0"
+else
+FSTAB_CONTENT="$BOOT_PARTITION     /boot           xfs         defaults              0 2
+/swapfile           none            swap         sw                    0 0
+$ROOT_PARTITION     /               xfs          defaults,noatime      0 1
+
+/dev/cdrom          /mnt/cdrom      auto         noauto,user           0 0"
+fi
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear \
+           --backtitle "Gentoo Install: fstab Generation" \
+           --title "Preview of /etc/fstab" \
+           --msgbox "$FSTAB_CONTENT" 18 80
+else
+    echo ">>> Preview of /etc/fstab:"
+    echo "$FSTAB_CONTENT"
+fi
+
 if [[ -d /sys/firmware/efi ]]; then
 cat << EOF >> /boot/gentoo/etc/fstab
 $EFI_PARTITION      /boot/efi        vfat        defaults              0 2
@@ -148,6 +169,12 @@ $ROOT_PARTITION     /               xfs          defaults,noatime      0 1
 
 /dev/cdrom          /mnt/cdrom      auto         noauto,user           0 0
 EOF
+fi
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear --msgbox "fstab successfully generated." 6 40
+else
+    echo ">>> fstab successfully generated."
 fi
 
 # Make swapfile and activate it.
