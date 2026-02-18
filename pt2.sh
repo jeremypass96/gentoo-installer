@@ -42,7 +42,7 @@ emerge --sync
 # Install dialog.
 if ! command -v dialog >/dev/null 2>&1; then
     echo ">>> Installing dialog for interactive menus..."
-    emerge --quiet --ask sys-apps/dialog
+    emerge --quiet -qv sys-apps/dialog
 fi
 
 # View and set system profile.
@@ -50,9 +50,6 @@ bash "$SCRIPT_DIR"/modules/profile-selector.sh
 
 # Run automatic Gentoo CPU optimizations shell script.
 bash "$SCRIPT_DIR"/modules/cpu-optimizations.sh
-
-# Configure VIDEO_CARDS variable.
-bash "$SCRIPT_DIR"/modules/gpu-autodetect.sh
 
 # Configure ACCEPT_LICENSE variable.
 cat << EOF >> /etc/portage/make.conf
@@ -131,5 +128,8 @@ while true; do
         dialog --title "Error" --msgbox "Failed to set password for '$name'. Try again." 7 60
     fi
 done
+
+# Configure VIDEO_CARDS variable.
+bash "$SCRIPT_DIR"/modules/gpu-autodetect.sh
 
 bash "$SCRIPT_DIR"/pt3.sh
