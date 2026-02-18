@@ -325,7 +325,7 @@ fi
 
 if [ "$INSTALL_XFCE" = true ]; then
     echo ">>> Installing Xfce..."
-    emerge -1 xfce-extra/xfce4-notifyd
+    emerge -qv1 xfce-extra/xfce4-notifyd
     emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol
     env-update && . /etc/profile
     cat << EOF > /etc/pam.d/xfce4-screensaver
@@ -418,17 +418,21 @@ echo ">>> Kernel choice: $KERNEL_CHOICE"
 echo
 case "$KERNEL_CHOICE" in
     bin)
+        clear
         echo ">>> Installing Gentoo binary kernel..."
         emerge -qv sys-kernel/gentoo-kernel-bin
         ;;
 
     src)
+        clear
         echo ">>> Installing source kernel (gentoo-kernel)..."
         emerge -qv sys-kernel/gentoo-kernel
         ;;
 esac
 
 # Install and enable NetworkManager.
+clear
+echo ">>> Installing NetworkManager..."
 emerge -qv net-misc/networkmanager
 rc-update add NetworkManager default
 
@@ -440,20 +444,30 @@ else
 fi
 
 # Install system logger.
+clear
+echo ">>> Installing Sysklogd..."
 emerge -qv app-admin/sysklogd
 rc-update add sysklogd default
 
 # Install cron daemon.
+clear
+echo ">>> Installing cronie..."
 emerge -qv sys-process/cronie
 rc-update add cronie default
 
 # Add file indexing.
+clear
+echo "Installing plocate..."
 emerge -qv sys-apps/plocate
 
 # Install easy-to-use 'find' utility, fd.
+clear
+echo ">>> Installing fd, an easy-to-use 'find' utility..."
 emerge -qv sys-apps/fd
 
 # Install and start Chrony.
+clear
+echo ">>> Installing Chrony..."
 emerge -qv net-misc/chrony
 rc-update add chronyd default
 rc-service chronyd start
@@ -675,7 +689,7 @@ chmod go+r /home/"$name"/.config/lsd/config.yaml
 mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
 
 # Fix user's config permissions!
-chown -R "$name":"$name" .config
+chown -R "$name":"$name" /home/"$name"/.config
 
 # Remove leftover junk.
 rm /stage3-*.tar.*
