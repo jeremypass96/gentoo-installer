@@ -265,6 +265,8 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
             swapon /mnt/gentoo/swapfile
 fi
 
+clear
+
 # Copy scripts to /mnt/gentoo before chroot'ing.
 mkdir -p /mnt/gentoo/gentoo-installer
 cp -rv "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
