@@ -91,7 +91,7 @@ run_step() {
     local msg="$1"; shift
 
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --infobox "$msg" 5 70 < /dev/tty > /dev/tty
+        dialog --clear --infobox "$msg" 5 70
         sleep 0.25
     else
         echo ">>> $msg"
@@ -106,22 +106,9 @@ run_step() {
 pause_msg() {
     local msg="$1"
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "$msg" 15 70
+        dialog --clear --msgbox "$msg" 10 34
     else
         echo "$msg"
         read -r -p "Press Enter to continue..."
-    fi
-}
-
-countdown() {
-    local seconds="${1:-5}"
-    if command -v dialog >/dev/null 2>&1; then
-        for ((i=seconds; i>=1; i--)); do
-            dialog --clear --infobox "Starting in $i..." 3 25
-            sleep 1
-        done
-    else
-        echo "Starting in $seconds..."
-        sleep "$seconds"
     fi
 }
