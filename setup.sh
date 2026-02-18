@@ -82,7 +82,8 @@ countdown 5
 if [[ -d /sys/firmware/efi ]]; then
     pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
 
-    run_step "Creating GPT partition table on $DRIVE..." parted -s "$DRIVE" mklabel gpt
+    run_step "Creating GPT partition table on $DRIVE..."
+    parted -s "$DRIVE" mklabel gpt
 
     part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
     EFI_PARTITION="$(part "$DRIVE" 1)"
@@ -90,40 +91,69 @@ if [[ -d /sys/firmware/efi ]]; then
 
     pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
 
-    run_step "Creating and formatting EFI system partition..." parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
-    run_step "Marking EFI partition as ESP..." parted -s "$DRIVE" set 1 esp on
-    run_step "Formatting EFI partition (FAT32)..." mkfs.vfat -F 32 "$EFI_PARTITION"
+    run_step "Creating and formatting EFI system partition..."
+    parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 
-    run_step "Creating and formatting root partition..." parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
-    run_step "Formatting root partition (XFS)..." mkfs.xfs -f "$ROOT_PARTITION"
+    run_step "Marking EFI partition as ESP..."
+    parted -s "$DRIVE" set 1 esp on
 
-    run_step "Mounting root partition to /mnt/gentoo..." mount "$ROOT_PARTITION" /mnt/gentoo
+    run_step "Formatting EFI partition (FAT32)..."
+    mkfs.vfat -F 32 "$EFI_PARTITION"
 
-    run_step "Mounting EFI system partition..." mkdir -p /mnt/gentoo/boot/efi
-    run_step "Mounting EFI partition to /mnt/gentoo/boot/efi..." mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
+    run_step "Creating and formatting root partition..."
+    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+
+    run_step "Formatting root partition (XFS)..."
+    mkfs.xfs -f "$ROOT_PARTITION"
+
+    run_step "Creating /mnt/gentoo..."
+    mkdir -p /mnt/gentoo
+
+    run_step "Mounting root partition to /mnt/gentoo..."
+    mount "$ROOT_PARTITION" /mnt/gentoo
+
+    run_step "Mounting EFI system partition..."
+    mkdir -p /mnt/gentoo/boot/efi
+    mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
 
     pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
 else
     pause_msg "BIOS detected.\n\nAbout to create an MBR partition table on:\n\n$DRIVE"
 
-    run_step "Creating MBR partition table on $DRIVE..." parted -s "$DRIVE" mklabel msdos
+    run_step "Creating MBR partition table on $DRIVE..."
+    parted -s "$DRIVE" mklabel msdos
 
     BOOT_PARTITION="${DRIVE}1"
     ROOT_PARTITION="${DRIVE}2"
 
     pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
-    run_step "Creating and formatting boot partition..." parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
-    run_step "Setting boot flag..." parted -s "$DRIVE" set 1 boot on
-    run_step "Formatting boot partition (XFS)..." mkfs.xfs -f "$BOOT_PARTITION"
+    run_step "Creating and formatting boot partition..."
+    parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
 
-    run_step "Creating and formatting root partition..." parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
-    run_step "Formatting root partition (XFS)..." mkfs.xfs -f "$ROOT_PARTITION"
+    run_step "Setting boot flag..."
+    parted -s "$DRIVE" set 1 boot on
 
-    run_step "Mounting root partition to /mnt/gentoo..." mount "$ROOT_PARTITION" /mnt/gentoo
+    run_step "Formatting boot partition (XFS)..."
+    mkfs.xfs -f "$BOOT_PARTITION"
 
-    run_step "Creating /mnt/gentoo/boot..." mkdir -p /mnt/gentoo/boot
-    run_step "Mounting boot partition to /mnt/gentoo/boot..." mount "$BOOT_PARTITION" /mnt/gentoo/boot
+    run_step "Creating and formatting root partition..."
+    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+
+    run_step "Formatting root partition (XFS)..."
+    mkfs.xfs -f "$ROOT_PARTITION"
+
+    run_step "Creating /mnt/gentoo..."
+    mkdir -p /mnt/gentoo
+
+    run_step "Mounting root partition to /mnt/gentoo..."
+    mount "$ROOT_PARTITION" /mnt/gentoo
+
+    run_step "Creating /mnt/gentoo/boot..."
+    mkdir -p /mnt/gentoo/boot
+
+    run_step "Mounting boot partition to /mnt/gentoo/boot..."
+    mount "$BOOT_PARTITION" /mnt/gentoo/boot
 
     pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
