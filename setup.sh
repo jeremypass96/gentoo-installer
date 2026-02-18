@@ -36,7 +36,7 @@ mapfile -t DISKS < <(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}')
 
 if [ "${#DISKS[@]}" -eq 0 ]; then
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "ERROR: No disks detected. Aborting." 7 50
+        dialog --clear --msgbox "ERROR: No disks detected. Aborting." 6 40
     else
         echo "ERROR: No disks detected. Aborting."
     fi
@@ -44,7 +44,7 @@ if [ "${#DISKS[@]}" -eq 0 ]; then
 elif [ "${#DISKS[@]}" -eq 1 ]; then
     DRIVE="${DISKS[0]}"
     if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 8 50
+        dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 7 33
     else
         echo ">>> Automatically selected drive: $DRIVE"
     fi
@@ -61,8 +61,8 @@ else
                    --backtitle "Gentoo Install: Disk Selection" \
                    --title "Select target disk" \
                    --no-cancel \
-                   --menu "Choose the disk to partition and install Gentoo on (THIS WILL BE WIPED!):" \
-                   18 72 8 \
+                   --menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
+                   20 79 8 \
                    "${MENU_ITEMS[@]}" \
                    3>&1 1>&2 2>&3
         )
@@ -75,8 +75,6 @@ else
         read -r -p "Enter disk to use (example: /dev/sda or /dev/nvme0n1): " DRIVE
     fi
 fi
-
-pause_msg "TARGET DISK SELECTED:\n\n$DRIVE\n\nThis disk will be ERASED and repartitioned.\n\nIf this is NOT correct, please stop now."
 
 if [[ -d /sys/firmware/efi ]]; then
     pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
