@@ -213,27 +213,6 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
             swapon /mnt/gentoo/swapfile
 fi
 
-# Generate fstab.
-FSTAB_CONTENT=$(genfstab /mnt/gentoo)
-
-if command -v dialog >/dev/null 2>&1; then
-    dialog --clear \
-           --backtitle "Gentoo Install: fstab Generation" \
-           --title "Preview of /etc/fstab:" \
-           --msgbox "$FSTAB_CONTENT" 14 75
-else
-    echo ">>> Preview of /etc/fstab:"
-    echo "$FSTAB_CONTENT"
-fi
-
-genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
-
-if command -v dialog >/dev/null 2>&1; then
-    dialog --clear --msgbox "fstab successfully generated." 6 40
-else
-    echo ">>> fstab successfully generated."
-fi
-
 clear
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
@@ -271,6 +250,27 @@ gpg --output "${STAGE3}.sha256.verified" --verify  "${STAGE3}.sha256"
 echo ">>> Extracting stage3 tarball..."
 UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
 xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
+
+# Generate fstab.
+FSTAB_CONTENT=$(genfstab /mnt/gentoo)
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear \
+           --backtitle "Gentoo Install: fstab Generation" \
+           --title "Preview of /etc/fstab:" \
+           --msgbox "$FSTAB_CONTENT" 14 75
+else
+    echo ">>> Preview of /etc/fstab:"
+    echo "$FSTAB_CONTENT"
+fi
+
+genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
+
+if command -v dialog >/dev/null 2>&1; then
+    dialog --clear --msgbox "fstab successfully generated." 6 40
+else
+    echo ">>> fstab successfully generated."
+fi
 
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
