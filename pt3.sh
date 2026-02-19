@@ -639,7 +639,8 @@ mkdir -pv /etc/bat/themes
 chmod 755 /etc/bat/themes
 wget -P /etc/bat/themes https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
 chmod go+r /etc/bat/themes/Catppuccin\ Mocha.tmTheme
-bat cache --build
+echo 'export BAT_CONFIG_DIR="/etc/bat"' >> /etc/environment
+bat cache --source=/etc/bat --build
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
 clear
