@@ -52,7 +52,7 @@ bash "$SCRIPT_DIR"/modules/profile-selector.sh
 bash "$SCRIPT_DIR"/modules/cpu-optimizations.sh
 
 # Configure ACCEPT_LICENSE variable.
-cat << EOF >> /etc/portage/make.conf
+cat <<EOF >> /etc/portage/make.conf
 # Overrides the profile's ACCEPT_LICENSE default value
 ACCEPT_LICENSE="-* @BINARY-REDISTRIBUTABLE @EULA"
 EOF
