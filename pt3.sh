@@ -153,6 +153,8 @@ dev-libs/libdbusmenu gtk3
 x11-libs/gdk-pixbuf jpeg tiff
 EOF
     chmod go+r /etc/portage/package.use/xfce
+    echo "media-libs/mesa xa" > /etc/portage/package.use/mesa
+    chmod go+r /etc/portage/package.use/mesa
 fi
 
 # MATE USE flags.
@@ -325,8 +327,6 @@ fi
 
 if [ "$INSTALL_XFCE" = true ]; then
     echo ">>> Installing Xfce..."
-    echo "media-libs/mesa xa" > /etc/portage/package.use/mesa
-    chmod go+r /etc/portage/package.use/mesa
     emerge -qv1 xfce-extra/xfce4-notifyd
     emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol
     env-update && . /etc/profile
