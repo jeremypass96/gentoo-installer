@@ -103,15 +103,11 @@ if [[ -d /sys/firmware/efi ]]; then
     run_step "Formatting root partition (XFS)..."
     mkfs.xfs -f "$ROOT_PARTITION"
 
-    run_step "Creating /mnt/gentoo..."
-    mkdir -p /mnt/gentoo
-
     run_step "Mounting root partition to /mnt/gentoo..."
-    mount "$ROOT_PARTITION" /mnt/gentoo
+    mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
     run_step "Mounting EFI system partition..."
-    mkdir -p /mnt/gentoo/boot/efi
-    mount "$EFI_PARTITION" /mnt/gentoo/boot/efi
+    mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot/efi
 
     pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
 else
@@ -140,17 +136,11 @@ else
     run_step "Formatting root partition (XFS)..."
     mkfs.xfs -f "$ROOT_PARTITION"
 
-    run_step "Creating /mnt/gentoo..."
-    mkdir -p /mnt/gentoo
-
     run_step "Mounting root partition to /mnt/gentoo..."
-    mount "$ROOT_PARTITION" /mnt/gentoo
-
-    run_step "Creating /mnt/gentoo/boot..."
-    mkdir -p /mnt/gentoo/boot
+    mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
     run_step "Mounting boot partition to /mnt/gentoo/boot..."
-    mount "$BOOT_PARTITION" /mnt/gentoo/boot
+    mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
 
     pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
@@ -252,7 +242,7 @@ UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
 xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 
 # Generate fstab.
-FSTAB_CONTENT=$(genfstab /mnt/gentoo)
+FSTAB_CONTENT=$(genfstab -U /mnt/gentoo)
 
 if command -v dialog >/dev/null 2>&1; then
     dialog --clear \
@@ -264,7 +254,7 @@ else
     echo "$FSTAB_CONTENT"
 fi
 
-genfstab /mnt/gentoo > /mnt/gentoo/etc/fstab
+genfstab -U /mnt/gentoo | tee > /mnt/gentoo/etc/fstab
 
 if command -v dialog >/dev/null 2>&1; then
     dialog --clear --msgbox "fstab successfully generated." 6 40

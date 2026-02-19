@@ -151,6 +151,8 @@ xfce-base/xfce4-meta archive editor image search
 app-text/poppler -qt5
 dev-libs/libdbusmenu gtk3
 x11-libs/gdk-pixbuf jpeg tiff
+gnome-base/gvfs mtp
+xfce-extra/xfce4-whiskermenu-plugin accountsservice
 EOF
     chmod go+r /etc/portage/package.use/xfce
 fi
@@ -263,9 +265,6 @@ fi
     echo ">>> Bluetooth support disabled."
 fi
 
-# Enable only X86 LLVM target. Saves compile time.
-echo 'LLVM_TARGETS="X86"' >> /etc/portage/make.conf
-
 # ---------------------------------
 # Update system with new USE flags.
 # ---------------------------------
@@ -329,7 +328,7 @@ fi
 if [ "$INSTALL_XFCE" = true ]; then
     echo ">>> Installing Xfce..."
     emerge -qv1 xfce-extra/xfce4-notifyd
-    emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol
+    emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol x11-misc/mugshot xfce-extra/xfce4-whiskermenu-plugin
     env-update && . /etc/profile
     cat << EOF > /etc/pam.d/xfce4-screensaver
 auth include system-auth
@@ -628,6 +627,21 @@ clear
 echo ">>> Installing sudo..."
 emerge -qv app-admin/sudo
 
+# Install bat (cat clone with color, line numbers, etc.).
+clear
+echo ">>> Installing bat..."
+mkdir -pv /etc/skel/.config/bat
+wcurl -o https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config /etc/skel/.config/bat/config
+emerge -qv sys-apps/bat
+mkdir -pv /home/"$name"/.config/bat && cp -v /etc/skel/.config/bat/config /home/"$name"/.config/bat/config
+chmod go+r /etc/skel/.config/bat/config
+chown -R "$name":"$name" /home/"$name"/.config/bat
+chmod go+r /home/"$name"/.config/bat/config
+mkdir -pv ~/.config/bat && cp -v /etc/skel/.config/bat/config ~/.config/bat/config
+mkdir -pv "$(bat --config-dir)/themes"
+wget -P "$(bat --config-dir)/themes" https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
+bat cache --build
+
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
 clear
 echo ">>> Installing Zsh with Gentoo's Zsh completions..."
@@ -678,9 +692,8 @@ cp -v /etc/skel/.zshrc ~/.zshrc
 # Install and configure fastfetch.
 clear
 echo ">>> Installing fastfetch..."
-mkdir -p /etc/skel/.config/fastfetch && cd /etc/skel/.config/fastfetch
-wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
-cd || exit
+mkdir -p /etc/skel/.config/fastfetch
+wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc -o /etc/skel/.config/fastfetch/config.jsonc
 emerge -qv app-misc/fastfetch
 mkdir -p /home/"$name"/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc /home/"$name"/.config/fastfetch
 chmod go+r /etc/skel/.config/fastfetch/config.jsonc
@@ -691,9 +704,8 @@ mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~
 # Install and configure LSD (LSDeluxe).
 clear
 echo ">>> Installing LSDeluxe..."
-mkdir -p /etc/skel/.config/lsd/ && cd /etc/skel/.config/lsd
-wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
-cd || exit
+mkdir -p /etc/skel/.config/lsd
+wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml -o /etc/skel/.config/lsd/config.yaml
 emerge -qv sys-apps/lsd
 mkdir -p /home/"$name"/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml /home/"$name"/.config/lsd
 chmod go+r /etc/skel/.config/lsd/config.yaml
