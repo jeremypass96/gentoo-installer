@@ -593,7 +593,6 @@ echo "media-fonts/nerd-fonts" > /etc/portage/package.accept_keywords/nerd-fonts
 chmod go+r /etc/portage/package.accept_keywords/nerd-fonts
 echo "media-fonts/nerd-fonts hermit" > /etc/portage/package.use/nerd-fonts
 chmod go+r /etc/portage/package.use/nerd-fonts
-emerge -qv --autounmask media-fonts/nerd-fonts
 echo "media-fonts/nerd-fonts Vic-Fieger-License" >> /etc/portage/package.license
 chmod go+r /etc/portage/package.license
 emerge -qv media-fonts/nerd-fonts
@@ -610,8 +609,8 @@ media-fonts/noto-emoji icons
 EOF
 chmod go+r /etc/portage/package.use/noto-font
 
-# Update changed USE flags.
-emerge --quiet --verbose --changed-use --deep --update @world
+# Update USE flags.
+emerge -qvuND --update @world
 
 # Clean up any orphaned/unneeded dependencies.
 emerge -ac
@@ -701,6 +700,13 @@ mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
 
 # Fix user's config permissions!
 chown -R "$name":"$name" /home/"$name"/.config
+
+# Change user's shell to Zsh. Better shell.
+echo ">>> Changing root/user's shell to Zsh..."
+echo ">>> Changing root's shell..."
+chsh -s /bin/zsh
+echo ">>> Changing user's shell..."
+chsh -s /bin/zsh "$name"
 
 # Remove leftover junk.
 rm /stage3-*.tar.*
