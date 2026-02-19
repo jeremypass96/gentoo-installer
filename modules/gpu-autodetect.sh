@@ -220,6 +220,8 @@ if [ "$GPU_VENDOR" = "vmware" ]; then
     emerge -qv app-emulation/open-vm-tools
     rc-service vmware-tools start
     rc-update add vmware-tools
+    echo "media-libs/mesa xa" > /etc/portage/package.use/mesa
+    chmod go+r /etc/portage/package.use/mesa
 fi
 
 if [ "$GPU_VENDOR" = "virtualbox" ]; then
@@ -230,6 +232,8 @@ if [ "$GPU_VENDOR" = "virtualbox" ]; then
     gpasswd -a "$name" vboxguest
     modprobe vboxdrv
     echo vboxdrv > /etc/modules-load.d/virtualbox.conf
+    echo "media-libs/mesa xa" > /etc/portage/package.use/mesa
+    chmod go+r /etc/portage/package.use/mesa
 fi
 
 # ---------------------------------------
