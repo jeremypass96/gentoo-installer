@@ -630,16 +630,15 @@ emerge -qv app-admin/sudo
 # Install bat (cat clone with color, line numbers, etc.).
 clear
 echo ">>> Installing bat..."
-mkdir -pv /etc/skel/.config/bat
-wcurl -o /etc/skel/.config/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
+mkdir -pv /etc/bat
 emerge -qv sys-apps/bat
-mkdir -pv /home/"$name"/.config/bat && cp -v /etc/skel/.config/bat/config /home/"$name"/.config/bat/config
-chmod go+r /etc/skel/.config/bat/config
-chown -R "$name":"$name" /home/"$name"/.config/bat
-chmod go+r /home/"$name"/.config/bat/config
-mkdir -pv ~/.config/bat && cp -v /etc/skel/.config/bat/config ~/.config/bat/config
-mkdir -pv "$(bat --config-dir)/themes"
-wget -P "$(bat --config-dir)/themes" https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
+chmod 755 /etc/bat
+wcurl -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
+chmod go+r /etc/bat/config
+mkdir -pv /etc/bat/themes
+chmod 755 /etc/bat/themes
+wget -P /etc/bat/themes https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
+chmod go+r /etc/bat/themes/Catppuccin\ Mocha.tmTheme
 bat cache --build
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
