@@ -637,7 +637,7 @@ emerge -qv sys-apps/bat
 chmod 755 /etc/bat
 wcurl -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
 chmod go+r /etc/bat/config
-echo 'export BAT_CONFIG_PATH="/etc/bat"' >> /etc/environment && source /etc/environment
+echo 'BAT_CONFIG_PATH="/etc/bat"' >> /etc/environment && source /etc/environment
 mkdir -p "$(bat --config-dir)/themes"
 wget -P "$(bat --config-dir)/themes" https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
 chmod 755 "$(bat --config-dir)/themes"
