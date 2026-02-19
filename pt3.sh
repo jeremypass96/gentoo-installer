@@ -151,7 +151,6 @@ xfce-base/xfce4-meta archive editor image search
 app-text/poppler -qt5
 dev-libs/libdbusmenu gtk3
 x11-libs/gdk-pixbuf jpeg tiff
-media-libs/mesa xa
 EOF
     chmod go+r /etc/portage/package.use/xfce
 fi
