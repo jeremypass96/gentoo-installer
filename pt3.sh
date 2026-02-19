@@ -263,6 +263,9 @@ fi
     echo ">>> Bluetooth support disabled."
 fi
 
+# Enable only X86 LLVM target. Saves compile time.
+echo 'LLVM_TARGETS="X86"' >> /etc/portage/make.conf
+
 # ---------------------------------
 # Update system with new USE flags.
 # ---------------------------------
