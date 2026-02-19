@@ -610,7 +610,7 @@ EOF
 chmod go+r /etc/portage/package.use/noto-font
 
 # Update USE flags.
-emerge -qvuND --update @world
+emerge -qvuND @world
 
 # Clean up any orphaned/unneeded dependencies.
 emerge -ac
