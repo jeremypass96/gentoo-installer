@@ -631,7 +631,7 @@ emerge -qv app-admin/sudo
 clear
 echo ">>> Installing bat..."
 mkdir -pv /etc/skel/.config/bat
-wcurl -o https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config /etc/skel/.config/bat/config
+wcurl -o /etc/skel/.config/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
 emerge -qv sys-apps/bat
 mkdir -pv /home/"$name"/.config/bat && cp -v /etc/skel/.config/bat/config /home/"$name"/.config/bat/config
 chmod go+r /etc/skel/.config/bat/config
