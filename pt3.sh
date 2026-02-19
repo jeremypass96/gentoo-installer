@@ -585,6 +585,8 @@ if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL
 fi
 
 # Install Nerd fonts.
+clear
+echo ">>> Installing Nerd fonts..."
 eselect repository enable xarblu-overlay
 emerge --sync xarblu-overlay
 echo "media-fonts/nerd-fonts" > /etc/portage/package.accept_keywords/nerd-fonts
@@ -597,6 +599,8 @@ chmod go+r /etc/portage/package.license
 emerge -qv media-fonts/nerd-fonts
 
 # Install 'Source Sans Pro' font.
+clear
+echo ">>> Installing Source Sans Pro font..."
 emerge -qv media-fonts/source-sans
 
 # Clean up Noto fonts.
@@ -618,9 +622,12 @@ echo ">>> To modify NetworkManager connections as a normal user, adding your use
 gpasswd -a "$name" plugdev
 
 # Install sudo.
+clear
+echo ">>> Installing sudo..."
 emerge -qv app-admin/sudo
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
+clear
 echo ">>> Installing Zsh with Gentoo's Zsh completions..."
 emerge -qv app-shells/zsh app-shells/gentoo-zsh-completions
 eselect repository enable mv
@@ -667,6 +674,8 @@ cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc ~/.zshrc
 
 # Install and configure fastfetch.
+clear
+echo ">>> Installing fastfetch..."
 mkdir -p /etc/skel/.config/fastfetch && cd /etc/skel/.config/fastfetch
 wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
 cd || exit
@@ -678,6 +687,8 @@ chmod go+r /home/"$name"/.config/fastfetch/config.jsonc
 mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~/.config/fastfetch/
 
 # Install and configure LSD (LSDeluxe).
+clear
+echo ">>> Installing LSDeluxe..."
 mkdir -p /etc/skel/.config/lsd/ && cd /etc/skel/.config/lsd
 wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
 cd || exit
