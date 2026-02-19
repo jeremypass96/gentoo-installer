@@ -630,6 +630,8 @@ emerge -qv app-admin/sudo
 # Install bat (cat clone with color, line numbers, etc.).
 clear
 echo ">>> Installing bat..."
+echo "sys-apps/bat ~amd64" > /etc/portage/packge.accept_keywords/bat
+chmod go+r /etc/portage/packge.accept_keywords/bat
 mkdir -pv /etc/bat
 emerge -qv sys-apps/bat
 chmod 755 /etc/bat
@@ -639,7 +641,7 @@ mkdir -pv /etc/bat/themes
 chmod 755 /etc/bat/themes
 wget -P /etc/bat/themes https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
 chmod go+r /etc/bat/themes/Catppuccin\ Mocha.tmTheme
-echo 'export BAT_CONFIG_DIR="/etc/bat"' >> /etc/environment
+echo 'export BAT_CONFIG_DIR="/etc/bat"' >> /etc/environment && source /etc/environment
 bat cache --source=/etc/bat --build
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
