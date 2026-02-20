@@ -59,10 +59,6 @@ Handles:
 * Timezone configuration.
 * Locale configuration.
 * User creation.
-
-### pt3.sh (**VERY** big script!)
-
-Handles:
 * Hostname configuration.
 * USE flag configuration.
 * Desktop environment installer (_dialog-based_).
