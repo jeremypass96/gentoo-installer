@@ -153,6 +153,7 @@ dev-libs/libdbusmenu gtk3
 x11-libs/gdk-pixbuf jpeg tiff
 gnome-base/gvfs mtp
 xfce-extra/xfce4-whiskermenu-plugin accountsservice
+x11-themes/arc-theme xfce
 EOF
     chmod go+r /etc/portage/package.use/xfce
 fi
@@ -162,6 +163,7 @@ if [ "$INSTALL_MATE" = true ]; then
     cat << EOF > /etc/portage/package.use/mate
 media-libs/libmatemixer pulseaudio
 gnome-base/gvfs mtp
+x11-themes/arc-theme mate
 EOF
     chmod go+r /etc/portage/package.use/mate
 fi
