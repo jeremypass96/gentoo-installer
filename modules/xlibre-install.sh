@@ -28,9 +28,9 @@ emaint sync -r xlibre
 # Install Xlibre.
 echo "*/*::xlibre ~amd64" > /etc/portage/package.accept_keywords/xlibre
 chmod go+r /etc/portage/package.accept_keywords/xlibre
-emerge -f x11-base/xlibre-server
+emerge -qvf x11-base/xlibre-server
 emerge -C x11-base/xorg-server
 emerge -C x11-base/xorg-drivers
 emerge -av1 x11-base/xlibre-server
-emerge @x11-module-rebuild
-emerge @preserved-rebuild
+emerge -qv @x11-module-rebuild
+emerge -qv @preserved-rebuild
