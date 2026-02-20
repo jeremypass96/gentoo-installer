@@ -140,6 +140,7 @@ kde-apps/ark zip
 kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
 kde-plasma/plasma-login-sessions -wayland
 dev-qt/qtpositioning geoclue
+x11-misc/sddm -X
 EOF
     chmod go+r /etc/portage/package.use/kde
 fi
@@ -170,7 +171,7 @@ fi
 
 # LightDM USE flags.
 if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
-    echo "x11-misc/lightdm -gnome" > /etc/portage/package.use/lightdm
+    echo "x11-misc/lightdm -X -gnome" > /etc/portage/package.use/lightdm
     chmod go+r /etc/portage/package.use/lightdm
 fi
 
@@ -376,6 +377,7 @@ fi
 
 if [ "$INSTALL_PLASMA" = true ] && [ "$INSTALL_XFCE" = true ] && [ "$INSTALL_MATE" = true ]; then
     emerge -qv x11-themes/papirus-icon-theme
+    bash "$SCRIPT_DIR"/modules/xlibre-install.sh
 fi
 
 if [ "$INSTALL_PLASMA" = false ] && [ "$INSTALL_XFCE" = false ] && [ "$INSTALL_MATE" = false ]; then
