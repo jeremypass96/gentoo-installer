@@ -25,6 +25,9 @@ require_chroot
 eselect repository enable xlibre
 emaint sync -r xlibre
 
+# Adjust XLibre repository priority.
+echo "priority = 100" >> /etc/portage/repos.conf/eselect-repo.conf
+
 # Install Xlibre.
 echo "*/*::xlibre ~amd64" > /etc/portage/package.accept_keywords/xlibre
 chmod go+r /etc/portage/package.accept_keywords/xlibre
