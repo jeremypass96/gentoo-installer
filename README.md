@@ -38,7 +38,6 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
 ### setup.sh
 Runs outside the chroot environment of the Gentoo LiveCD/DVD.
 
-Handles:
 * Automatic disk/partition setup.
 * Filesystem creation.
 * Partition mounting.
@@ -47,10 +46,9 @@ Handles:
 * Fstab generation.
 * Chroot preparation.
 
-### pt2.sh
+### pt2.sh (**VERY** big script!)
 Runs inside the Gentoo environment.
 
-Handles:
 * Configures portage/updates the Gentoo repository.
 * Mirror selection w/ Gentoo's "mirrorselect" tool.
 * Profile selection (_dialog-based_).
