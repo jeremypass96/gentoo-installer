@@ -46,7 +46,7 @@ Runs outside the chroot environment of the Gentoo LiveCD/DVD.
 * Fstab generation.
 * Chroot preparation.
 
-### pt2.sh (**VERY** big script!)
+### pt2.sh (This is a **VERY** big script!)
 Runs inside the Gentoo environment.
 
 * Configures portage/updates the Gentoo repository.
