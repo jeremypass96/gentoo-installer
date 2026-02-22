@@ -26,12 +26,11 @@ eselect repository enable xlibre
 emaint sync -r xlibre
 
 # Adjust XLibre repository priority.
-echo "priority = 100" >> /etc/portage/repos.conf/eselect-repo.conf
+echo "priority = 100" >>/etc/portage/repos.conf/eselect-repo.conf
 
 # Install Xlibre.
-echo "*/*::xlibre ~amd64" > /etc/portage/package.accept_keywords/xlibre
+echo "*/*::xlibre ~amd64" >/etc/portage/package.accept_keywords/xlibre
 chmod go+r /etc/portage/package.accept_keywords/xlibre
-echo "x11-base/xlibre-server -xvfb" > /etc/portage/package.use/xlibre
 emerge -qvf x11-base/xlibre-server
 emerge -C x11-base/xorg-server
 emerge -C x11-base/xorg-drivers
