@@ -37,172 +37,172 @@ run_step "Detecting available disks..." true
 mapfile -t DISKS < <(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}')
 
 if [ "${#DISKS[@]}" -eq 0 ]; then
-    if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "ERROR: No disks detected. Aborting." 6 40
-    else
-        echo "ERROR: No disks detected. Aborting."
-    fi
-    exit 1
+	if command -v dialog >/dev/null 2>&1; then
+		dialog --clear --msgbox "ERROR: No disks detected. Aborting." 6 40
+	else
+		echo "ERROR: No disks detected. Aborting."
+	fi
+	exit 1
 elif [ "${#DISKS[@]}" -eq 1 ]; then
-    DRIVE="${DISKS[0]}"
-    if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 7 33
-    else
-        echo ">>> Automatically selected drive: $DRIVE"
-    fi
+	DRIVE="${DISKS[0]}"
+	if command -v dialog >/dev/null 2>&1; then
+		dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 7 33
+	else
+		echo ">>> Automatically selected drive: $DRIVE"
+	fi
 else
-    if command -v dialog >/dev/null 2>&1; then
-        MENU_ITEMS=()
-        for dev in "${DISKS[@]}"; do
-            info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
-            MENU_ITEMS+=("$dev" "$info")
-        done
+	if command -v dialog >/dev/null 2>&1; then
+		MENU_ITEMS=()
+		for dev in "${DISKS[@]}"; do
+			info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
+			MENU_ITEMS+=("$dev" "$info")
+		done
 
-        CHOSEN_DISK=$(
-            dialog --clear \
-                   --backtitle "Gentoo Install: Disk Selection" \
-                   --title "Select target disk" \
-                   --no-cancel \
-                   --menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
-                   20 79 8 \
-                   "${MENU_ITEMS[@]}" \
-                   3>&1 1>&2 2>&3
-        )
-        clear
+		CHOSEN_DISK=$(
+			dialog --clear \
+				--backtitle "Gentoo Install: Disk Selection" \
+				--title "Select target disk" \
+				--no-cancel \
+				--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
+				20 79 8 \
+				"${MENU_ITEMS[@]}" \
+				3>&1 1>&2 2>&3
+		)
+		clear
 
-        DRIVE="$CHOSEN_DISK"
-    else
-        echo "Multiple disks detected:"
-        lsblk -dpno NAME,SIZE,MODEL | grep -E "sd|hd|vd|nvme|mmc"
-        read -r -p "Enter disk to use (example: /dev/sda or /dev/nvme0n1): " DRIVE
-    fi
+		DRIVE="$CHOSEN_DISK"
+	else
+		echo "Multiple disks detected:"
+		lsblk -dpno NAME,SIZE,MODEL | grep -E "sd|hd|vd|nvme|mmc"
+		read -r -p "Enter disk to use (example: /dev/sda or /dev/nvme0n1): " DRIVE
+	fi
 fi
 
 if [[ -d /sys/firmware/efi ]]; then
-    pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
+	pause_msg "UEFI detected.\n\nAbout to create a GPT partition table on:\n\n$DRIVE"
 
-    run_step "Creating GPT partition table on $DRIVE..."
-    parted -s "$DRIVE" mklabel gpt
+	run_step "Creating GPT partition table on $DRIVE..."
+	parted -s "$DRIVE" mklabel gpt
 
-    part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
-    EFI_PARTITION="$(part "$DRIVE" 1)"
-    ROOT_PARTITION="$(part "$DRIVE" 2)"
+	part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
+	EFI_PARTITION="$(part "$DRIVE" 1)"
+	ROOT_PARTITION="$(part "$DRIVE" 2)"
 
-    pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
+	pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
 
-    run_step "Creating and formatting EFI system partition..."
-    parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
+	run_step "Creating and formatting EFI system partition..."
+	parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 
-    run_step "Marking EFI partition as ESP..."
-    parted -s "$DRIVE" set 1 esp on
+	run_step "Marking EFI partition as ESP..."
+	parted -s "$DRIVE" set 1 esp on
 
-    run_step "Formatting EFI partition (FAT32)..."
-    mkfs.vfat -F 32 "$EFI_PARTITION"
+	run_step "Formatting EFI partition (FAT32)..."
+	mkfs.vfat -F 32 "$EFI_PARTITION"
 
-    run_step "Creating and formatting root partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+	run_step "Creating and formatting root partition..."
+	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
-    run_step "Formatting root partition (XFS)..."
-    mkfs.xfs -f "$ROOT_PARTITION"
+	run_step "Formatting root partition (XFS)..."
+	mkfs.xfs -f "$ROOT_PARTITION"
 
-    run_step "Mounting root partition to /mnt/gentoo..."
-    mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
+	run_step "Mounting root partition to /mnt/gentoo..."
+	mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
-    run_step "Mounting EFI system partition..."
-    mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot/efi
+	run_step "Mounting EFI system partition..."
+	mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot/efi
 
-    pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
+	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
 else
-    pause_msg "BIOS detected.\n\nAbout to create an MBR partition table on:\n\n$DRIVE"
+	pause_msg "BIOS detected.\n\nAbout to create an MBR partition table on:\n\n$DRIVE"
 
-    run_step "Creating MBR partition table on $DRIVE..."
-    parted -s "$DRIVE" mklabel msdos
+	run_step "Creating MBR partition table on $DRIVE..."
+	parted -s "$DRIVE" mklabel msdos
 
-    BOOT_PARTITION="${DRIVE}1"
-    ROOT_PARTITION="${DRIVE}2"
+	BOOT_PARTITION="${DRIVE}1"
+	ROOT_PARTITION="${DRIVE}2"
 
-    pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
+	pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
-    run_step "Creating and formatting boot partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
+	run_step "Creating and formatting boot partition..."
+	parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
 
-    run_step "Setting boot flag..."
-    parted -s "$DRIVE" set 1 boot on
+	run_step "Setting boot flag..."
+	parted -s "$DRIVE" set 1 boot on
 
-    run_step "Formatting boot partition (XFS)..."
-    mkfs.xfs -f "$BOOT_PARTITION"
+	run_step "Formatting boot partition (XFS)..."
+	mkfs.xfs -f "$BOOT_PARTITION"
 
-    run_step "Creating and formatting root partition..."
-    parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+	run_step "Creating and formatting root partition..."
+	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
-    run_step "Formatting root partition (XFS)..."
-    mkfs.xfs -f "$ROOT_PARTITION"
+	run_step "Formatting root partition (XFS)..."
+	mkfs.xfs -f "$ROOT_PARTITION"
 
-    run_step "Mounting root partition to /mnt/gentoo..."
-    mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
+	run_step "Mounting root partition to /mnt/gentoo..."
+	mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
-    run_step "Mounting boot partition to /mnt/gentoo/boot..."
-    mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
+	run_step "Mounting boot partition to /mnt/gentoo/boot..."
+	mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
 
-    pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
+	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
 
 # Make swapfile and activate it.
 SWAP_SIZE_GB=8
 
 if command -v dialog >/dev/null 2>&1; then
-    CHOSEN_SWAP=$(
-        dialog --clear \
-               --backtitle "Gentoo Install: Swapfile" \
-               --title "Swapfile size" \
-               --menu "Select swapfile size (GB):" 15 35 5 \
-               2 "2 GB" \
-               4 "4 GB" \
-               6 "6 GB" \
-               8 "8 GB (default)" \
-               10 "10 GB" \
-               12 "12 GB" \
-               14 "14 GB" \
-               16 "16 GB" \
-               3>&1 1>&2 2>&3
-    )
-    clear
+	CHOSEN_SWAP=$(
+		dialog --clear \
+			--backtitle "Gentoo Install: Swapfile" \
+			--title "Swapfile size" \
+			--menu "Select swapfile size (GB):" 15 35 5 \
+			2 "2 GB" \
+			4 "4 GB" \
+			6 "6 GB" \
+			8 "8 GB (default)" \
+			10 "10 GB" \
+			12 "12 GB" \
+			14 "14 GB" \
+			16 "16 GB" \
+			3>&1 1>&2 2>&3
+	)
+	clear
 
-    # If user pressed ESC, keep default.
-    if [ -n "$CHOSEN_SWAP" ]; then
-        SWAP_SIZE_GB="$CHOSEN_SWAP"
-    fi
+	# If user pressed ESC, keep default.
+	if [ -n "$CHOSEN_SWAP" ]; then
+		SWAP_SIZE_GB="$CHOSEN_SWAP"
+	fi
 else
-    read -r -p "Swapfile size in GB [8]: " INPUT_SWAP
-    case "$INPUT_SWAP" in
-        "" )  ;;              # keep default
-        * )  SWAP_SIZE_GB="$INPUT_SWAP" ;;
-    esac
+	read -r -p "Swapfile size in GB [8]: " INPUT_SWAP
+	case "$INPUT_SWAP" in
+	"") ;; # keep default
+	*) SWAP_SIZE_GB="$INPUT_SWAP" ;;
+	esac
 fi
 
 if [ "$SWAP_SIZE_GB" -gt 0 ]; then
-        TOTAL_BYTES=$((SWAP_SIZE_GB * 1024 * 1024 * 1024))
-        COUNT_MB=$((SWAP_SIZE_GB * 1024))
+	TOTAL_BYTES=$((SWAP_SIZE_GB * 1024 * 1024 * 1024))
+	COUNT_MB=$((SWAP_SIZE_GB * 1024))
 
-            (
-                dd if=/dev/zero of=/mnt/gentoo/swapfile bs=1M count="$COUNT_MB" status=none &
-                DD_PID=$!
+	(
+		dd if=/dev/zero of=/mnt/gentoo/swapfile bs=1M count="$COUNT_MB" status=none &
+		DD_PID=$!
 
-                while kill -0 "$DD_PID" 2>/dev/null; do
-                    BYTES_WRITTEN=$(stat -c %s /mnt/gentoo/swapfile 2>/dev/null || echo 0)
-                    PERCENT=$(( BYTES_WRITTEN * 100 / TOTAL_BYTES ))
-                    echo "$PERCENT"
-                    sleep 0.05
-                done
+		while kill -0 "$DD_PID" 2>/dev/null; do
+			BYTES_WRITTEN=$(stat -c %s /mnt/gentoo/swapfile 2>/dev/null || echo 0)
+			PERCENT=$((BYTES_WRITTEN * 100 / TOTAL_BYTES))
+			echo "$PERCENT"
+			sleep 0.05
+		done
 
-                wait "$DD_PID"
-                echo 100
-            ) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
-            dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
+		wait "$DD_PID"
+		echo 100
+	) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
+	dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
 
-            chmod 600 /mnt/gentoo/swapfile
-            mkswap /mnt/gentoo/swapfile
-            swapon /mnt/gentoo/swapfile
+	chmod 600 /mnt/gentoo/swapfile
+	mkswap /mnt/gentoo/swapfile
+	swapon /mnt/gentoo/swapfile
 fi
 
 clear
@@ -210,7 +210,6 @@ clear
 # Copy scripts to /mnt/gentoo before chroot'ing.
 mkdir -p /mnt/gentoo/gentoo-installer
 cp -rv "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
-cp -rv "$SCRIPT_DIR"/pt3.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
 cp -v "$SCRIPT_DIR"/modules/*.sh /mnt/gentoo/gentoo-installer/modules
 
@@ -237,7 +236,7 @@ sha256sum --check "${STAGE3}.sha256"
 gpg --import /usr/share/openpgp-keys/gentoo-release.asc
 gpg --verify "${STAGE3}.asc"
 gpg --output "${STAGE3}.DIGESTS.verified" --verify "${STAGE3}.DIGESTS"
-gpg --output "${STAGE3}.sha256.verified" --verify  "${STAGE3}.sha256"
+gpg --output "${STAGE3}.sha256.verified" --verify "${STAGE3}.sha256"
 
 echo ">>> Extracting stage3 tarball..."
 UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
@@ -247,21 +246,21 @@ xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include=
 FSTAB_CONTENT=$(genfstab -U /mnt/gentoo)
 
 if command -v dialog >/dev/null 2>&1; then
-    dialog --clear \
-           --backtitle "Gentoo Install: fstab Generation" \
-           --title "Preview of /etc/fstab:" \
-           --msgbox "$FSTAB_CONTENT" 14 75
+	dialog --clear \
+		--backtitle "Gentoo Install: fstab Generation" \
+		--title "Preview of /etc/fstab:" \
+		--msgbox "$FSTAB_CONTENT" 14 75
 else
-    echo ">>> Preview of /etc/fstab:"
-    echo "$FSTAB_CONTENT"
+	echo ">>> Preview of /etc/fstab:"
+	echo "$FSTAB_CONTENT"
 fi
 
-genfstab -U /mnt/gentoo | tee > /mnt/gentoo/etc/fstab
+genfstab -U /mnt/gentoo | tee >/mnt/gentoo/etc/fstab
 
 if command -v dialog >/dev/null 2>&1; then
-    dialog --clear --msgbox "fstab successfully generated." 6 40
+	dialog --clear --msgbox "fstab successfully generated." 6 40
 else
-    echo ">>> fstab successfully generated."
+	echo ">>> fstab successfully generated."
 fi
 
 # Copy DNS info to the new system.
