@@ -225,11 +225,11 @@ STAGE3=$(wget -qO- "${LATEST_TXT}" | awk '/^stage3-amd64-desktop-openrc-/ {print
 
 echo ">>> Latest stage3 is: ${STAGE3}"
 echo ">>> Downloading stage3 and checksums..."
-wget "${BASEURL}/${STAGE3}"
-wget "${BASEURL}/${STAGE3}.CONTENTS.gz"
-wget "${BASEURL}/${STAGE3}.sha256"
-wget "${BASEURL}/${STAGE3}.DIGESTS"
-wget "${BASEURL}/${STAGE3}.asc"
+wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}"
+wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.CONTENTS.gz"
+wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.sha256"
+wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.DIGESTS"
+wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.asc"
 
 echo ">>> Verifying stage3 checksums..."
 sha256sum --check "${STAGE3}.sha256"
