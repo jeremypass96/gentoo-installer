@@ -208,10 +208,11 @@ fi
 clear
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
+echo ">>> Copying pt2 script and module scripts into '/mnt/gentoo/gentoo-installer'..."
 mkdir -p /mnt/gentoo/gentoo-installer
-cp -rv "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
+cp -v "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
-cp -v "$SCRIPT_DIR"/modules/*.sh /mnt/gentoo/gentoo-installer/modules
+cp -rv "$SCRIPT_DIR"/modules/*.sh /mnt/gentoo/gentoo-installer/modules
 
 # Enter the /mnt/gentoo directory.
 cd /mnt/gentoo || exit
@@ -224,12 +225,18 @@ echo ">>> Detecting latest stage3 tarball..."
 STAGE3=$(wget -qO- "${LATEST_TXT}" | awk '/^stage3-amd64-desktop-openrc-/ {print $1; exit}')
 
 echo ">>> Latest stage3 is: ${STAGE3}"
-echo ">>> Downloading stage3 and checksums..."
+echo
+
+echo ">>> Downloading stage3 tarball..."
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}"
+echo
+
+echo ">>> Downloading checksums..."
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.CONTENTS.gz"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.sha256"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.DIGESTS"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.asc"
+echo
 
 echo ">>> Verifying stage3 checksums..."
 sha256sum --check "${STAGE3}.sha256"
