@@ -21,6 +21,8 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
+dialog --title "Gentoo Linux Setup Script" --msgbox "Welcome to the Gentoo installer setup script! \n\nThis script will automatically:\n- Find your disk and partition it (*if multiple disks are detected, you'll be asked to select the disk you want to partition*).\n- Create the necessary filesystem (XFS).\n- Mount the partitions.\n- Create a swapfile.\n- Download and install the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- And finally, chroot into the system." 16 85
+
 # Test if we have a network connection using Google's public IP address.
 ping -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)"
 
