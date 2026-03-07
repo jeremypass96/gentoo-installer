@@ -109,7 +109,7 @@ if [[ -d /sys/firmware/efi ]]; then
 	mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
 	run_step "Mounting EFI system partition..."
-	mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot/efi
+	mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot
 
 	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
 else
