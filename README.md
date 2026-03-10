@@ -19,6 +19,7 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
     * KDE Plasma
     * Xfce
     * MATE
+    * TDE (Trinity Desktop Environment)
 
 * Browser selection (_dialog-based_):
     * Brave
