@@ -170,7 +170,8 @@ else
 		plasma "KDE Plasma" \
 		xfce "Xfce" \
 		mate "MATE" \
-		none "No desktop (CLI-only, or you'll configure it later yourself.)" \
+		tde "Trinity Desktop Environment (fork of KDE 3)"
+	none "No desktop (CLI-only, or you'll configure it later yourself.)" \
 		2>"$TMP_DESKTOP"
 
 	if [ $? -ne 0 ]; then
@@ -185,11 +186,13 @@ fi
 INSTALL_PLASMA=false
 INSTALL_XFCE=false
 INSTALL_MATE=false
+INSTALL_TDE=false
 
 case "$DESKTOP_CHOICE" in
 plasma) INSTALL_PLASMA=true ;;
 xfce) INSTALL_XFCE=true ;;
 mate) INSTALL_MATE=true ;;
+tde) INSTALL_TDE=true ;;
 none | *) ;;
 esac
 
@@ -351,7 +354,7 @@ fi
 # ----------------------------------
 # Optional: disable mp3 system-wide.
 # ----------------------------------
-if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -mad -lame -mpg123\")?\n\nRecommended if you think MP3 is a trash format and prefer modern codecs." yes; then
+if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -mad -lame -mpg123\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs." yes; then
 	echo 'USE="-mp3 -mad -lame -mpg123"' >>/etc/portage/make.conf
 	echo ">>> Global MP3 support disabled via USE flags."
 else
@@ -456,6 +459,25 @@ if [ "$INSTALL_MATE" = true ]; then
 	env-update && source /etc/profile
 fi
 
+if [ "$INSTALL_TDE" = true ]; then
+	echo ">>> Installing TDE..."
+	eselect repository add trinity-official git https://mirror.git.trinitydesktop.org/gitea/TDE/tde-packaging-gentoo.git
+	emaint sync -r trinity-official
+	echo "*/*::trinity-official ~amd64" >/etc/portage/package.accept_keywords/trinity-official
+	chmod go+r /etc/portage/package.accept_keywords/trinity-official
+	emerge -qv trinity-base/tdebase-meta trinity-base/tdm
+	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="tdm"/' /etc/conf.d/display-manager
+	rc-update add display-manager default
+	rc-update add elogind boot && rc-service elogind start
+	if grep -q '^USE=' /etc/portage/make.conf; then
+		sed -i '/^USE=/ s/"$/ pulseaudio pipewire"/' /etc/portage/make.conf
+	else
+		echo 'USE="pulseaudio pipewire"' >>/etc/portage/make.conf
+	fi
+	emerge media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
+	emerge -qv media-sound/pavucontrol
+fi
+
 # --------------------------------------
 # Display Manager for Xfce/MATE: LightDM
 # --------------------------------------
@@ -479,7 +501,7 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 	echo ">>> LightDM configured for Xfce/MATE."
 fi
 
-if [ "$INSTALL_PLASMA" = true ] && [ "$INSTALL_XFCE" = true ] && [ "$INSTALL_MATE" = true ]; then
+if [ "$INSTALL_PLASMA" = true ] && [ "$INSTALL_XFCE" = true ] && [ "$INSTALL_MATE" = true ] && [ "$INSTALL_TDE" = true ]; then
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
 fi
