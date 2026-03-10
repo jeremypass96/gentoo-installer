@@ -36,8 +36,8 @@ echo ">>> GCC reports: -march=${GCC_MARCH}, -mtune=${GCC_MTUNE}"
 
 EXTRA_FLAGS=""
 if echo "$CPU_MODEL" | grep -qi 'FX(tm)-8350'; then
-    echo ">>> FX(tm)-8350 detected, adding -mfpmath=sse..."
-    EXTRA_FLAGS="-mfpmath=sse"
+	echo ">>> FX(tm)-8350 detected, adding -mfpmath=sse..."
+	EXTRA_FLAGS="-mfpmath=sse"
 fi
 
 NEW_COMMON_FLAGS="-O2 -pipe -march=native -mtune=${GCC_MTUNE} ${EXTRA_FLAGS}"
@@ -46,31 +46,31 @@ echo "    ${NEW_COMMON_FLAGS}"
 
 # Replace COMMON_FLAGS line.
 if grep -q '^COMMON_FLAGS=' /etc/portage/make.conf; then
-    sed -i "s|^COMMON_FLAGS=\".*\"|COMMON_FLAGS=\"${NEW_COMMON_FLAGS}\"|" /etc/portage/make.conf
+	sed -i "s|^COMMON_FLAGS=\".*\"|COMMON_FLAGS=\"${NEW_COMMON_FLAGS}\"|" /etc/portage/make.conf
 else
-    echo "COMMON_FLAGS=\"${NEW_COMMON_FLAGS}\"" >> /etc/portage/make.conf
+	echo "COMMON_FLAGS=\"${NEW_COMMON_FLAGS}\"" >>/etc/portage/make.conf
 fi
 
 # CPU feature flags (CPU_FLAGS_X86), used by ebuilds (NOT -march).
 echo ">>> Installing cpuid2cpuflags and generating CPU_FLAGS_X86..."
 emerge --oneshot app-portage/cpuid2cpuflags
-echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
+echo "*/* $(cpuid2cpuflags)" >/etc/portage/package.use/00cpu-flags
 
 # Set Rust optimizations.
 echo ">>> Setting RUSTFLAGS..."
 if grep -q '^RUSTFLAGS=' /etc/portage/make.conf; then
-    sed -i 's|^RUSTFLAGS=".*"|RUSTFLAGS="-C target-cpu=native"|' /etc/portage/make.conf
+	sed -i 's|^RUSTFLAGS=".*"|RUSTFLAGS="-C target-cpu=native"|' /etc/portage/make.conf
 else
-    echo 'RUSTFLAGS="-C target-cpu=native"' >> /etc/portage/make.conf
+	echo 'RUSTFLAGS="-C target-cpu=native"' >>/etc/portage/make.conf
 fi
 
 # Set MAKEOPTS based on CPU cores (nproc + 1, like -j9 on 8 cores).
-CORES=$(nproc 2>/dev/null || echo 4)
+CORES=$(nproc 2>/dev/null)
 JOBS=$((CORES + 1))
 
 echo ">>> Setting MAKEOPTS to -j${JOBS} (detected ${CORES} cores)..."
 if grep -q '^MAKEOPTS=' /etc/portage/make.conf; then
-    sed -i "s|^MAKEOPTS=\".*\"|MAKEOPTS=\"-j${JOBS}\"|" /etc/portage/make.conf
+	sed -i "s|^MAKEOPTS=\".*\"|MAKEOPTS=\"-j${JOBS}\"|" /etc/portage/make.conf
 else
-    echo "MAKEOPTS=\"-j${JOBS}\"" >> /etc/portage/make.conf
+	echo "MAKEOPTS=\"-j${JOBS}\"" >>/etc/portage/make.conf
 fi
