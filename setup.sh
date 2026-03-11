@@ -111,7 +111,7 @@ if [[ -d /sys/firmware/efi ]]; then
 	run_step "Mounting EFI system partition..."
 	mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot
 
-	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot/efi"
+	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot"
 else
 	pause_msg "BIOS detected.\n\nAbout to create an MBR partition table on:\n\n$DRIVE"
 
