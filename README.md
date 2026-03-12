@@ -23,11 +23,10 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
 
 * Browser selection (_dialog-based_):
     * Brave
-    * Firefox
-    * Chrome
     * Ungoogled Chromium
     * Vivaldi
     * Cromite
+    * Helium
 
 * Optional KDE games installer.
 * Automatic USE flag population.

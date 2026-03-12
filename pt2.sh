@@ -624,34 +624,31 @@ dialog --clear \
 	--menu "Choose a web browser to install:" \
 	0 0 0 \
 	brave "Brave (Privacy-based browser with ad-blocking, fingerprinting protection, etc.)" \
-	firefox "Mozilla Firefox (not recommended!)" \
-	chrome "Google Chrome (not recommended!)" \
 	chromium "Chromium (Open-source version of Google Chrome.)" \
 	vivaldi "Vivaldi" \
 	ungchromium "Ungoogled Chromium" \
 	cromite "Similar to Brave. A fork of the Bromite Android browser that runs on PCs." \
-	none "No web browser." \
+	helium "Similar to Brave, but with no cloud-based data sync or password manager."
+none "No web browser." \
 	2>"$TMP_BROWSER"
 BROWSER_CHOICE=$(<"$TMP_BROWSER")
 
 rm -f "$TMP_BROWSER"
 
 INSTALL_BRAVE=false
-INSTALL_FIREFOX=false
-INSTALL_CHROME=false
 INSTALL_CHROMIUM=false
 INSTALL_VIVALDI=false
 INSTALL_UNG_CHROMIUM=false
 INSTALL_CROMITE=false
+INSTALL_HELIUM=false
 
 case "$BROWSER_CHOICE" in
 brave) INSTALL_BRAVE=true ;;
-firefox) INSTALL_FIREFOX=true ;;
-chrome) INSTALL_CHROME=true ;;
 chromium) INSTALL_CHROMIUM=true ;;
 vivaldi) INSTALL_VIVALDI=true ;;
 ungchromium) INSTALL_UNG_CHROMIUM=true ;;
 cromite) INSTALL_CROMITE=true ;;
+helium) INSTALL_HELIUM=true ;;
 none | *) ;;
 esac
 
@@ -667,18 +664,6 @@ if [ "$INSTALL_BRAVE" = true ]; then
 	rm -f /usr/share/applications/com.brave.Browser.desktop
 else
 	echo ">>> Skipping Brave installation (Browser choice: ${BROWSER_CHOICE})."
-fi
-
-if [ "$INSTALL_FIREFOX" = true ]; then
-	emerge -qv www-client/firefox-bin
-else
-	echo ">>> Skipping Firefox installation (Browser choice: ${BROWSER_CHOICE})."
-fi
-
-if [ "$INSTALL_CHROME" = true ]; then
-	emerge -qv www-client/google-chrome
-else
-	echo ">>> Skipping Google Chrome installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_CHROMIUM" = true ]; then
@@ -711,7 +696,17 @@ else
 	echo ">>> Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
-if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_FIREFOX" = false ] && [ "$INSTALL_CHROME" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false ] && [ "$INSTALL_CROMITE" = false ]; then
+if [ "$INSTALL_HELIUM" = true ]; then
+	eselect respository enable guru
+	emerge --sync guru
+	echo "www-client/helium-bin ~amd64" >/etc/portage/package.accept_keywords/helium-bin
+	chmod go+r /etc/portage/package.accept_keywords/helium-bin
+	emerge -qv www-client/helium-bin
+else
+	echo ">>> Skipping Helium installation (Browser choice: ${BROWSER_CHOICE})."
+fi
+
+if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false ] && [ "$INSTALL_CROMITE" = false ] && [ "$INSTALL_HELIUM" = false ]; then
 	echo ">>> No web browser installed (choice: ${BROWSER_CHOICE})."
 	echo ">>> I assume you are installing a CLI-only system with no DE."
 fi
