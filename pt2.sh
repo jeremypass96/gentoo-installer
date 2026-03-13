@@ -305,6 +305,14 @@ chmod go+r /etc/portage/package.use/pipewire
 echo "net-dns/avahi -gtk -qt6" >/etc/portage/package.use/avahi
 chmod go+r /etc/portage/package.use/avahi
 
+# Configure USE flag for man-db.
+echo "sys-apps/man-db -manpager" >/etc/portage/package.use/man-db
+chmod go+r /etc/portage/package.use/man-db
+
+# Configure USE flag for replacement manpager.
+echo "app-text/ansifilter -gui" >/etc/portage/package.use/manpager
+chmod go+r /etc/portage/package.use/manpager
+
 # Configure USE flags for the kernel.
 echo "sys-kernel/installkernel dracut grub" >/etc/portage/package.use/installkernel
 chmod go+r /etc/portage/package.use/installkernel
@@ -506,6 +514,11 @@ if [ "$DESKTOP_CHOICE" = "none" ]; then
 	echo ">>> No desktop environment installed."
 	echo ">>> System remains CLI-only; you can install a DE later."
 fi
+
+# Install a better manpager.
+echo "app-shells/manpager ~amd64" >/etc/portage/package.accept_keywords/manpager
+chmod go+r /etc/portage/package.accept_keywords/manpager
+emerge -qv app-shells/manpager
 
 # Install some nice Gentoo-specific scripts.
 emerge -qv app-portage/gentoolkit
