@@ -501,13 +501,14 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 	echo ">>> LightDM configured for Xfce/MATE."
 fi
 
-if [ "$INSTALL_PLASMA" = true ] || [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ] || [ "$INSTALL_TDE" = true ]; then
+if [ "$DESKTOP_CHOICE" != "none" ]; then
 	emerge -qv x11-themes/papirus-icon-theme
+	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
 fi
 
-if [ "$INSTALL_PLASMA" = false ] && [ "$INSTALL_XFCE" = false ] && [ "$INSTALL_MATE" = false ] && [ "$INSTALL_TDE" = false ]; then
-	echo ">>> No desktop environment installed (choice: ${DESKTOP_CHOICE})."
+if [ "$DESKTOP_CHOICE" = "none" ]; then
+	echo ">>> No desktop environment installed."
 	echo ">>> System remains CLI-only; you can install a DE later."
 fi
 
