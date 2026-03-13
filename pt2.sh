@@ -792,17 +792,17 @@ sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
 sed -i 's/# COMPLETION_WAITING_DOTS="true"/COMPLETION_WAITING_DOTS="true"/' /etc/skel/.zshrc
 sed -i 's/# DISABLE_UNTRACKED_FILES_DIRTY="true"/DISABLE_UNTRACKED_FILES_DIRTY="true"/' /etc/skel/.zshrc
 sed -i 's|# HIST_STAMPS="mm/dd/yyyy"|HIST_STAMPS="mm/dd/yyyy"|' /etc/skel/.zshrc
-sed -i 's/plugins=(git)/plugins=(git extract command-not-found safe-paste sudo copypath zsh-autosuggestions zsh-syntax-highlighting)/' /etc/skel/.zshrc
+sed -i 's/plugins=(git)/plugins=(git extract safe-paste sudo copypath zsh-autosuggestions zsh-syntax-highlighting)/' /etc/skel/.zshrc
 ZSH_CUSTOM=/usr/share/zsh/site-contrib/oh-my-zsh/custom
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
-echo "# Set the default umask." >>/etc/skel/.zshrc
-echo "umask 077" >>/etc/skel/.zshrc
-echo "" >>/etc/skel/.zshrc
-echo "# Disable highlighting of pasted text." >>/etc/skel/.zshrc
-echo "zle_highlight=('paste:none')" >>/etc/skel/.zshrc
-echo "" >>/etc/skel/.zshrc
 cat <<EOF >>/etc/skel/.zshrc
+# Set the default umask.
+umask 077
+
+# Disable highlighting of pasted text.
+zle_highlight=('paste:none')
+
 # Apply sensible history settings.
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
@@ -810,18 +810,27 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
+
 # Make a couple sensible aliases.
 alias ls="lsd"
 alias cat="bat"
+alias emerge-autoremove="sudo emerge -ac"
+alias update-system="sudo emerge -auvqDN @world"
+alias wcurl='wcurl --curl-options="--progress-bar"'
+
 # Run fastfetch.
 fastfetch
+
 # Enable Gentoo autocompletion.
 autoload -U compinit
 compinit
 zstyle ':completion::complete:*' use-cache 1
+
+# Enable command-not-found.
+source /etc/bash/bashrc.d/command-not-found.sh
 EOF
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
-cp -v /etc/skel/.zshrc ~/.zshrc
+cp -v /etc/skel/.zshrc /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
 echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
