@@ -33,7 +33,7 @@ cp /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf
 emerge-webrsync
 
 # Select mirrors.
-emerge --quiet --verbose --oneshot app-portage/mirrorselect
+emerge -qv1 app-portage/mirrorselect
 mirrorselect -i -o >>/etc/portage/make.conf
 
 # Update repository.
@@ -42,7 +42,7 @@ emerge --sync
 # Install dialog.
 if ! command -v dialog >/dev/null 2>&1; then
 	echo ">>> Installing dialog for interactive menus..."
-	emerge --quiet -qv sys-apps/dialog
+	emerge -qv sys-apps/dialog
 fi
 
 # View and set system profile.
@@ -156,11 +156,6 @@ echo "$HOSTNAME" >/etc/hostname
 # ---------------------------
 # Desktop selection (dialog).
 # ---------------------------
-if ! command -v dialog >/dev/null 2>&1; then
-	echo ">>> WARNING: dialog is not installed; skipping desktop chooser."
-	echo ">>> Defaulting to: no desktop (CLI only)."
-	DESKTOP_CHOICE="none"
-else
 	TMP_DESKTOP=$(mktemp)
 	dialog --clear \
 		--backtitle "Gentoo Installer" \
@@ -659,8 +654,6 @@ echo
 if [ "$INSTALL_BRAVE" = true ]; then
 	eselect repository enable another-brave-overlay
 	emerge --sync another-brave-overlay
-	echo "www-client/brave-browser" >/etc/portage/package.accept_keywords/brave-browser
-	chmod go+r /etc/portage/package.accept_keywords/brave-browser
 	emerge -qv www-client/brave-browser
 	rm -f /usr/share/applications/com.brave.Browser.desktop
 else
@@ -707,8 +700,8 @@ else
 	echo ">>> Skipping Helium installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
-if [ "$INSTALL_BRAVE" = false ] && [ "$INSTALL_CHROMIUM" = false ] && [ "$INSTALL_VIVALDI" = false ] && [ "$INSTALL_UNG_CHROMIUM" = false ] && [ "$INSTALL_CROMITE" = false ] && [ "$INSTALL_HELIUM" = false ]; then
-	echo ">>> No web browser installed (choice: ${BROWSER_CHOICE})."
+if [ "$BROWSER_CHOICE" = "none" ]; then
+	echo ">>> No web browser installed."
 	echo ">>> I assume you are installing a CLI-only system with no DE."
 fi
 
