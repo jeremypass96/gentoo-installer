@@ -792,7 +792,7 @@ sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
 sed -i 's/# COMPLETION_WAITING_DOTS="true"/COMPLETION_WAITING_DOTS="true"/' /etc/skel/.zshrc
 sed -i 's/# DISABLE_UNTRACKED_FILES_DIRTY="true"/DISABLE_UNTRACKED_FILES_DIRTY="true"/' /etc/skel/.zshrc
 sed -i 's|# HIST_STAMPS="mm/dd/yyyy"|HIST_STAMPS="mm/dd/yyyy"|' /etc/skel/.zshrc
-sed -i 's/plugins=(git)/plugins=(git colored-man-pages safe-paste sudo copypath zsh-autosuggestions zsh-syntax-highlighting)/' /etc/skel/.zshrc
+sed -i 's/plugins=(git)/plugins=(git extract command-not-found safe-paste sudo copypath zsh-autosuggestions zsh-syntax-highlighting)/' /etc/skel/.zshrc
 ZSH_CUSTOM=/usr/share/zsh/site-contrib/oh-my-zsh/custom
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
@@ -822,6 +822,11 @@ zstyle ':completion::complete:*' use-cache 1
 EOF
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc ~/.zshrc
+echo ">>> Installing command-not-found..."
+emerge -qv app-portage/command-not-found
+echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
+chmod go+r /etc/portage/package.use/pfl
+emerge -qv app-portage/pfl
 
 # Install and configure fastfetch.
 clear
