@@ -118,6 +118,7 @@ else
 	run_step "Creating MBR partition table on $DRIVE..."
 	parted -s "$DRIVE" mklabel msdos
 
+	part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
 	BOOT_PARTITION="${DRIVE}1"
 	ROOT_PARTITION="${DRIVE}2"
 
