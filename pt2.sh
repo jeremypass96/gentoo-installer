@@ -501,12 +501,12 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 	echo ">>> LightDM configured for Xfce/MATE."
 fi
 
-if [ "$INSTALL_PLASMA" = true ] && [ "$INSTALL_XFCE" = true ] && [ "$INSTALL_MATE" = true ] && [ "$INSTALL_TDE" = true ]; then
+if [ "$INSTALL_PLASMA" = true ] || [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ] || [ "$INSTALL_TDE" = true ]; then
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
 fi
 
-if [ "$INSTALL_PLASMA" = false ] && [ "$INSTALL_XFCE" = false ] && [ "$INSTALL_MATE" = false ]; then
+if [ "$INSTALL_PLASMA" = false ] && [ "$INSTALL_XFCE" = false ] && [ "$INSTALL_MATE" = false ] && [ "$INSTALL_TDE" = false ]; then
 	echo ">>> No desktop environment installed (choice: ${DESKTOP_CHOICE})."
 	echo ">>> System remains CLI-only; you can install a DE later."
 fi
@@ -697,7 +697,7 @@ else
 fi
 
 if [ "$INSTALL_HELIUM" = true ]; then
-	eselect respository enable guru
+	eselect repository enable guru
 	emerge --sync guru
 	echo "www-client/helium-bin ~amd64" >/etc/portage/package.accept_keywords/helium-bin
 	chmod go+r /etc/portage/package.accept_keywords/helium-bin
@@ -755,8 +755,8 @@ emerge -qv app-admin/sudo
 # Install bat (cat clone with color, line numbers, etc.).
 clear
 echo ">>> Installing bat..."
-echo "sys-apps/bat ~amd64" >/etc/portage/packge.accept_keywords/bat
-chmod go+r /etc/portage/packge.accept_keywords/bat
+echo "sys-apps/bat ~amd64" >/etc/portage/package.accept_keywords/bat
+chmod go+r /etc/portage/package.accept_keywords/bat
 mkdir -pv /etc/bat
 emerge -qv sys-apps/bat
 chmod 755 /etc/bat
@@ -852,9 +852,6 @@ chsh -s /bin/zsh "$name"
 
 # Remove leftover junk.
 rm /stage3-*.tar.*
-rm /gentoo-installer/*.sh
-rm /gentoo-installer/modules/*.sh
-rm -rf /gentoo-installer/modules
 rm -rf /gentoo-installer
 rm /.gentoo-installer-chroot
 
