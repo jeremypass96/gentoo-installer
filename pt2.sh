@@ -156,27 +156,25 @@ echo "$HOSTNAME" >/etc/hostname
 # ---------------------------
 # Desktop selection (dialog).
 # ---------------------------
-	TMP_DESKTOP=$(mktemp)
-	dialog --clear \
-		--backtitle "Gentoo Installer" \
-		--title "Desktop Environment" \
-		--menu "Choose a desktop environment to install:" \
-		0 0 0 \
-		plasma "KDE Plasma" \
-		xfce "Xfce" \
-		mate "MATE" \
-		tde "Trinity Desktop Environment (fork of KDE 3)"
-	none "No desktop (CLI-only, or you'll configure it later yourself.)" \
-		2>"$TMP_DESKTOP"
+TMP_DESKTOP=$(mktemp)
+dialog --clear \
+	--backtitle "Gentoo Installer" \
+	--title "Desktop Environment" \
+	--menu "Choose a desktop environment to install:" \
+	0 0 0 \
+	plasma "KDE Plasma" \
+	xfce "Xfce" \
+	mate "MATE" \
+	tde "Trinity Desktop Environment (fork of KDE 3)"
+none "No desktop (CLI-only, or you'll configure it later yourself.)" \
+	2>"$TMP_DESKTOP"
 
-	if [ $? -ne 0 ]; then
-		DESKTOP_CHOICE="none"
-	else
-		DESKTOP_CHOICE=$(<"$TMP_DESKTOP")
-	fi
-
-	rm -f "$TMP_DESKTOP"
+if [ $? -ne 0 ]; then
+	DESKTOP_CHOICE="none"
+else
+	DESKTOP_CHOICE=$(<"$TMP_DESKTOP")
 fi
+rm -f "$TMP_DESKTOP"
 
 INSTALL_PLASMA=false
 INSTALL_XFCE=false
