@@ -504,7 +504,13 @@ gnome-extra/evolution-data-server -gnome-online-accounts -gtk
 gui-apps/noctalia-qs lto
 EOF
 	chmod go+r /etc/portage/package.use/noctalia-shell
-	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server gui-apps/qt6ct
+	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server gui-apps/qt6ct x11-terms/alacritty
+
+	# Configure Alacritty.
+	mkdir /etc/alacritty
+	wcurl -o /etc/alacritty/alacritty.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/alacritty/alacritty.toml
+	chmod go+rx /etc/alacritty
+	chmod go+r /etc/alacritty/alacritty.toml
 
 	# Install and configure QTGreet.
 	eselect repository enable wayland-desktop
