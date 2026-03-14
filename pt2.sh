@@ -165,7 +165,8 @@ dialog --clear \
 	plasma "KDE Plasma" \
 	xfce "Xfce" \
 	mate "MATE" \
-	tde "Trinity Desktop Environment (fork of KDE 3)"
+	tde "Trinity Desktop Environment (fork of KDE 3)" \
+	noctalia "Noctalia desktop shell for Wayland"
 none "No desktop (CLI-only, or you'll configure it later yourself.)" \
 	2>"$TMP_DESKTOP"
 
@@ -180,12 +181,14 @@ INSTALL_PLASMA=false
 INSTALL_XFCE=false
 INSTALL_MATE=false
 INSTALL_TDE=false
+INSTALL_NOCTALIA=false
 
 case "$DESKTOP_CHOICE" in
 plasma) INSTALL_PLASMA=true ;;
 xfce) INSTALL_XFCE=true ;;
 mate) INSTALL_MATE=true ;;
 tde) INSTALL_TDE=true ;;
+noctalia) INSTALL_NOCTALIA=true ;;
 none | *) ;;
 esac
 
@@ -208,6 +211,8 @@ USE_FILES=(
 	portaudio
 	pipewire
 	avahi
+	man-db
+	manpager
 	installkernel
 	module-rebuild
 	grub
@@ -479,6 +484,23 @@ if [ "$INSTALL_TDE" = true ]; then
 	emerge -qv media-sound/pavucontrol
 fi
 
+if [ "$INSTALL_NOCTALIA" = true ]; then
+	eselect repository enable guru hyproverlay
+	emerge --sync guru hyproverlay
+	cat <<EOF >>/etc/portage/package.accept_keywords/noctalia-shell
+gui-apps/noctalia-shell ~amd64
+gui-apps/noctalia-qs ~amd64
+app-misc/brightnessctl ~amd64
+app-misc/cliphist ~amd64
+gui-apps/wlsunset ~amd64
+EOF
+	chmod go+r /etc/portage/package.accept_keywords/noctalia-shell
+	echo "gui-wm/hyprland ~amd64" >/etc/portage/package.accept_keywords/hyprland
+	echo "media-gfx/imagemagick -X" >/etc/portage/package.use/imagemagick
+	chmod go+r /etc/portage/package.use/imagemagick
+	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/ddcutil
+fi
+
 # --------------------------------------
 # Display Manager for Xfce/MATE: LightDM
 # --------------------------------------
@@ -503,6 +525,9 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 fi
 
 if [ "$DESKTOP_CHOICE" != "none" ]; then
+	echo "app-misc/ddcutil ~amd64" >/etc/portage/package.accept_keywords/ddcutil
+	chmod go+r /etc/portage/package.accept_keywords/ddcutil
+	emerge -qv app-misc/ddcutil
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
