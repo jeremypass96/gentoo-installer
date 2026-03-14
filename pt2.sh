@@ -505,6 +505,24 @@ gui-apps/noctalia-qs lto
 EOF
 	chmod go+r /etc/portage/package.use/noctalia-shell
 	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server gui-apps/qt6ct
+
+	# Install and configure QTGreet.
+	eselect repository enable wayland-desktop
+	emerge sync --repo wayland-desktop
+	echo "*/*::wayland-desktop ~amd64" >/etc/portage/package.accept_keywords/wayland-desktop
+	chmod go+r /etc/portage/package.accept_keywords/wayland-desktop
+	emerge -qv gui-apps/qtgreet
+	rc-update add display-manager default
+	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="greetd"/' /etc/conf.d/display-manager
+
+	# Make sure dbus is running.
+	rc-update add dbus default
+
+	# Make sure elogind is running (needed for session management).
+	rc-update add elogind boot
+	rc-service elogind start
+
+	env-update && source /etc/profile
 fi
 
 # --------------------------------------
