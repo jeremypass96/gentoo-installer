@@ -498,7 +498,7 @@ EOF
 	echo "gui-wm/hyprland ~amd64" >/etc/portage/package.accept_keywords/hyprland
 	echo "media-gfx/imagemagick -X" >/etc/portage/package.use/imagemagick
 	chmod go+r /etc/portage/package.use/imagemagick
-	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/ddcutil
+	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon
 fi
 
 # --------------------------------------
