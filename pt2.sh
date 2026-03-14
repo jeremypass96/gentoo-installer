@@ -493,12 +493,16 @@ gui-apps/noctalia-qs ~amd64
 app-misc/brightnessctl ~amd64
 app-misc/cliphist ~amd64
 gui-apps/wlsunset ~amd64
+app-misc/nwg-look ~amd64
 EOF
 	chmod go+r /etc/portage/package.accept_keywords/noctalia-shell
 	echo "gui-wm/hyprland ~amd64" >/etc/portage/package.accept_keywords/hyprland
-	echo "media-gfx/imagemagick -X" >/etc/portage/package.use/imagemagick
-	chmod go+r /etc/portage/package.use/imagemagick
-	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon
+	cat <<EOF >>/etc/portage/package.use/noctalia-shell
+media-gfx/imagemagick -X
+gnome-extra/evolution-data-server -gnome-online-accounts -gtk
+EOF
+	chmod go+r /etc/portage/package.use/noctalia-shell
+	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server
 fi
 
 # --------------------------------------
