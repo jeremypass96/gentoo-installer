@@ -514,6 +514,15 @@ EOF
 	emerge -qv gui-apps/qtgreet
 	rc-update add display-manager default
 	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="greetd"/' /etc/conf.d/display-manager
+	mkdir /etc/greetd
+	cat <<EOF >>/etc/greetd/config.toml
+[terminal]
+vt = 7
+
+[default_session]
+command = "Hyprland --config /etc/greetd/hyprland.conf"
+user = "greetd"
+EOF
 
 	# Make sure dbus is running.
 	rc-update add dbus default
