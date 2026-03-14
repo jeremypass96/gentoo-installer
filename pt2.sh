@@ -480,7 +480,7 @@ if [ "$INSTALL_TDE" = true ]; then
 	else
 		echo 'USE="pulseaudio pipewire"' >>/etc/portage/make.conf
 	fi
-	emerge media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
+	emerge -qv media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
 	emerge -qv media-sound/pavucontrol
 fi
 
