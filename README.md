@@ -20,6 +20,7 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
     * Xfce
     * MATE
     * TDE (Trinity Desktop Environment)
+    * Noctalia (Desktop shell for Wayland)
 
 * Browser selection (_dialog-based_):
     * Brave
