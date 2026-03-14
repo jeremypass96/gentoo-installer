@@ -527,6 +527,8 @@ fi
 if [ "$DESKTOP_CHOICE" != "none" ]; then
 	echo "app-misc/ddcutil ~amd64" >/etc/portage/package.accept_keywords/ddcutil
 	chmod go+r /etc/portage/package.accept_keywords/ddcutil
+	echo "app-misc/ddcutil user-permissions" >/etc/portage/package.use/ddcutil
+	chmod go+r /etc/portage/package.use/ddcutil
 	emerge -qv app-misc/ddcutil
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
