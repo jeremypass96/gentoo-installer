@@ -504,7 +504,7 @@ gnome-extra/evolution-data-server -gnome-online-accounts -gtk
 gui-apps/noctalia-qs lto
 EOF
 	chmod go+r /etc/portage/package.use/noctalia-shell
-	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server
+	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server gui-apps/qt6ct
 fi
 
 # --------------------------------------
