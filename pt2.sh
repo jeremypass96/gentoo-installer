@@ -494,9 +494,10 @@ app-misc/brightnessctl ~amd64
 app-misc/cliphist ~amd64
 gui-apps/wlsunset ~amd64
 app-misc/nwg-look ~amd64
+x11-apps/xcur2png ~amd64
 EOF
 	chmod go+r /etc/portage/package.accept_keywords/noctalia-shell
-	echo "gui-wm/hyprland ~amd64" >/etc/portage/package.accept_keywords/hyprland
+	echo "*/*::hyproverlay ~amd64" >/etc/portage/package.accept_keywords/hyprland
 	cat <<EOF >>/etc/portage/package.use/noctalia-shell
 media-gfx/imagemagick -X
 gnome-extra/evolution-data-server -gnome-online-accounts -gtk
