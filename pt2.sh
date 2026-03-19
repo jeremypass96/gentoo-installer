@@ -245,7 +245,6 @@ kde-apps/ark zip
 kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
 kde-plasma/plasma-login-sessions -wayland
 dev-qt/qtpositioning geoclue
-x11-misc/sddm -X
 EOF
 	chmod go+r /etc/portage/package.use/kde
 fi
