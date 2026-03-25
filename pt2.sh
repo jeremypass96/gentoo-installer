@@ -247,6 +247,10 @@ kde-plasma/plasma-login-sessions -wayland
 dev-qt/qtpositioning geoclue
 EOF
 	chmod go+r /etc/portage/package.use/kde
+	cat <<EOF >/etc/portage/package.accept_keywords/kde
+kde-plasma/* ~amd64
+EOF
+	chmod go+r /etc/portage/package.accept_keywords/kde
 fi
 
 # Xfce USE flags.
