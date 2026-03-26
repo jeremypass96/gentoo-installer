@@ -1,5 +1,6 @@
 #!/bin/bash
-# Script to install Posy's cursors on Linux, since only the AUR has them.
+# posy-cursors-install.sh - script to install Posy's cursors on Linux, since only the AUR from Arch Linux has them.
+# Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
 
 echo ">>> Installing Posy cursors..."
 echo ">>> Cloning Posy cursors GitHub repo..."
