@@ -573,6 +573,10 @@ if [ "$DESKTOP_CHOICE" != "none" ]; then
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
+	# Enable 'haveged', a RNG.
+	emerge -qv sys-apps/haveged
+	rc-update add haveged boot
+	rc-service haveged start
 fi
 
 if [ "$DESKTOP_CHOICE" = "none" ]; then
