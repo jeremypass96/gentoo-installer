@@ -166,8 +166,7 @@ dialog --clear \
 	xfce "Xfce" \
 	mate "MATE" \
 	tde "Trinity Desktop Environment (fork of KDE 3)" \
-	noctalia "Noctalia desktop shell for Wayland"
-none "No desktop (CLI-only, or you'll configure it later yourself.)" \
+	none "No desktop (CLI-only, or you'll configure it later yourself.)" \
 	2>"$TMP_DESKTOP"
 
 if [ $? -ne 0 ]; then
@@ -181,14 +180,12 @@ INSTALL_PLASMA=false
 INSTALL_XFCE=false
 INSTALL_MATE=false
 INSTALL_TDE=false
-INSTALL_NOCTALIA=false
 
 case "$DESKTOP_CHOICE" in
 plasma) INSTALL_PLASMA=true ;;
 xfce) INSTALL_XFCE=true ;;
 mate) INSTALL_MATE=true ;;
 tde) INSTALL_TDE=true ;;
-noctalia) INSTALL_NOCTALIA=true ;;
 none | *) ;;
 esac
 
@@ -483,62 +480,6 @@ if [ "$INSTALL_TDE" = true ]; then
 	fi
 	emerge -qv media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
 	emerge -qv media-sound/pavucontrol
-fi
-
-if [ "$INSTALL_NOCTALIA" = true ]; then
-	eselect repository enable guru hyproverlay
-	emerge --sync guru hyproverlay
-	cat <<EOF >>/etc/portage/package.accept_keywords/noctalia-shell
-gui-apps/noctalia-shell ~amd64
-gui-apps/noctalia-qs ~amd64
-app-misc/brightnessctl ~amd64
-app-misc/cliphist ~amd64
-gui-apps/wlsunset ~amd64
-app-misc/nwg-look ~amd64
-x11-apps/xcur2png ~amd64
-EOF
-	chmod go+r /etc/portage/package.accept_keywords/noctalia-shell
-	echo "*/*::hyproverlay ~amd64" >/etc/portage/package.accept_keywords/hyprland
-	cat <<EOF >>/etc/portage/package.use/noctalia-shell
-media-gfx/imagemagick -X
-gnome-extra/evolution-data-server -gnome-online-accounts -gtk
-gui-apps/noctalia-qs lto
-EOF
-	chmod go+r /etc/portage/package.use/noctalia-shell
-	emerge -qv gui-apps/noctalia-shell gui-wm/hyprland app-misc/cliphist gui-apps/wlsunset sys-power/power-profiles-daemon app-misc/nwg-look gnome-extra/evolution-data-server gui-apps/qt6ct x11-terms/alacritty
-
-	# Configure Alacritty.
-	mkdir /etc/alacritty
-	wcurl -o /etc/alacritty/alacritty.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/alacritty/alacritty.toml
-	chmod go+rx /etc/alacritty
-	chmod go+r /etc/alacritty/alacritty.toml
-
-	# Install and configure QTGreet.
-	eselect repository enable wayland-desktop
-	emerge sync --repo wayland-desktop
-	echo "*/*::wayland-desktop ~amd64" >/etc/portage/package.accept_keywords/wayland-desktop
-	chmod go+r /etc/portage/package.accept_keywords/wayland-desktop
-	emerge -qv gui-apps/qtgreet
-	rc-update add display-manager default
-	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="greetd"/' /etc/conf.d/display-manager
-	mkdir /etc/greetd
-	cat <<EOF >>/etc/greetd/config.toml
-[terminal]
-vt = 7
-
-[default_session]
-command = "Hyprland --config /etc/greetd/hyprland.conf"
-user = "greetd"
-EOF
-
-	# Make sure dbus is running.
-	rc-update add dbus default
-
-	# Make sure elogind is running (needed for session management).
-	rc-update add elogind boot
-	rc-service elogind start
-
-	env-update && source /etc/profile
 fi
 
 # --------------------------------------
