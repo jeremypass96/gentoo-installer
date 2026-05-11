@@ -291,7 +291,7 @@ echo "app-editors/vscodium -wayland" >/etc/portage/package.use/vscodium
 chmod go+r /etc/portage/package.use/vscodium
 
 # Configure USE flags for VLC.
-echo "media-video/vlc -bluray -chromaprint -chromecast -macosx-notifications -jack -mtp -vnc -sid -skins libplacebo" >/etc/portage/package.use/vlc
+echo "media-video/vlc -bluray -chromaprint -chromecast -macosx-notifications -jack -mtp -vnc -sid -skins libplacebo theora matroska" >/etc/portage/package.use/vlc
 chmod go+r /etc/portage/package.use/vlc
 
 # Configure USE flags for Audacity (PipeWire-as-JACK, no ALSA).
