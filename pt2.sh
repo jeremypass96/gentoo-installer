@@ -200,7 +200,7 @@ USE_FILES=(
 	xfce
 	mate
 	lightdm
-	qttools live
+	qttools
 	sudo
 	vscodium
 	vlc
