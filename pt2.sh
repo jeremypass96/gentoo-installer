@@ -75,7 +75,7 @@ while true; do
 		continue
 	fi
 
-	if echo -e "$rootpass1\n$rootpass1" | passwd >/dev/null 2>&1; then
+	if printf '%s\n%s\n' "$rootpass1" "$rootpass1" | passwd >/dev/null 2>&1; then
 		dialog --title "Success" --msgbox "Root password has been set." 7 40
 		break
 	else
@@ -120,7 +120,7 @@ while true; do
 		continue
 	fi
 
-	if echo -e "$userpass1\n$userpass1" | passwd "$name" >/dev/null 2>&1; then
+	if printf '%s\n%s\n' "$userpass1" "$userpass1" | passwd "$name" >/dev/null 2>&1; then
 		dialog --title "Success" --msgbox "Password for '$name' has been set." 7 50
 		break
 	else
@@ -368,7 +368,7 @@ fi
 #-------------------------------------
 # Optional: Disable bluetooth support.
 # ------------------------------------
-if ask_yes_no "Enable bluetooth support?" no; then
+if ask_yes_no "Disable bluetooth support?" yes; then
 	if ! grep -q -- "-bluetooth" /etc/portage/make.conf; then
 		if grep -q '^USE=' /etc/portage/make.conf; then
 			sed -i '/^USE=/ s/"$/ -bluetooth"/' /etc/portage/make.conf
@@ -647,8 +647,8 @@ dialog --clear \
 	vivaldi "Vivaldi" \
 	ungchromium "Ungoogled Chromium" \
 	cromite "Similar to Brave. A fork of the Bromite Android browser that runs on PCs." \
-	helium "Similar to Brave, but with no cloud-based data sync or password manager."
-none "No web browser." \
+	helium "Similar to Brave, but with no cloud-based data sync or password manager." \
+	none "No web browser." \
 	2>"$TMP_BROWSER"
 BROWSER_CHOICE=$(<"$TMP_BROWSER")
 
@@ -899,7 +899,7 @@ DISK_NAME=$(lsblk -no PKNAME "$ROOT_DEV")
 DRIVE="/dev/${DISK_NAME}"
 if [[ -d /sys/firmware/efi ]]; then
 	echo ">>> UEFI detected — installing GRUB for EFI..."
-	mount "${DRIVE}1" /boot
+	mountpoint -q /boot || mount "${DRIVE}1" /boot
 	mkdir -p /boot/EFI
 	grub-install --efi-directory=/boot --bootloader-id=Gentoo
 	echo "GRUB_CFG=/boot/EFI/Gentoo/grub.cfg" >/etc/env.d/99grub

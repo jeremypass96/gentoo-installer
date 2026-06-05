@@ -119,8 +119,8 @@ else
 	parted -s "$DRIVE" mklabel msdos
 
 	part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
-	BOOT_PARTITION="${DRIVE}1"
-	ROOT_PARTITION="${DRIVE}2"
+	BOOT_PARTITION="$(part "$DRIVE" 1)"
+	ROOT_PARTITION="$(part "$DRIVE" 2)"
 
 	pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
