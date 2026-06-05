@@ -31,7 +31,7 @@
 #   installer.
 # -----------------------------------------------------------
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "$1")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
@@ -49,32 +49,32 @@ declare -A "$PROFILE_MAP"
 PROFILE_MENU=()
 
 while IFS= read -r line; do
-    # Match lines like:
-    #  [1]   default/linux/amd64/23.0/desktop (stable)
-    #  [2]   default/linux/amd64/23.0/systemd *
-    if [[ "$line" =~ ^[[:space:]]*\[([0-9]+)\][[:space:]]+(.+)$ ]]; then
-        idx="${BASH_REMATCH[1]}"
-        desc="${BASH_REMATCH[2]}"
-        PROFILE_MAP["$idx"]="$desc"
-        PROFILE_MENU+=("$idx" "$desc")
-    fi
-done <<< "$PROFILE_CLEAN"
+	# Match lines like:
+	#  [1]   default/linux/amd64/23.0/desktop (stable)
+	#  [2]   default/linux/amd64/23.0/systemd *
+	if [[ "$line" =~ ^[[:space:]]*\[([0-9]+)\][[:space:]]+(.+)$ ]]; then
+		idx="${BASH_REMATCH[1]}"
+		desc="${BASH_REMATCH[2]}"
+		PROFILE_MAP["$idx"]="$desc"
+		PROFILE_MENU+=("$idx" "$desc")
+	fi
+done <<<"$PROFILE_CLEAN"
 
 if [ "${#PROFILE_MENU[@]}" -eq 0 ]; then
-    echo "ERROR: No profiles found!"
-    echo "$PROFILE_CLEAN"
-    exit 1
+	echo "ERROR: No profiles found!"
+	echo "$PROFILE_CLEAN"
+	exit 1
 fi
 
 TMP_PROFILE=$(mktemp)
 
 dialog --clear \
-       --backtitle "Gentoo Installer: Profile Selector" \
-       --no-cancel \
-       --title "Select System Profile" \
-       --menu "Choose the system profile to use:" \
-       0 0 0 \
-       "${PROFILE_MENU[@]}" 2>"$TMP_PROFILE"
+	--backtitle "Gentoo Installer: Profile Selector" \
+	--no-cancel \
+	--title "Select System Profile" \
+	--menu "Choose the system profile to use:" \
+	0 0 0 \
+	"${PROFILE_MENU[@]}" 2>"$TMP_PROFILE"
 
 PROFILE_CHOICE=$(<"$TMP_PROFILE")
 rm -f "$TMP_PROFILE"
