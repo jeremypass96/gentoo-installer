@@ -31,7 +31,7 @@
 #   installer.
 # -----------------------------------------------------------
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "$1")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
@@ -50,39 +50,39 @@ index=1
 
 # Collect: locale code, description, and "language family" (prefix before _ / . / @)
 while read -r line; do
-    # Match: code  # Description
-    if [[ "$line" =~ ^[[:space:]]*#?[[:space:]]*([A-Za-z0-9_.@-]+)[[:space:]]*#[[:space:]]*(.+)$ ]]; then
-        code="${BASH_REMATCH[1]}"
-        desc="${BASH_REMATCH[2]}"
+	# Match: code  # Description
+	if [[ "$line" =~ ^[[:space:]]*#?[[:space:]]*([A-Za-z0-9_.@-]+)[[:space:]]*#[[:space:]]*(.+)$ ]]; then
+		code="${BASH_REMATCH[1]}"
+		desc="${BASH_REMATCH[2]}"
 
-        CODE_BY_INDEX["$index"]="$code"
-        DESC_BY_INDEX["$index"]="$desc"
+		CODE_BY_INDEX["$index"]="$code"
+		DESC_BY_INDEX["$index"]="$desc"
 
-        # Base language: prefix before '_' / '.' / '@'
-        base_lang="${code%%[_\.@]*}"
-        LANG_BY_INDEX["$index"]="$base_lang"
+		# Base language: prefix before '_' / '.' / '@'
+		base_lang="${code%%[_\.@]*}"
+		LANG_BY_INDEX["$index"]="$base_lang"
 
-        # Create a label for the language group (e.g. "English", "Spanish", "Portuguese")
-        if [[ -z "${LANG_LABEL[$base_lang]}" ]]; then
-            # Strip " (Country...)" from description
-            label_src="$desc"
-            label_noparen="${label_src%% (*}"
-            # Take the last word before parentheses (usually the language name)
-            last_word=$(printf '%s\n' "$label_noparen" | awk '{print $NF}')
-            if [[ -n "$last_word" ]]; then
-                LANG_LABEL["$base_lang"]="$last_word"
-            else
-                LANG_LABEL["$base_lang"]="$base_lang"
-            fi
-        fi
+		# Create a label for the language group (e.g. "English", "Spanish", "Portuguese")
+		if [[ -z "${LANG_LABEL[$base_lang]}" ]]; then
+			# Strip " (Country...)" from description
+			label_src="$desc"
+			label_noparen="${label_src%% (*}"
+			# Take the last word before parentheses (usually the language name)
+			last_word=$(printf '%s\n' "$label_noparen" | awk '{print $NF}')
+			if [[ -n "$last_word" ]]; then
+				LANG_LABEL["$base_lang"]="$last_word"
+			else
+				LANG_LABEL["$base_lang"]="$base_lang"
+			fi
+		fi
 
-        ((index++))
-    fi
-done < /etc/locale.gen
+		((index++))
+	fi
+done </etc/locale.gen
 
 if [ "${#CODE_BY_INDEX[@]}" -eq 0 ]; then
-    echo "!!! No locale entries found in /etc/locale.gen"
-    exit 1
+	echo "!!! No locale entries found in /etc/locale.gen"
+	exit 1
 fi
 
 ##############################
@@ -93,26 +93,26 @@ echo ">>> Building language groups menu..."
 
 # Build "lang_code<TAB>label" lines and sort by label
 lang_lines=$(
-    for lang in "${!LANG_LABEL[@]}"; do
-        printf "%s\t%s\n" "$lang" "${LANG_LABEL[$lang]}"
-    done | sort -k2,2
+	for lang in "${!LANG_LABEL[@]}"; do
+		printf "%s\t%s\n" "$lang" "${LANG_LABEL[$lang]}"
+	done | sort -k2,2
 )
 
 LANG_MENU=()
 while IFS=$'\t' read -r lang label; do
-    [[ -z "$lang" ]] && continue
-    LANG_MENU+=("$lang" "$label")
-done <<< "$lang_lines"
+	[[ -z "$lang" ]] && continue
+	LANG_MENU+=("$lang" "$label")
+done <<<"$lang_lines"
 
 TMP_LANG=$(mktemp)
 
 dialog --clear \
-       --backtitle "Gentoo Install: Locale" \
-       --no-cancel \
-       --title "Select language group" \
-       --menu "Choose a language family (e.g. English, Spanish, French):" \
-       0 0 0 \
-       "${LANG_MENU[@]}" 2>"$TMP_LANG"
+	--backtitle "Gentoo Install: Locale" \
+	--no-cancel \
+	--title "Select language group" \
+	--menu "Choose a language family (e.g. English, Spanish, French):" \
+	0 0 0 \
+	"${LANG_MENU[@]}" 2>"$TMP_LANG"
 
 CHOSEN_LANG=$(<"$TMP_LANG")
 rm -f "$TMP_LANG"
@@ -125,14 +125,13 @@ echo ">>> You selected language group: $CHOSEN_LANG"
 
 echo ">>> Building locale list for '$CHOSEN_LANG'..."
 
-
 # Build "global_idx<TAB>description" for that base language, sorted by description.
 locale_lines=$(
-    for i in "${!CODE_BY_INDEX[@]}"; do
-        if [[ "${LANG_BY_INDEX[$i]}" == "$CHOSEN_LANG" ]]; then
-            printf "%s\t%s\n" "$i" "${DESC_BY_INDEX[$i]}"
-        fi
-    done | sort -k2,2
+	for i in "${!CODE_BY_INDEX[@]}"; do
+		if [[ "${LANG_BY_INDEX[$i]}" == "$CHOSEN_LANG" ]]; then
+			printf "%s\t%s\n" "$i" "${DESC_BY_INDEX[$i]}"
+		fi
+	done | sort -k2,2
 )
 
 # Now renumber these sequentially (1,2,3,...) for the dialog,
@@ -142,26 +141,26 @@ LOCALE_MENU=()
 local_idx=1
 
 while IFS=$'\t' read -r global_idx desc; do
-    [[ -z "$global_idx" ]] && continue
-    LOCAL_TO_GLOBAL["$local_idx"]="$global_idx"
-    LOCALE_MENU+=("$local_idx" "$desc")
-    ((local_idx++))
-done <<< "$locale_lines"
+	[[ -z "$global_idx" ]] && continue
+	LOCAL_TO_GLOBAL["$local_idx"]="$global_idx"
+	LOCALE_MENU+=("$local_idx" "$desc")
+	((local_idx++))
+done <<<"$locale_lines"
 
 if [ "${#LOCALE_MENU[@]}" -eq 0 ]; then
-    echo "!!! No locales found for language group '$CHOSEN_LANG'"
-    exit 1
+	echo "!!! No locales found for language group '$CHOSEN_LANG'"
+	exit 1
 fi
 
 TMP_LOCALE=$(mktemp)
 
 dialog --clear \
-       --backtitle "Gentoo Install: Locale" \
-       --no-cancel \
-       --title "Select specific locale" \
-       --menu "Choose the specific locale you want to generate:" \
-       0 0 0 \
-       "${LOCALE_MENU[@]}" 2>"$TMP_LOCALE"
+	--backtitle "Gentoo Install: Locale" \
+	--no-cancel \
+	--title "Select specific locale" \
+	--menu "Choose the specific locale you want to generate:" \
+	0 0 0 \
+	"${LOCALE_MENU[@]}" 2>"$TMP_LOCALE"
 
 CHOICE_LOCAL_INDEX=$(<"$TMP_LOCALE")
 rm -f "$TMP_LOCALE"
@@ -203,7 +202,7 @@ awk -v code="$CHOSEN_CODE" '
     else
         print "#" $0
 }
-' /etc/locale.gen.bak > /etc/locale.gen
+' /etc/locale.gen.bak >/etc/locale.gen
 
 # Remove backup before locale-gen
 rm -f /etc/locale.gen.bak
@@ -221,14 +220,14 @@ TARGET_LOCALE="${CHOSEN_CODE}.UTF-8"
 
 # Check if that exact target exists in eselect's list
 if LANG=C LC_ALL=C eselect locale list 2>/dev/null | grep -q " ${TARGET_LOCALE}\b"; then
-    echo ">>> Setting LANG to ${TARGET_LOCALE} via eselect..."
-    LANG=C LC_ALL=C eselect locale set "${TARGET_LOCALE}"
+	echo ">>> Setting LANG to ${TARGET_LOCALE} via eselect..."
+	LANG=C LC_ALL=C eselect locale set "${TARGET_LOCALE}"
 else
-    echo "!!! Could not find ${TARGET_LOCALE} in eselect locale list."
-    echo ">>> Available targets are:"
-    LANG=C LC_ALL=C eselect locale list
-    read -p ">>> Enter the number or name of the locale you want to set: " LOCALE_CHOICE
-    LANG=C LC_ALL=C eselect locale set "${LOCALE_CHOICE}"
+	echo "!!! Could not find ${TARGET_LOCALE} in eselect locale list."
+	echo ">>> Available targets are:"
+	LANG=C LC_ALL=C eselect locale list
+	read -p ">>> Enter the number or name of the locale you want to set: " LOCALE_CHOICE
+	LANG=C LC_ALL=C eselect locale set "${LOCALE_CHOICE}"
 fi
 
 #######################################################################################
@@ -239,26 +238,26 @@ LANG_VAL=$(locale | awk -F= '/^LANG=/{gsub(/"/,"",$2);print $2}')
 
 # Fallback if LANG somehow isn't set.
 if [ -z "$LANG_VAL" ]; then
-    echo ">>> LANG is empty; defaulting L10N to en-US"
-    L10N_VALUE="en-US"
+	echo ">>> LANG is empty; defaulting L10N to en-US"
+	L10N_VALUE="en-US"
 else
-    # Strip encoding, e.g. en_US.UTF-8 -> en_US.
-    BASE_LANG=${LANG_VAL%%.*}
+	# Strip encoding, e.g. en_US.UTF-8 -> en_US.
+	BASE_LANG=${LANG_VAL%%.*}
 
-    # Convert underscore to dash, e.g. en_US -> en-US.
-    L10N_VALUE=${BASE_LANG/_/-}
+	# Convert underscore to dash, e.g. en_US -> en-US.
+	L10N_VALUE=${BASE_LANG/_/-}
 fi
 
 # Handle weird cases like C or POSIX.
 case "$L10N_VALUE" in
-    C|POSIX|"")
-        echo ">>> Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
-        L10N_VALUE="en-US"
-        ;;
+C | POSIX | "")
+	echo ">>> Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
+	L10N_VALUE="en-US"
+	;;
 esac
 
 echo ">>> Setting package L10N to ${L10N_VALUE}..."
-echo "*/* L10N: -* ${L10N_VALUE}" > /etc/portage/package.use/localization
+echo "*/* L10N: -* ${L10N_VALUE}" >/etc/portage/package.use/localization
 
 # Reload env inside chroot
 env-update >/dev/null 2>&1

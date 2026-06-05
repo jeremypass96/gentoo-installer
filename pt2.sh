@@ -20,7 +20,7 @@
 source /etc/profile
 export PS1="(chroot) $PS1"
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "$1")" && pwd)"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
