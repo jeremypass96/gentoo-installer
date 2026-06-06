@@ -777,7 +777,7 @@ chmod go+r /etc/portage/package.accept_keywords/bat
 emerge -qv sys-apps/bat
 wcurl -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
 chmod go+r /etc/bat/config
-echo 'BAT_CONFIG_DIR="/etc/bat"' >>/etc/env.d/99bat && env-update
+echo 'BAT_CONFIG_PATH="/etc/bat"' >>/etc/env.d/99bat && env-update
 chmod go+r /etc/env.d/99bat
 mkdir -p "$(bat --config-dir)/themes"
 wget -P "$(bat --config-dir)/themes" https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
