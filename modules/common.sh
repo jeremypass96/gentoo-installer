@@ -17,93 +17,106 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 die() {
-    echo "ERROR: $*" >&2
-    exit 1
+	echo "ERROR: $*" >&2
+	exit 1
 }
 
 require_root() {
-    if [ "$EUID" -ne 0 ]; then
-        die "This script must be run as root."
-    fi
+	if [ "$EUID" -ne 0 ]; then
+		die "This script must be run as root."
+	fi
 }
 
 # Returns 0 if in chroot, 1 if not.
 is_in_chroot() {
-    [ -f "/.gentoo-installer-chroot" ]
+	[ -f "/.gentoo-installer-chroot" ]
 }
 
 require_chroot() {
-    if ! is_in_chroot; then
-        die "This script is intended to be run inside the Gentoo chroot."
-    fi
+	if ! is_in_chroot; then
+		die "This script is intended to be run inside the Gentoo chroot."
+	fi
 }
 
 require_not_chroot() {
-    if is_in_chroot; then
-        die "This script must be run outside the chroot (on the live system)."
-    fi
+	if is_in_chroot; then
+		die "This script must be run outside the chroot (on the live system)."
+	fi
 }
 
 # Yes/No helper: returns 0 for YES, 1 for NO.
 # Usage: if ask_yes_no "Question?" yes; then ...; fi
 ask_yes_no() {
-    local prompt="$1"
-    local default="${2:-yes}"
-    local ans
+	local prompt="$1"
+	local default="${2:-yes}"
+	local ans
 
-    if command -v dialog >/dev/null 2>&1; then
-        if [ "$default" = "yes" ]; then
-            dialog --clear --stdout --yesno "$prompt" 0 0
-            return $?
-        else
-            dialog --clear --stdout --defaultno --yesno "$prompt" 0 0
-            return $?
-        fi
-    else
-        while true; do
-            read -r -p "$prompt [y/n] (default: $default): " ans
-            ans="${ans,,}"  # lowercase
-            case "$ans" in
-                y|yes) return 0 ;;
-                n|no)  return 1 ;;
-                "")
-                    if [ "$default" = "yes" ]; then
-                        return 0
-                    else
-                        return 1
-                    fi
-                    ;;
-                *) echo "Please answer y or n." ;;
-            esac
-        done
-    fi
+	if command -v dialog >/dev/null 2>&1; then
+		if [ "$default" = "yes" ]; then
+			dialog --clear --stdout --yesno "$prompt" 0 0
+			return $?
+		else
+			dialog --clear --stdout --defaultno --yesno "$prompt" 0 0
+			return $?
+		fi
+	else
+		while true; do
+			read -r -p "$prompt [y/n] (default: $default): " ans
+			ans="${ans,,}" # lowercase
+			case "$ans" in
+			y | yes) return 0 ;;
+			n | no) return 1 ;;
+			"")
+				if [ "$default" = "yes" ]; then
+					return 0
+				else
+					return 1
+				fi
+				;;
+			*) echo "Please answer y or n." ;;
+			esac
+		done
+	fi
 }
 
 # Dialog helpers.
 run_step() {
-    # Shows a dialog infobox, then runs the command(s) passed to it.
-    # Usage: run_step "Message..." command arg1 arg2 ...
-    local msg="$1"; shift
+	# Shows a dialog infobox, then runs the command(s) passed to it.
+	# Usage: run_step "Message..." command arg1 arg2 ...
+	local msg="$1"
+	shift
 
-    if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --infobox "$msg" 5 70
-        sleep 0.50
-    else
-        echo ">>> $msg"
-    fi
+	if command -v dialog >/dev/null 2>&1; then
+		dialog --clear --infobox "$msg" 5 70
+		sleep 0.50
+	else
+		echo ">>> $msg"
+	fi
 
-    "$@" || {
-    pause_msg "ERROR: Command failed:\n\n$*"
-    exit 1
-    }
+	"$@" || {
+		pause_msg "ERROR: Command failed:\n\n$*"
+		exit 1
+	}
 }
 
 pause_msg() {
-    local msg="$1"
-    if command -v dialog >/dev/null 2>&1; then
-        dialog --clear --msgbox "$msg" 10 34
-    else
-        echo "$msg"
-        read -r -p "Press Enter to continue..."
-    fi
+	local msg="$1"
+	if command -v dialog >/dev/null 2>&1; then
+		dialog --clear --msgbox "$msg" 10 34
+	else
+		echo "$msg"
+		read -r -p "Press Enter to continue..."
+	fi
+}
+
+add_global_use_flag() {
+	local flag="$1"
+
+	if ! grep -q -- "$flag" /etc/portage/make.conf; then
+		if grep -q '^USE=' /etc/portage/make.conf; then
+			sed -i "/^USE=/ s/\"$/ $flag\"/" /etc/portage/make.conf
+		else
+			echo "USE=\"$flag\"" >>/etc/portage/make.conf
+		fi
+	fi
 }

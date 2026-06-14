@@ -352,30 +352,25 @@ if ask_yes_no "Enable printing support?" yes; then
 	chmod go+r /etc/portage/package.use/hplip
 	echo ">>> Printing support enabled."
 else
+	add_global_use_flag "-cups"
 	echo ">>> Printing support not enabled."
 fi
 
 # ----------------------------------
 # Optional: disable mp3 system-wide.
 # ----------------------------------
-if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -lame -mpg123\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs." yes; then
-	echo 'USE="-mp3 -lame -mpg123"' >>/etc/portage/make.conf
-	echo ">>> Global MP3 support disabled via USE flags."
+if ask_yes_no "Disable mp3 encoding support system-wide (set USE=\"-lame\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs like FLAC." yes; then
+	add_global_use_flag "-lame"
+	echo ">>> Global mp3 encoding support disabled via USE flags."
 else
-	echo ">>> Leaving MP3 support enabled globally."
+	echo ">>> Leaving mp3 encoding support enabled globally."
 fi
 
 #-------------------------------------
 # Optional: Disable bluetooth support.
 # ------------------------------------
 if ask_yes_no "Disable bluetooth support?" yes; then
-	if ! grep -q -- "-bluetooth" /etc/portage/make.conf; then
-		if grep -q '^USE=' /etc/portage/make.conf; then
-			sed -i '/^USE=/ s/"$/ -bluetooth"/' /etc/portage/make.conf
-		else
-			echo 'USE="-bluetooth"' >>/etc/portage/make.conf
-		fi
-	fi
+	add_global_use_flag "-bluetooth"
 	echo ">>> Bluetooth support disabled."
 fi
 
