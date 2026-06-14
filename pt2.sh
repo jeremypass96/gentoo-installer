@@ -623,6 +623,49 @@ emerge -qv net-misc/chrony
 rc-update add chronyd default
 rc-service chronyd start
 
+# Install kmscon (optional).
+clear
+TMP_CONSOLE=$(mktemp)
+
+dialog --clear \
+	--backtitle "Gentoo Installer" \
+	--title "Console Type" \
+	--menu "Choose which Linux console to use:" \
+	0 0 0 \
+	agetty "Traditional Linux VT" \
+	kmscon "Kmscon" \
+	2>"$TMP_CONSOLE"
+
+CONSOLE_CHOICE=$(<"$TMP_CONSOLE")
+rm -f "$TMP_CONSOLE"
+
+echo ">>> Console choice: $CONSOLE_CHOICE"
+echo
+case "$CONSOLE_CHOICE" in
+agetty)
+	clear
+	echo ">>> Going with the default Linux console..."
+	;;
+
+kmscon)
+	clear
+	echo ">>> Installing Kmscon..."
+	echo "sys-apps/kmscon freetype" >/etc/portage/package.use/kmscon
+	cat >/etc/portage/package.accept_keywords/kmscon <<EOF
+sys-apps/kmscon ~amd64
+dev-libs/libtsm ~amd64
+EOF
+	emerge -qv sys-apps/kmscon
+	grep -q '^ERASECHAR[[:space:]]\+0177' /etc/login.defs || sed -Ei 's/^#[[:space:]]*(ERASECHAR[[:space:]]+0177)/\1/' /etc/login.defs
+	cd /etc/init.d && chmod +x ./kmsconvt
+	for n in $(seq 1 6); do
+		ln -sf kmsconvt "kmsconvt.tty$n"
+		rc-update add "kmsconvt.tty$n" default
+	done
+	cd || return
+	;;
+esac
+
 # Add IO Scheduler udev rules.
 emerge -qv sys-block/io-scheduler-udev-rules
 
