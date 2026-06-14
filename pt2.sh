@@ -663,6 +663,10 @@ EOF
 		rc-update add "kmsconvt.tty$n" default
 	done
 	cd || return
+	cp -v /etc/kmscon/kmscon.conf.example /etc/kmscon/kmscon.conf && chmod go+r /etc/kmscon/kmscon.conf
+	sed -i 's/#switchvt/switchvt'/g /etc/kmscon/kmscon.conf
+	sed -i 's/#font-name=Hack Nerd Font/font-name=Hurmit Nerd Font'/g /etc/kmscon/kmscon.conf
+	sed -i 's/#hwaccel/hwaccel'/g /etc/kmscon/kmscon.conf
 	;;
 esac
 
