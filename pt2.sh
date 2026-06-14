@@ -358,8 +358,8 @@ fi
 # ----------------------------------
 # Optional: disable mp3 system-wide.
 # ----------------------------------
-if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -mad -lame -mpg123\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs." yes; then
-	echo 'USE="-mp3 -mad -lame -mpg123"' >>/etc/portage/make.conf
+if ask_yes_no "Disable MP3 support system-wide (set USE=\"-mp3 -lame -mpg123\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs." yes; then
+	echo 'USE="-mp3 -lame -mpg123"' >>/etc/portage/make.conf
 	echo ">>> Global MP3 support disabled via USE flags."
 else
 	echo ">>> Leaving MP3 support enabled globally."
