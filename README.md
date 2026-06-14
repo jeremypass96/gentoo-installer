@@ -66,5 +66,6 @@ Runs inside the Gentoo environment.
 * CUPS installation (_optional, dialog-based_).
 * Kernel installation.
 * NetworkManager installation.
-* System tools installation.
+* Kmscon installation (_optional, dialog-based_).
 * Web browser installer (_dialog-based_).
+* System tools installation.
