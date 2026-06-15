@@ -406,7 +406,7 @@ if [ "$INSTALL_PLASMA" = true ]; then
 	emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs
 
 	wcurl --curl-options="--progress-bar" -o /etc/skel/.config/kdeglobals https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/kdeglobals
-	mkdir /home/"$name"/.config
+	mkdir -p /home/"$name"/.config
 	cp -v /etc/skel/.config/kdeglobals /home/"$name"/.config/kdeglobals
 	chown "$name":"$name" /home/"$name"/.config/kdeglobals
 
