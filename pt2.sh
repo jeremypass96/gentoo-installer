@@ -356,9 +356,9 @@ else
 	echo ">>> Printing support not enabled."
 fi
 
-# ----------------------------------
-# Optional: disable mp3 system-wide.
-# ----------------------------------
+# -------------------------------------------
+# Optional: disable mp3 encoding system-wide.
+# -------------------------------------------
 if ask_yes_no "Disable mp3 encoding support system-wide (set USE=\"-lame\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs like FLAC." yes; then
 	add_global_use_flag "-lame"
 	echo ">>> Global mp3 encoding support disabled via USE flags."
@@ -404,6 +404,8 @@ emerge @preserved-rebuild
 if [ "$INSTALL_PLASMA" = true ]; then
 	echo ">>> Installing KDE Plasma..."
 	emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs
+
+	wcurl --curl-options="--progress-bar" -o /etc/skel/.config/kdeglobals https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/kdeglobals
 
 	if ask_yes_no "Do you want to install some KDE games?\n\nThis will install the following games:\n- Kapman\n- KPatience\n- KMines\n- Bomber\n- KSnakeDuel\n- Klickety\n- KBlocks\n- KDiamond\n- KBounce\n- KNetWalk\n- KBreakOut" yes; then
 		emerge -qv kde-apps/kapman kde-apps/kpat kde-apps/kmines kde-apps/bomber kde-apps/ksnakeduel kde-apps/klickety kde-apps/kblocks kde-apps/kdiamond kde-apps/kbounce kde-apps/knetwalk kde-apps/kbreakout
@@ -817,7 +819,7 @@ echo ">>> Installing bat..."
 echo "sys-apps/bat ~amd64" >/etc/portage/package.accept_keywords/bat
 chmod go+r /etc/portage/package.accept_keywords/bat
 emerge -qv sys-apps/bat
-wcurl -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
+wcurl --curl-options="--progress-bar" -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
 chmod go+r /etc/bat/config
 echo 'BAT_CONFIG_PATH="/etc/bat"' >>/etc/env.d/99bat && env-update
 chmod go+r /etc/env.d/99bat
@@ -892,7 +894,7 @@ emerge -qv app-portage/pfl
 clear
 echo ">>> Installing fastfetch..."
 mkdir -p /etc/skel/.config/fastfetch
-wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc -o /etc/skel/.config/fastfetch/config.jsonc
+wcurl --curl-options="--progress-bar" -o /etc/skel/.config/fastfetch/config.jsonc https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
 emerge -qv app-misc/fastfetch
 mkdir -p /home/"$name"/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc /home/"$name"/.config/fastfetch
 chmod go+r /etc/skel/.config/fastfetch/config.jsonc
@@ -904,7 +906,7 @@ mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~
 clear
 echo ">>> Installing LSDeluxe..."
 mkdir -p /etc/skel/.config/lsd
-wcurl https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml -o /etc/skel/.config/lsd/config.yaml
+wcurl --curl-options="--progress-bar" -o /etc/skel/.config/lsd/config.yaml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
 emerge -qv sys-apps/lsd
 mkdir -p /home/"$name"/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml /home/"$name"/.config/lsd
 chmod go+r /etc/skel/.config/lsd/config.yaml
