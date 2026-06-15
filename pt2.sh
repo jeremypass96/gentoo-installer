@@ -406,6 +406,9 @@ if [ "$INSTALL_PLASMA" = true ]; then
 	emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs
 
 	wcurl --curl-options="--progress-bar" -o /etc/skel/.config/kdeglobals https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/kdeglobals
+	mkdir /home/"$name"/.config
+	cp -v /etc/skel/.config/kdeglobals /home/"$name"/.config/kdeglobals
+	chown "$name":"$name" /home/"$name"/.config/kdeglobals
 
 	if ask_yes_no "Do you want to install some KDE games?\n\nThis will install the following games:\n- Kapman\n- KPatience\n- KMines\n- Bomber\n- KSnakeDuel\n- Klickety\n- KBlocks\n- KDiamond\n- KBounce\n- KNetWalk\n- KBreakOut" yes; then
 		emerge -qv kde-apps/kapman kde-apps/kpat kde-apps/kmines kde-apps/bomber kde-apps/ksnakeduel kde-apps/klickety kde-apps/kblocks kde-apps/kdiamond kde-apps/kbounce kde-apps/knetwalk kde-apps/kbreakout
