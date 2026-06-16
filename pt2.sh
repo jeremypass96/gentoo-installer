@@ -668,6 +668,7 @@ EOF
 	sed -i 's/#switchvt/switchvt'/g /etc/kmscon/kmscon.conf
 	sed -i 's/#font-name=Hack Nerd Font/font-name=Hurmit Nerd Font'/g /etc/kmscon/kmscon.conf
 	sed -i 's/#hwaccel/hwaccel'/g /etc/kmscon/kmscon.conf
+	sed -i 's/#palette=solarized/palette=base16-dark'/g /etc/kmscon/kmscon.conf
 	;;
 esac
 
