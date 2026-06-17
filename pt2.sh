@@ -885,7 +885,7 @@ zstyle ':completion::complete:*' use-cache 1
 source /etc/bash/bashrc.d/command-not-found.sh
 EOF
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
-chown "$name:$name" /home/"$name"/.zshrc
+chown "$name":"$name" /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
