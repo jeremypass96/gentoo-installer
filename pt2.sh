@@ -825,10 +825,10 @@ wcurl --curl-options="--progress-bar" -o /etc/bat/config https://raw.githubuserc
 chmod go+r /etc/bat/config
 echo 'BAT_CONFIG_PATH="/etc/bat"' >>/etc/env.d/99bat && env-update
 chmod go+r /etc/env.d/99bat
-mkdir -p "$(bat --config-dir)/themes"
-wget -P "$(bat --config-dir)/themes" https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
-chmod 755 "$(bat --config-dir)/themes"
-chmod go+r "$(bat --config-dir)/themes"/Catppuccin\ Mocha.tmTheme
+mkdir -p /etc/bat/themes
+wget -P /etc/bat/themes https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
+chmod 755 /etc/bat/themes
+chmod go+r /etc/bat/themes/Catppuccin\ Mocha.tmTheme
 bat cache --build
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
@@ -885,6 +885,7 @@ zstyle ':completion::complete:*' use-cache 1
 source /etc/bash/bashrc.d/command-not-found.sh
 EOF
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
+chown "$name:$name" /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
@@ -915,6 +916,25 @@ chmod go+r /etc/skel/.config/lsd/config.yaml
 chown -R "$name":"$name" /home/"$name"/.config/lsd
 chmod go+r /home/"$name"/.config/lsd/config.yaml
 mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
+
+# Install and configure Helix editor.
+clear
+echo "Installing Helix text editor..."
+mkdir -p /etc/skel/.config/helix
+wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/config.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/config.toml
+wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/languages.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/languages.toml
+mkdir -p /home/"$name"/.config/helix
+cp -v /etc/skel/.config/helix/config.toml /home/"$name"/.config/helix/config.toml
+cp -v /etc/skel/.config/helix/languages.toml /home/"$name"/.config/helix/languages.toml
+chmod go+r /home/"$name"/.config/helix/*.toml
+chown -R "$name":"$name" /home/"$name"/.config/helix
+# Install Helix formatter/language-server tooling.
+emerge -qv marksman
+# Install Homebrew (needed for toplo, shfmt, and dprint).
+if su - "$name" -c 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'; then
+	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>/home/"$name"/.zshrc
+	su - "$name" -c 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew install taplo shfmt dprint'
+fi
 
 # Fix user's config permissions!
 chown -R "$name":"$name" /home/"$name"/.config
