@@ -947,6 +947,7 @@ emerge -qv app-admin/superadduser
 
 # Install GRUB.
 emerge -qv sys-boot/grub
+sed -i 's|^#GRUB_CMDLINE_LINUX=".*"|GRUB_CMDLINE_LINUX="nowatchdog nmi_watchdog=0 net.ifnames=0"|' /etc/default/grub
 
 # Install bootloader.
 # Get the block device backing /.
