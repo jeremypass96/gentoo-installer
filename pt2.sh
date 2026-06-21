@@ -138,7 +138,7 @@ DEFAULT_HOSTNAME="GentooBox"
 if command -v dialog >/dev/null 2>&1; then
 	HOSTNAME=$(
 		dialog --clear \
-			--backtitle "Gentoo Install: Hostname" \
+			--backtitle "Gentoo Installer" \
 			--title "System hostname" \
 			--inputbox "Enter a hostname for this machine:" 8 60 "$DEFAULT_HOSTNAME" \
 			3>&1 1>&2 2>&3
@@ -332,10 +332,10 @@ chmod go+r /etc/portage/package.use/grub
 # Optional: enable wireless networking.
 # -------------------------------------
 if ask_yes_no "Are you on a laptop and want to install wireless networking tools?" yes; then
-	echo "net-misc/networkmanager -wext" >/etc/portage/package.use/networkmanager
+	echo "net-misc/networkmanager -wext -modemmanager -ppp" >/etc/portage/package.use/networkmanager
 	chmod go+r /etc/portage/package.use/networkmanager
 else
-	echo "net-misc/networkmanager -wifi -wext" >/etc/portage/package.use/networkmanager
+	echo "net-misc/networkmanager -wifi -wext -modemmanager -ppp" >/etc/portage/package.use/networkmanager
 	chmod go+r /etc/portage/package.use/networkmanager
 fi
 
@@ -350,7 +350,7 @@ if ask_yes_no "Enable printing support?" yes; then
 	echo ">>> Printing support enabled."
 else
 	add_global_use_flag "-cups"
-	echo ">>> Printing support not enabled."
+	echo ">>> Printing support disabled."
 fi
 
 # -------------------------------------------
@@ -471,11 +471,7 @@ if [ "$INSTALL_TDE" = true ]; then
 	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="tdm"/' /etc/conf.d/display-manager
 	rc-update add display-manager default
 	rc-update add elogind boot && rc-service elogind start
-	if grep -q '^USE=' /etc/portage/make.conf; then
-		sed -i '/^USE=/ s/"$/ pulseaudio pipewire"/' /etc/portage/make.conf
-	else
-		echo 'USE="pulseaudio pipewire"' >>/etc/portage/make.conf
-	fi
+	add_global_use_flag "pulseaudio pipewire"
 	emerge -qv media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
 	emerge -qv media-sound/pavucontrol
 fi
@@ -504,11 +500,6 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 fi
 
 if [ "$DESKTOP_CHOICE" != "none" ]; then
-	echo "app-misc/ddcutil ~amd64" >/etc/portage/package.accept_keywords/ddcutil
-	chmod go+r /etc/portage/package.accept_keywords/ddcutil
-	echo "app-misc/ddcutil user-permissions" >/etc/portage/package.use/ddcutil
-	chmod go+r /etc/portage/package.use/ddcutil
-	emerge -qv app-misc/ddcutil
 	emerge -qv x11-themes/papirus-icon-theme
 	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
@@ -519,8 +510,7 @@ if [ "$DESKTOP_CHOICE" != "none" ]; then
 fi
 
 if [ "$DESKTOP_CHOICE" = "none" ]; then
-	echo ">>> No desktop environment installed."
-	echo ">>> System remains CLI-only; you can install a DE later."
+	pause_msg "No desktop will be installed.\n\nSystem remains CLI-only; you can install a desktop later."
 fi
 
 # Install a better manpager.
@@ -537,7 +527,7 @@ emerge -qv sys-kernel/linux-firmware
 
 # Configure dracut.
 mkdir -p /etc/dracut.conf.d
-echo 'kernel_cmdline="nowatchdog nmi_watchdog=0 net.ifnames=0"' >>/etc/dracut.conf.d/kernel.conf
+echo 'kernel_cmdline+=" nowatchdog nmi_watchdog=0 net.ifnames=0 "' >/etc/dracut.conf.d/kernel.conf
 dracut -f
 
 # Install sys-kernel/installkernel.
@@ -932,8 +922,9 @@ chown -R "$name":"$name" /home/"$name"/.config/helix
 emerge -qv marksman
 # Install Homebrew (needed for toplo, shfmt, and dprint).
 if su - "$name" -c 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'; then
-	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>/home/"$name"/.zshrc
-	su - "$name" -c 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && brew install taplo shfmt dprint'
+	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"' >>/home/"$name"/.zshrc
+	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"' >>/root/.zshrc
+	su - "$name" -c 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)" && brew install taplo shfmt dprint'
 fi
 
 # Fix user's config permissions!
