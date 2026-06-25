@@ -244,6 +244,7 @@ kde-plasma/plasma-login-sessions -wayland
 dev-qt/qtpositioning geoclue
 kde-apps/thumbnailers video
 kde-plasma/powerdevil brightness-control
+app-misc/ddcutil user-permissions
 EOF
 fi
 
