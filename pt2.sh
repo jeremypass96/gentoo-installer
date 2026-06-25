@@ -243,6 +243,7 @@ kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
 kde-plasma/plasma-login-sessions -wayland
 dev-qt/qtpositioning geoclue
 kde-apps/thumbnailers video
+kde-plasma/powerdevil brightness-control
 EOF
 fi
 
