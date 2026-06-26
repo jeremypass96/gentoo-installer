@@ -952,6 +952,15 @@ emerge -qv app-admin/superadduser
 emerge -qv sys-boot/grub
 sed -i 's|^#GRUB_CMDLINE_LINUX=".*"|GRUB_CMDLINE_LINUX="nowatchdog nmi_watchdog=0 net.ifnames=0"|' /etc/default/grub
 
+# Install Plymouth (optional).
+if ask_yes_no "Do you want a Plymouth graphical boot splash?" yes; then
+	echo "sys-boot/plymouth-openrc-plugin ~amd64" >/etc/portage/package.accept_keywords/plymouth-openrc-plugin
+	chmod go+r /etc/portage/package.accept_keywords/plymouth-openrc-plugin
+	emerge -qv sys-boot/plymouth sys-boot/plymouth-openrc-plugin
+	sed -i 's|^#GRUB_CMDLINE_LINUX_DEFAULT=".*"|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"|' /etc/default/grub
+	bash "$SCRIPT_DIR"/modules/plymouth-theme-install.sh
+fi
+
 # Install bootloader.
 # Get the block device backing /.
 ROOT_DEV=$(findmnt -no SOURCE /)

@@ -60,7 +60,7 @@ Runs inside the Gentoo environment.
 * Hostname configuration.
 * USE flag configuration.
 * Desktop environment installer (_dialog-based_).
-    * KDE games installation when installing KDE (_Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut_).
+    * KDE games installation when installing KDE, which installs the following games: Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut (_optional, dialog-based_).
     * Papirus icon theme installation.
 * Wireless networking installation (_optional, dialog-based_).
 * CUPS installation (_optional, dialog-based_).
@@ -69,3 +69,4 @@ Runs inside the Gentoo environment.
 * Kmscon installation (_optional, dialog-based_).
 * Web browser installer (_dialog-based_).
 * System tools installation.
+* Plymouth boot splash installation (_optional, dialog-based_).
