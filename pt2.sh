@@ -515,6 +515,9 @@ if [ "$DESKTOP_CHOICE" != "none" ]; then
 	emerge -qv sys-apps/haveged
 	rc-update add haveged boot
 	rc-service haveged start
+	if ask_yes_no "Enable Windows-style hardware notifications?"; then
+		bash "$SCRIPT_DIR"/modules/hardware-notify.sh
+	fi
 fi
 
 if [ "$DESKTOP_CHOICE" = "none" ]; then
