@@ -165,6 +165,7 @@ dialog --clear \
 	plasma "KDE Plasma" \
 	xfce "Xfce" \
 	mate "MATE" \
+	cinnamon "Cinnamon" \
 	tde "Trinity Desktop Environment (fork of KDE 3)" \
 	none "No desktop (CLI-only, or you'll configure it later yourself.)" \
 	2>"$TMP_DESKTOP"
@@ -179,12 +180,14 @@ rm -f "$TMP_DESKTOP"
 INSTALL_PLASMA=false
 INSTALL_XFCE=false
 INSTALL_MATE=false
+INSTALL_CINNAMON=false
 INSTALL_TDE=false
 
 case "$DESKTOP_CHOICE" in
 plasma) INSTALL_PLASMA=true ;;
 xfce) INSTALL_XFCE=true ;;
 mate) INSTALL_MATE=true ;;
+cinnamon) INSTALL_CINNAMON=true ;;
 tde) INSTALL_TDE=true ;;
 none | *) ;;
 esac
@@ -196,10 +199,6 @@ echo
 # Failsafe for USE flag changes.
 # ------------------------------
 USE_FILES=(
-	kde
-	xfce
-	mate
-	lightdm
 	qttools
 	sudo
 	vscodium
@@ -216,6 +215,11 @@ USE_FILES=(
 	networkmanager
 	cups
 	hplip
+	kde
+	xfce
+	mate
+	cinnamon
+	lightdm
 )
 
 BACKUP_DIR="/etc/portage/package.use/.install-backup.$(date +%s)"
@@ -231,52 +235,6 @@ done
 # --------------------
 # Configure USE flags.
 # --------------------
-
-# KDE USE flags.
-if [ "$INSTALL_PLASMA" = true ]; then
-	cat <<EOF >/etc/portage/package.use/kde
-kde-plasma/plasma-meta -sdk -discover -flatpak -plymouth -thunderbolt -unsupported -wacom -xwayland
-kde-apps/kde-apps-meta -pim -education -games -accessibility -graphics -multimedia -network -sdk -utils
-kde-apps/kdecore-meta -webengine
-kde-apps/ark zip
-kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
-kde-plasma/plasma-login-sessions -wayland
-dev-qt/qtpositioning geoclue
-kde-apps/thumbnailers video
-kde-plasma/powerdevil brightness-control
-app-misc/ddcutil user-permissions
-EOF
-fi
-
-# Xfce USE flags.
-if [ "$INSTALL_XFCE" = true ]; then
-	cat <<EOF >/etc/portage/package.use/xfce
-xfce-base/xfce4-meta archive editor image search
-app-text/poppler -qt5
-dev-libs/libdbusmenu gtk3
-x11-libs/gdk-pixbuf jpeg tiff
-gnome-base/gvfs mtp
-xfce-extra/xfce4-whiskermenu-plugin accountsservice
-x11-themes/arc-theme xfce
-EOF
-	chmod go+r /etc/portage/package.use/xfce
-fi
-
-# MATE USE flags.
-if [ "$INSTALL_MATE" = true ]; then
-	cat <<EOF >/etc/portage/package.use/mate
-media-libs/libmatemixer pulseaudio
-gnome-base/gvfs mtp
-x11-themes/arc-theme mate
-EOF
-	chmod go+r /etc/portage/package.use/mate
-fi
-
-# LightDM USE flags.
-if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
-	echo "x11-misc/lightdm -X -gnome" >/etc/portage/package.use/lightdm
-	chmod go+r /etc/portage/package.use/lightdm
-fi
 
 # Configure USE flags for Qt tools.
 echo "dev-qt/qttools -assistant -qml -designer" >/etc/portage/package.use/qttools
@@ -379,6 +337,63 @@ if ask_yes_no "Disable bluetooth support?" yes; then
 	echo ">>> Bluetooth support disabled."
 fi
 
+# KDE USE flags.
+if [ "$INSTALL_PLASMA" = true ]; then
+	cat <<EOF >/etc/portage/package.use/kde
+kde-plasma/plasma-meta -sdk -discover -flatpak -plymouth -thunderbolt -unsupported -wacom -xwayland
+kde-apps/kde-apps-meta -pim -education -games -accessibility -graphics -multimedia -network -sdk -utils
+kde-apps/kdecore-meta -webengine
+kde-apps/ark zip
+kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
+kde-plasma/plasma-login-sessions -wayland
+dev-qt/qtpositioning geoclue
+kde-apps/thumbnailers video
+kde-plasma/powerdevil brightness-control
+app-misc/ddcutil user-permissions
+EOF
+fi
+
+# Xfce USE flags.
+if [ "$INSTALL_XFCE" = true ]; then
+	cat <<EOF >/etc/portage/package.use/xfce
+xfce-base/xfce4-meta archive editor image search
+app-text/poppler -qt5
+dev-libs/libdbusmenu gtk3
+x11-libs/gdk-pixbuf jpeg tiff
+gnome-base/gvfs mtp
+xfce-extra/xfce4-whiskermenu-plugin accountsservice
+x11-themes/arc-theme xfce
+EOF
+	chmod go+r /etc/portage/package.use/xfce
+fi
+
+# MATE USE flags.
+if [ "$INSTALL_MATE" = true ]; then
+	cat <<EOF >/etc/portage/package.use/mate
+media-libs/libmatemixer pulseaudio
+gnome-base/gvfs mtp
+x11-themes/arc-theme mate
+EOF
+	chmod go+r /etc/portage/package.use/mate
+fi
+
+# Cinnamon USE flags.
+if [ "$INSTALL_CINNAMON" = true ]; then
+	cat <<EOF >/etc/portage/package.use/cinnamon
+x11-libs/xapp introspection
+dev-libs/libxmlb introspection
+x11-terms/gnome-terminal -gnome-shell -nautilus
+EOF
+	chmod go+r /etc/portage/package.use/cinnamon
+	sed -i 's/ -modemmanager//' /etc/portage/package.use/networkmanager
+fi
+
+# LightDM USE flags.
+if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
+	echo "x11-misc/lightdm -X -gnome" >/etc/portage/package.use/lightdm
+	chmod go+r /etc/portage/package.use/lightdm
+fi
+
 # ---------------------------------
 # Update system with new USE flags.
 # ---------------------------------
@@ -469,6 +484,34 @@ if [ "$INSTALL_MATE" = true ]; then
 	env-update && source /etc/profile
 fi
 
+if [ "$INSTALL_CINNAMON" = true ]; then
+	emerge -av gnome-extra/cinnamon x11-terms/gnome-terminal gnome-extra/gnome-calculator media-gfx/gnome-screenshot media-gfx/eog app-text/evince gnome-extra/gnome-system-monitor app-arch/file-roller app-cdr/brasero
+	install -d -m 0750 /etc/sudoers.d
+	tee /etc/sudoers.d/cinnamon >/dev/null <<'EOF'
+%wheel  ALL=(root) NOPASSWD: /sbin/reboot
+%wheel  ALL=(root) NOPASSWD: /sbin/halt
+%wheel  ALL=(root) NOPASSWD: /sbin/poweroff
+%wheel  ALL=(root) NOPASSWD: /sbin/shutdown
+EOF
+	chmod 440 /etc/sudoers.d/cinnamon
+	visudo -cf /etc/sudoers.d/cinnamon
+	visudo -c
+
+	cat <<EOF >/etc/polkit-1/rules.d/55-allowing-actions.rules
+polkit.addRule (function (action, subject)
+{
+  if (action.id == "org.freedesktop.upower.hibernate" ||
+      action.id == "org.freedesktop.upower.suspend" ||
+      action.id == "org.freedesktop.consolekit.system.stop" ||
+      action.id == "org.freedesktop.consolekit.system.restart" &&
+      subject.isInGroup ("wheel"))
+      {
+        return polkit.Result.YES;
+      }
+});
+EOF
+fi
+
 if [ "$INSTALL_TDE" = true ]; then
 	echo ">>> Installing TDE..."
 	eselect repository add trinity-official git https://mirror.git.trinitydesktop.org/gitea/TDE/tde-packaging-gentoo.git
@@ -487,8 +530,9 @@ fi
 # --------------------------------------
 # Display Manager for Xfce/MATE: LightDM
 # --------------------------------------
-if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
-	echo ">>> Installing LightDM display manager for Xfce/MATE..."
+case "$DESKTOP_CHOICE" in
+xfce|mate|cinnamon)
+	echo ">>> Installing LightDM display manager for $DESKTOP_CHOICE..."
 	emerge -qv x11-misc/lightdm x11-misc/lightdm-gtk-greeter
 
 	# Set LightDM as display manager.
@@ -496,16 +540,27 @@ if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
 	rc-update add display-manager default
 
 	# Make sure dbus is running.
-	rc-update add dbus default
+	rc-update add dbus default && rc-service dbus start
 
 	# Make sure elogind is running (needed for session management).
-	rc-update add elogind boot
-	rc-service elogind start
+	rc-update add elogind boot && rc-service elogind start
+
+	if [ "$DESKTOP_CHOICE" = "cinnamon" ]; then
+		emerge -qv gnome-extra/openrc-settingsd
+		rc-update add openrc-settingsd default && rc-service openrc-settingsd start
+
+		if grep -q '^hosts:' /etc/nsswitch.conf; then
+			if ! grep -q '^hosts:.*\<myhostname\>' /etc/nsswitch.conf; then
+				sed -i '/^hosts:/ s/$/ myhostname/' /etc/nsswitch.conf
+			fi
+		fi
+	fi
 
 	env-update && source /etc/profile
 
-	echo ">>> LightDM configured for Xfce/MATE."
-fi
+	echo ">>> LightDM configured for $DESKTOP_CHOICE."
+	;;
+esac
 
 if [ "$DESKTOP_CHOICE" != "none" ]; then
 	emerge -qv x11-themes/papirus-icon-theme
@@ -513,8 +568,7 @@ if [ "$DESKTOP_CHOICE" != "none" ]; then
 	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
 	# Enable 'haveged', a RNG.
 	emerge -qv sys-apps/haveged
-	rc-update add haveged boot
-	rc-service haveged start
+	rc-update add haveged boot && rc-service haveged start
 	if ask_yes_no "Enable Windows-style hardware notifications?"; then
 		bash "$SCRIPT_DIR"/modules/hardware-notify.sh
 		if [ "$DESKTOP_CHOICE" = "plasma" ]; then
