@@ -49,7 +49,7 @@ for (i=1; i<=NF; i++) {
 
     if ($i ~ /^ID_MODEL_FROM_DATABASE=/)
         name = substr($i, 24)
-    else if ($i ~ /^ID_MODEL=/ && name == "USB device") {
+    else if ($i ~ /^ID_MODEL=/ && name == "Hardware device") {
         name = substr($i, 10)
         gsub("_", " ", name)
     }
