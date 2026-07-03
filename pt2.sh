@@ -870,6 +870,9 @@ emerge -qvuND @world
 emerge -ac
 emerge @preserved-rebuild
 
+# Configure font rendering.
+configure_font_rendering
+
 # To modify NetworkManager connections without needing to enter the root password, adding our new user to the 'plugdev' group.
 echo ">>> To modify NetworkManager connections as a normal user, adding your user account to the 'plugdev' group..."
 gpasswd -a "$name" plugdev

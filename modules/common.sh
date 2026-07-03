@@ -109,6 +109,7 @@ pause_msg() {
 	fi
 }
 
+# Global USE flag helper.
 add_global_use_flag() {
 	local flag="$1"
 
@@ -119,4 +120,17 @@ add_global_use_flag() {
 			echo "USE=\"$flag\"" >>/etc/portage/make.conf
 		fi
 	fi
+}
+
+# Font rendering helper.
+configure_font_rendering() {
+	eselect fontconfig enable 10-yes-antialias.conf
+	eselect fontconfig enable 10-hinting-slight.conf
+	eselect fontconfig enable 10-sub-pixel-rgb.conf
+	eselect fontconfig enable 11-lcdfilter-default.conf
+	eselect fontconfig enable 09-autohint-if-no-hinting.conf
+	eselect fontconfig disable 10-autohint.conf
+	eselect fontconfig enable 70-no-bitmaps-except-emoji.conf
+
+	fc-cache -fv
 }
