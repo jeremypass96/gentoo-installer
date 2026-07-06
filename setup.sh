@@ -211,7 +211,7 @@ clear
 # Copy scripts to /mnt/gentoo before chroot'ing.
 echo ">>> Copying pt2 script and module scripts into '/mnt/gentoo/gentoo-installer'..."
 mkdir -p /mnt/gentoo/gentoo-installer
-cp "$SCRIPT_DIR"/pt2.sh /mnt/gentoo/gentoo-installer
+cp "$SCRIPT_DIR"/configure.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
 cp -r "$SCRIPT_DIR"/modules/*.sh /mnt/gentoo/gentoo-installer/modules
 
@@ -274,7 +274,8 @@ fi
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 
-echo "This ends part 1 of the Gentoo installation script. Run ./configure.sh for part 2."
+echo ">>> The setup/bootstrap phase of the Gentoo installation is complete."
+echo ">>> Run ./configure.sh to configure and finish installing Gentoo."
 
 echo ">>> Chroot'ing into the Gentoo install..."
 # Chroot into the new environment (also mounts filesystems).
