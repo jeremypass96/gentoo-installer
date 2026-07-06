@@ -728,10 +728,10 @@ EOF
 	done
 	cd || return
 	cp -v /etc/kmscon/kmscon.conf.example /etc/kmscon/kmscon.conf && chmod go+r /etc/kmscon/kmscon.conf
-	sed -i 's/#switchvt/switchvt'/g /etc/kmscon/kmscon.conf
-	sed -i 's/#font-name=Hack Nerd Font/font-name=Hurmit Nerd Font'/g /etc/kmscon/kmscon.conf
-	sed -i 's/#hwaccel/hwaccel'/g /etc/kmscon/kmscon.conf
-	sed -i 's/#palette=solarized/palette=base16-dark'/g /etc/kmscon/kmscon.conf
+	sed -i 's/#switchvt/switchvt/' /etc/kmscon/kmscon.conf
+	sed -i 's/#font-name=Hack Nerd Font/font-name=Hurmit Nerd Font/' /etc/kmscon/kmscon.conf
+	sed -i 's/#hwaccel/hwaccel/' /etc/kmscon/kmscon.conf
+	sed -i 's/#palette=solarized/palette=base16-dark/' /etc/kmscon/kmscon.conf
 	;;
 esac
 
@@ -958,10 +958,10 @@ EOF
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
 chown "$name":"$name" /home/"$name"/.zshrc
 cp -v /etc/skel/.zshrc /root/.zshrc
-sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"'/g /root/.zshrc
-sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"'/g /root/.zshrc
-sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"'/g /root/.zshrc
-sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"'/g /root/.zshrc
+sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"/' /root/.zshrc
+sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"/' /root/.zshrc
+sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"/' /root/.zshrc
+sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"|' /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
 echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
