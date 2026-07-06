@@ -961,7 +961,7 @@ cp -v /etc/skel/.zshrc /root/.zshrc
 sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"'/g /root/.zshrc
 sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"'/g /root/.zshrc
 sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"'/g /root/.zshrc
-sed -i 's/update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"/update-grub="grub-mkconfig -o /boot/grub/grub.cfg"'/g /root/.zshrc
+sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"'/g /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
 echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
