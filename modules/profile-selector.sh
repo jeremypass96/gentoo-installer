@@ -55,9 +55,9 @@ while IFS= read -r line; do
 	if [[ "$line" =~ ^[[:space:]]*\[([0-9]+)\][[:space:]]+(.+)$ ]]; then
 		idx="${BASH_REMATCH[1]}"
 		desc="${BASH_REMATCH[2]}"
-		[[ "$desc" != *"/desktop"* ]] && continue
 		[[ "$desc" == *"/systemd"* ]] && continue
 		[[ "$desc" == *"(exp)"* ]] && continue
+		[[ "$desc" == *"(dev)"* ]] && continue
 		PROFILE_MAP["$idx"]="$desc"
 		PROFILE_MENU+=("$idx" "$desc")
 	fi
