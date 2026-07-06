@@ -962,11 +962,20 @@ sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"/' /
 sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"/' /root/.zshrc
 sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"/' /root/.zshrc
 sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"|' /root/.zshrc
+sed -i '/^# Run fastfetch\.$/,/^$/d' /root/.zshrc
 echo ">>> Installing command-not-found..."
 emerge -qv app-portage/command-not-found
 echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
 chmod go+r /etc/portage/package.use/pfl
 emerge -qv app-portage/pfl
+
+# Install and configure BOFH fortunes.
+emerge -qv games-misc/fortune-mod-bofh-excuses
+cat >>/root/.zshrc <<'EOF'
+
+# Fun BOFH excuses, because why not!
+fortune bofh-excuses | cowsay -f tux
+EOF
 
 # Install and configure fastfetch.
 clear
@@ -1007,8 +1016,13 @@ chown -R "$name":"$name" /home/"$name"/.config/helix
 emerge -qv marksman
 # Install Homebrew (needed for toplo, shfmt, and dprint).
 if su - "$name" -c 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'; then
-	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"' >>/home/"$name"/.zshrc
-	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"' >>/root/.zshrc
+	for zshrc in /root/.zshrc /home/"$name"/.zshrc /etc/skel/.zshrc; do
+		cat >>"$zshrc" <<'EOF'
+
+# Homebrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+EOF
+	done
 	su - "$name" -c 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)" && brew install taplo shfmt dprint'
 fi
 
