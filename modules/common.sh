@@ -103,9 +103,10 @@ run_step() {
 	else
 		echo ">>> $msg"
 		"$@" || {
+			local status=$?
 			echo "Command failed:"
 			echo "  $*"
-			exit $?
+			exit $status
 		}
 	fi
 }
