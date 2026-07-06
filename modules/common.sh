@@ -81,22 +81,29 @@ ask_yes_no() {
 
 # Dialog helpers.
 run_step() {
-	# Shows a dialog infobox, then runs the command(s) passed to it.
-	# Usage: run_step "Message..." command arg1 arg2 ...
 	local msg="$1"
 	shift
 
 	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --infobox "$msg" 5 70
-		sleep 0.50
+		"$@" &
+		local pid=$!
+
+		while kill -0 "$pid" 2>/dev/null; do
+			dialog --infobox "$msg" 3 60
+			sleep 0.5
+		done
+
+		wait "$pid"
+		status=$?
+
+		if ((status != 0)); then
+			pause_msg "Command failed:\n$*"
+			exit "$status"
+		fi
 	else
 		echo ">>> $msg"
+		"$@"
 	fi
-
-	"$@" || {
-		pause_msg "ERROR: Command failed:\n\n$*"
-		exit 1
-	}
 }
 
 pause_msg() {

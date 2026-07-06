@@ -99,7 +99,7 @@ if [[ -d /sys/firmware/efi ]]; then
 	run_step "Formatting EFI partition (FAT32)..."
 	mkfs.vfat -F 32 "$EFI_PARTITION"
 
-	run_step "Creating and formatting root partition..."
+	run_step "Creating root partition..."
 	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
 	run_step "Formatting root partition (XFS)..."
@@ -124,7 +124,7 @@ else
 
 	pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
-	run_step "Creating and formatting boot partition..."
+	run_step "Creating boot partition..."
 	parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
 
 	run_step "Setting boot flag..."
@@ -133,7 +133,7 @@ else
 	run_step "Formatting boot partition (XFS)..."
 	mkfs.xfs -f "$BOOT_PARTITION"
 
-	run_step "Creating and formatting root partition..."
+	run_step "Creating root partition..."
 	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
 	run_step "Formatting root partition (XFS)..."
