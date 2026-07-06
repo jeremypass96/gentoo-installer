@@ -274,7 +274,7 @@ fi
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 
-echo "This ends part 1 of the Gentoo installation script. Run ./pt2.sh for part 2."
+echo "This ends part 1 of the Gentoo installation script. Run ./configure.sh for part 2."
 
 echo ">>> Chroot'ing into the Gentoo install..."
 # Chroot into the new environment (also mounts filesystems).
