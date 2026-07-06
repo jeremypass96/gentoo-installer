@@ -64,7 +64,7 @@ else
 				--title "Select target disk" \
 				--no-cancel \
 				--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
-				20 79 8 \
+				13 79 5 \
 				"${MENU_ITEMS[@]}" \
 				3>&1 1>&2 2>&3
 		)
