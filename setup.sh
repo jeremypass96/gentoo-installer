@@ -34,26 +34,55 @@ chronyd -q
 
 # Detect drive(s).
 run_step "Detecting available disks..."
-mapfile -t DISKS < <(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}')
+mapfile -t DISKS < <(lsblk -bdpno NAME,SIZE,TYPE | awk '$3=="disk" && $2>0 { print $1 }')
 
-if [ "${#DISKS[@]}" -eq 0 ]; then
+# Detect the disk we're currently booted from.
+BOOT_SOURCE=$(findmnt -no SOURCE /)
+BOOT_DISK=$(lsblk -ndo PKNAME "$BOOT_SOURCE" 2>/dev/null)
+
+if [[ -n "$BOOT_DISK" ]]; then
+	BOOT_DISK="/dev/$BOOT_DISK"
+else
+	BOOT_DISK="$BOOT_SOURCE"
+fi
+
+# Build a list of installation candidates (exclude the current boot disk).
+INSTALL_DISKS=()
+
+for disk in "${DISKS[@]}"; do
+	[[ "$disk" == "$BOOT_DISK" ]] && continue
+	INSTALL_DISKS+=("$disk")
+done
+
+if [ "${#INSTALL_DISKS[@]}" -eq 0 ]; then
 	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox "ERROR: No disks detected. Aborting." 6 40
+		dialog --clear --msgbox "No suitable drives available for installation.\n\nThe only detected drive appears to be the current boot device." 7 66
 	else
 		echo "ERROR: No disks detected. Aborting."
 	fi
 	exit 1
-elif [ "${#DISKS[@]}" -eq 1 ]; then
-	DRIVE="${DISKS[0]}"
+elif [ "${#INSTALL_DISKS[@]}" -eq 1 ]; then
+	DRIVE="${INSTALL_DISKS[0]}"
+	SIZE=$(lsblk -dpno SIZE "$DRIVE")
+	MODEL=$(lsblk -dpno MODEL "$DRIVE" | sed 's/^ *//')
 	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox "Automatically selected drive:\n\n$DRIVE" 7 33
+		dialog --clear --msgbox \
+			"Automatically selected drive:
+
+			Device:	$DRIVE
+			Size:	$SIZE
+			Model:	$MODEL" \
+			9 50
 	else
-		echo ">>> Automatically selected drive: $DRIVE"
+		echo ">>> Automatically selected drive:"
+		echo "Device: $DRIVE"
+		echo "Size: $SIZE"
+		echo "Model: $MODEL"
 	fi
 else
 	if command -v dialog >/dev/null 2>&1; then
 		MENU_ITEMS=()
-		for dev in "${DISKS[@]}"; do
+		for dev in "${INSTALL_DISKS[@]}"; do
 			info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
 			MENU_ITEMS+=("$dev" "$info")
 		done
