@@ -94,7 +94,7 @@ run_step() {
 		done
 
 		wait "$pid"
-		status=$?
+		local status=$?
 
 		if ((status != 0)); then
 			pause_msg "Command failed:\n$*"
@@ -102,7 +102,11 @@ run_step() {
 		fi
 	else
 		echo ">>> $msg"
-		"$@"
+		"$@" || {
+			echo "Command failed:"
+			echo "  $*"
+			exit $?
+		}
 	fi
 }
 
