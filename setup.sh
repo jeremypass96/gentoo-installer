@@ -33,7 +33,7 @@ curl --location gentoo.org --output /dev/null || die "DNS or HTTPS failed (canno
 chronyd -q
 
 # Detect drive(s).
-run_step "Detecting available disks..." true
+run_step "Detecting available disks..."
 mapfile -t DISKS < <(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}')
 
 if [ "${#DISKS[@]}" -eq 0 ]; then
