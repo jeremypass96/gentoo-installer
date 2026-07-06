@@ -56,9 +56,9 @@ done
 
 if [ "${#INSTALL_DISKS[@]}" -eq 0 ]; then
 	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox "No suitable drives available for installation.\nThe only detected drive appears to be the current boot device.\nThe installer will now exit." 7 66
+		dialog --clear --msgbox "No suitable drives are available for installation.\nThe only detected drive appears to be the current boot device.\nThe installer will now exit." 7 66
 	else
-		echo ">>> No suitable drives available for installation. The only detected drive appears to be the current boot device."
+		echo ">>> No suitable drives are available for installation. The only detected drive appears to be the current boot device."
 	fi
 	exit 1
 elif [ "${#INSTALL_DISKS[@]}" -eq 1 ]; then
