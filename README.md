@@ -20,6 +20,7 @@ Provides automatic partitioning, filesystem setup, kernel installation, USE flag
     * Xfce
     * MATE
     * TDE (Trinity Desktop Environment)
+    * Cinnamon
 
 * Browser selection (_dialog-based_):
     * Brave
