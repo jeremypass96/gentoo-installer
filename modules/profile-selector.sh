@@ -58,6 +58,7 @@ while IFS= read -r line; do
 		[[ "$desc" == *"/systemd"* ]] && continue
 		[[ "$desc" == *"(exp)"* ]] && continue
 		[[ "$desc" == *"(dev)"* ]] && continue
+		[[ "$desc" == *"/split-usr"* ]] && continue
 		PROFILE_MAP["$idx"]="$desc"
 		PROFILE_MENU+=("$idx" "$desc")
 	fi
