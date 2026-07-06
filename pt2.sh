@@ -375,6 +375,7 @@ gnome-base/gvfs mtp
 x11-themes/arc-theme mate
 EOF
 	chmod go+r /etc/portage/package.use/mate
+	sed -i 's/ -modemmanager//' /etc/portage/package.use/networkmanager
 fi
 
 # Cinnamon USE flags.
@@ -383,6 +384,7 @@ if [ "$INSTALL_CINNAMON" = true ]; then
 x11-libs/xapp introspection
 dev-libs/libxmlb introspection
 x11-terms/gnome-terminal -gnome-shell -nautilus
+x11-themes/arc-theme cinnamon
 EOF
 	chmod go+r /etc/portage/package.use/cinnamon
 	sed -i 's/ -modemmanager//' /etc/portage/package.use/networkmanager
@@ -469,7 +471,7 @@ fi
 if [ "$INSTALL_XFCE" = true ]; then
 	echo ">>> Installing Xfce..."
 	emerge -qv1 xfce-extra/xfce4-notifyd
-	emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol x11-misc/mugshot xfce-extra/xfce4-whiskermenu-plugin
+	emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol x11-misc/mugshot xfce-extra/xfce4-whiskermenu-plugin x11-themes/arc-theme
 	env-update && . /etc/profile
 	cat <<EOF >/etc/pam.d/xfce4-screensaver
 auth include system-auth
@@ -483,7 +485,7 @@ fi
 
 if [ "$INSTALL_MATE" = true ]; then
 	echo ">>> Installing MATE..."
-	emerge -qv mate-base/mate mate-extra/mate-tweak
+	emerge -qv mate-base/mate mate-extra/mate-tweak x11-themes/arc-theme
 
 	# Configure LightDM.
 	echo XSESSION=\"Mate\" >/etc/env.d/90xsession
@@ -491,7 +493,7 @@ if [ "$INSTALL_MATE" = true ]; then
 fi
 
 if [ "$INSTALL_CINNAMON" = true ]; then
-	emerge -av gnome-extra/cinnamon x11-terms/gnome-terminal gnome-extra/gnome-calculator media-gfx/gnome-screenshot media-gfx/eog app-text/evince gnome-extra/gnome-system-monitor app-arch/file-roller app-cdr/brasero
+	emerge -av gnome-extra/cinnamon x11-terms/gnome-terminal gnome-extra/gnome-calculator media-gfx/gnome-screenshot media-gfx/eog app-text/evince gnome-extra/gnome-system-monitor app-arch/file-roller app-cdr/brasero x11-themes/arc-theme
 	install -d -m 0750 /etc/sudoers.d
 	tee /etc/sudoers.d/cinnamon >/dev/null <<'EOF'
 %wheel  ALL=(root) NOPASSWD: /sbin/reboot
@@ -534,7 +536,7 @@ if [ "$INSTALL_TDE" = true ]; then
 fi
 
 # --------------------------------------
-# Display Manager for Xfce/MATE: LightDM
+# Display Manager for Xfce/MATE/Cinnamon: LightDM
 # --------------------------------------
 case "$DESKTOP_CHOICE" in
 xfce | mate | cinnamon)
