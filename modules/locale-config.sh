@@ -16,9 +16,9 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------
+# ---------------------------------------------------
 # Gentoo Linux Installer Module: Locale Configuration
-# -----------------------------------------------------
+# ---------------------------------------------------
 # Provides:
 # - Language-group selection (English, Spanish, etc.).
 # - Locale selection with human-readable descriptions.
@@ -29,7 +29,7 @@
 # Notes:
 # Intended to be called by the Gentoo Linux Installer
 # during installation.
-# -----------------------------------------------------
+# ---------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
