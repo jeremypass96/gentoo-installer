@@ -26,8 +26,8 @@
 # - Sets RUSTFLAGS and MAKEOPTS automatically.
 #
 # Notes:
-# 	Intended to be called by the Gentoo Linux Installer
-# 	during installation.
+# Intended to be called by the Gentoo Linux Installer
+# during installation.
 # -----------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
