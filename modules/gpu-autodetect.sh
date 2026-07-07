@@ -140,7 +140,7 @@ choose_amd_family() {
 		tmp=$(mktemp)
 
 		dialog --clear \
-			--backtitle "Gentoo Installer" \
+			--backtitle "Gentoo Linux Installer" \
 			--title "AMD / Radeon Family Selection" \
 			--menu "Detected: $gpu_text\n\nSelect your GPU family (see Gentoo Radeon wiki):" \
 			0 0 0 \

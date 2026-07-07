@@ -69,7 +69,8 @@ done <"$REGION_FILE"
 # Ask user for region
 REGION_CHOICE=$(dialog --clear \
 	--no-cancel \
-	--title "Select Timezone Region" \
+	--backtitle "Gentoo Linux Installer" \
+	--title "Timezone" \
 	--menu "Choose your geographical region:" 23 60 15 \
 	"${MENU_ITEMS[@]}" \
 	3>&1 1>&2 2>&3)
@@ -100,7 +101,8 @@ done <"$ZONE_FILE"
 # Ask user for city/timezone
 ZONE_CHOICE=$(dialog --clear \
 	--no-cancel \
-	--title "Select Timezone" \
+	--backtitle "Gentoo Linux Installer" \
+	--title "Timezone" \
 	--menu "Choose your specific timezone:" 20 60 15 \
 	"${ZONE_ITEMS[@]}" \
 	3>&1 1>&2 2>&3)
