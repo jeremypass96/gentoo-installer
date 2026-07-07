@@ -67,8 +67,8 @@ bash "$SCRIPT_DIR"/modules/locale-config.sh
 
 # Set the root password using dialog.
 while true; do
-	rootpass1="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Root Password" --passwordbox 'Enter root password:' 8 25)"
-	rootpass2="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Confirm Root Password" --passwordbox 'Re-enter root password to confirm:' 8 39)"
+	rootpass1="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Root Password" --passwordbox 'Enter root password:' 8 40)"
+	rootpass2="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Confirm Root Password" --passwordbox 'Re-enter root password to confirm:' 8 40)"
 
 	if [ "$rootpass1" != "$rootpass2" ]; then
 		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Root passwords do not match! \n\nPlease try again." 0 0
@@ -76,7 +76,7 @@ while true; do
 	fi
 
 	if printf '%s\n%s\n' "$rootpass1" "$rootpass1" | passwd >/dev/null 2>&1; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Root Password" --msgbox "Root password has been set." 6 32
+		dialog --backtitle "Gentoo Linux Installer" --title "Root Password" --msgbox "Root password set successfully." 6 36
 		break
 	else
 		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Failed to set root password! \n\nPlease try again." 0 0
@@ -85,7 +85,7 @@ done
 
 # Add user to the system.
 while true; do
-	name="$(dialog --stdout --no-cancel --backtitle "Gentoo Linux Installer" --title "Username" --inputbox 'Enter the username for the new account (all lowercase):' 8 60)"
+	name="$(dialog --stdout --no-cancel --backtitle "Gentoo Linux Installer" --title "Username" --inputbox 'Enter the username for the new account (lowercase only):' 8 61)"
 
 	if [ -z "$name" ]; then
 		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "Username cannot be empty! \n\nPlease try again." 0 0
@@ -93,7 +93,7 @@ while true; do
 	fi
 
 	if ! printf '%s\n' "$name" | grep -qE '^[a-z][a-z0-9_-]*$'; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "Username must be lowercase and may contain letters, digits, underscores, or dashes." 7 47
+		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "Username must be lowercase and may contain letters, digits, underscores, or dashes.\n\nPlease try again." 0 0
 		continue
 	fi
 
@@ -121,7 +121,7 @@ while true; do
 	fi
 
 	if printf '%s\n%s\n' "$userpass1" "$userpass1" | passwd "$name" >/dev/null 2>&1; then
-		dialog --backtitle "Gentoo Linux Installer" --title "User Password" --msgbox "Password for '$name' has been set.\n\n" 0 0
+		dialog --backtitle "Gentoo Linux Installer" --title "User Password" --msgbox "Password for '$name' set successfully.\n\n" 0 0
 		break
 	else
 		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Failed to set password for '$name'.\n\nPlease try again." 0 0
