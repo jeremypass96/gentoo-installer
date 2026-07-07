@@ -16,6 +16,13 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# -------------------------------------------------------
+# Gentoo Linux Installer Module: Shared Utility Functions
+# -------------------------------------------------------
+# Shared helper functions used throughout the
+# Gentoo Linux Installer.
+# -------------------------------------------------------
+
 die() {
 	echo "ERROR: $*" >&2
 	exit 1

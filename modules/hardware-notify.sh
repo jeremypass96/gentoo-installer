@@ -1,5 +1,5 @@
 #!/bin/bash
-# hardware-notify.sh - Gentoo installer module for installing a Windows-like hardware desktop notification script.
+# hardware-notify.sh - Gentoo installer module for installing a Windows-style hardware desktop notification script.
 # Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# -------------------------------------------------------------
+# Gentoo Linux Installer Module: Hardware Notifications
+# -------------------------------------------------------------
+# Provides:
+# - Installs a Windows-style hardware notification service.
+# - Automatically starts the notification service on login.
+# - Displays desktop notifications for newly connected devices.
+# -------------------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"

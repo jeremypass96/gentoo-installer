@@ -16,20 +16,19 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------------
-# Gentoo Installer Module: System Profile Selector
-# -----------------------------------------------------------
+# ------------------------------------------------------
+# Gentoo Linux Installer Module: System Profile Selector
+# ------------------------------------------------------
 # Provides:
-#   - Clean parsing of "eselect profile list" output.
-#   - Removal of ANSI color codes for safe menu creation.
-#   - Interactive dialog-based profile selection.
-#   - Automatic eselect profile application.
+# - Clean parsing of "eselect profile list" output.
+# - Removal of ANSI color codes for safe menu creation.
+# - Interactive dialog-based profile selection.
+# - Automatic eselect profile application.
 #
 # Notes:
-#   Designed for use during the chroot phase of installation.
-#   This script is intended to be called from the main
-#   installer.
-# -----------------------------------------------------------
+# 	Intended to be called by the Gentoo Linux Installer
+# 	during installation.
+# ------------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script automates the installation of Gentoo Linux with a distribution binary kernel.
+# This installer automates the installation of Gentoo Linux.
 # Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
 #
 # This program is free software; you can redistribute it and/or modify

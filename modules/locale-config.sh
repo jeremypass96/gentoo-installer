@@ -16,20 +16,20 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------------
-# Gentoo Installer Module: Locale Configuration
-# -----------------------------------------------------------
+# -----------------------------------------------------
+# Gentoo Linux Installer Module: Locale Configuration
+# -----------------------------------------------------
 # Provides:
-#   - Language-group selection (English, Spanish, etc.).
-#   - Locale selection with human-readable descriptions.
-#   - Automatic /etc/locale.gen generation.
-#   - Automatic locale-gen execution.
-#   - Automatic eselect locale configuration.
+# - Language-group selection (English, Spanish, etc.).
+# - Locale selection with human-readable descriptions.
+# - Automatic /etc/locale.gen generation.
+# - Automatic locale-gen execution.
+# - Automatic eselect locale configuration.
 #
 # Notes:
-#   This script is intended to be called from the main
-#   installer.
-# -----------------------------------------------------------
+# 	Intended to be called by the Gentoo Linux Installer
+# 	during installation.
+# -----------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"

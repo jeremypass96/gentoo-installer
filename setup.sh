@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script automates the installation of Gentoo Linux with a distribution binary kernel.
+# This installer automates the installation of Gentoo Linux.
 # Copyright (C) 2026 Jeremy Passarelli <recordguy96@aol.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
-dialog --title "Gentoo Linux Setup Script" --msgbox "Welcome to the Gentoo installer setup script! \n\nThis script will automatically:\n- Find your disk and partition it (*if multiple disks are detected, you'll be asked to select the disk you want to partition*).\n- Create the necessary filesystem (XFS).\n- Mount the partitions.\n- Create a swapfile.\n- Download and extract the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- And finally, chroot into the system." 16 85
+dialog --title "Gentoo Linux Installer" --msgbox "Welcome to the Gentoo Linux Installer!\n\nThis script will automatically:\n- Find your disk and partition it (*if multiple disks are detected, you'll be asked to select the disk you want to partition*).\n- Create the necessary filesystem (XFS).\n- Mount the partitions.\n- Create a swapfile.\n- Download and extract the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- And finally, chroot into the system." 16 85
 
 # Test if we have a network connection using Google's public IP address.
 ping -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)."
@@ -89,7 +89,7 @@ else
 
 		CHOSEN_DISK=$(
 			dialog --clear \
-				--backtitle "Gentoo Install: Disk Selection" \
+				--backtitle "Gentoo Linux Installer: Disk Selection" \
 				--title "Select target disk" \
 				--no-cancel \
 				--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
@@ -183,7 +183,7 @@ SWAP_SIZE_GB=8
 if command -v dialog >/dev/null 2>&1; then
 	CHOSEN_SWAP=$(
 		dialog --clear \
-			--backtitle "Gentoo Install: Swapfile" \
+			--backtitle "Gentoo Linux Installer: Swapfile" \
 			--title "Swapfile size" \
 			--menu "Select swapfile size (GB):" 15 35 5 \
 			2 "2 GB" \
@@ -284,7 +284,7 @@ FSTAB_CONTENT=$(genfstab -U /mnt/gentoo)
 
 if command -v dialog >/dev/null 2>&1; then
 	dialog --clear \
-		--backtitle "Gentoo Install: fstab Generation" \
+		--backtitle "Gentoo Linux Installer: fstab Generation" \
 		--title "Preview of /etc/fstab:" \
 		--msgbox "$FSTAB_CONTENT" 14 75
 else

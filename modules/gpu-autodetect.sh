@@ -16,18 +16,21 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------------
-# Gentoo Installer: VIDEO_CARDS Autoconfig (GPU-aware)
-# -----------------------------------------------------------
-# - Detects GPU via lspci.
-# - For AMD, maps to the correct Radeon family per Gentoo wiki:
-#     R100, R200, R300–R500, R600–R700–Evergreen–NI,
-#     Southern Islands, Sea Islands
-# - For NVIDIA/Intel, sets sane defaults.
-# - Writes: /etc/portage/package.use/00video
-#   as: */* VIDEO_CARDS: -* <flags>.
-# If detection is ambiguous (esp. older AMD), it asks you.
-# -----------------------------------------------------------
+# -------------------------------------------------------
+# Gentoo Linux Installer Module: GPU Configuration
+# -------------------------------------------------------
+# Provides:
+# - Automatically detects the installed GPU.
+# - Configures VIDEO_CARDS for the detected hardware.
+# - Automatically maps supported AMD GPUs to the correct
+#   Radeon driver family.
+# - Prompts for manual selection when automatic detection
+#   is not possible.
+#
+# Notes:
+# 	Intended to be called by the Gentoo Linux Installer
+# 	during installation.
+# -------------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"

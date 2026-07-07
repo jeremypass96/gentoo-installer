@@ -16,12 +16,23 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# --------------------------------------------
+# Gentoo Linux Installer Module: XLibre
+# --------------------------------------------
+# Provides:
+# - Enables the XLibre overlay.
+# - Configures package keywords and USE flags.
+# - Replaces X.Org with XLibre.
+# - Rebuilds X11 packages as needed.
+# --------------------------------------------
+
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
 
 # Add Xlibre overlay.
+echo ">>> Enabling XLibre overlay..."
 eselect repository enable xlibre
 emaint sync -r xlibre
 

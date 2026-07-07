@@ -16,19 +16,19 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------------
-# Gentoo Installer Module: Timezone Selector
-# -----------------------------------------------------------
+# -----------------------------------------------------
+# Gentoo Linux Installer Module: Timezone Selector
+# -----------------------------------------------------
 # Provides:
-#   - Region selection (America, Europe, Asia, etc.).
-#   - City/timezone selection based on region.
-#   - Automatic /etc/timezone configuration.
-#   - Automatic emerge --config sys-libs/timezone-data.
+# - Region selection (America, Europe, Asia, etc.).
+# - City/timezone selection based on region.
+# - Automatic /etc/timezone configuration.
+# - Automatic emerge --config sys-libs/timezone-data.
 #
 # Notes:
-#   This script is intended to be called from the main
-#   installer.
-# -----------------------------------------------------------
+# 	Intended to be called by the Gentoo Linux Installer
+# 	during installation.
+# -----------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
@@ -132,4 +132,4 @@ else
 	echo ">>> Leaving clock set as UTC time."
 fi
 
-echo ">>> Timezone configuration complete."
+echo ">>> Timezone configured successfully."
