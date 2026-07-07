@@ -36,7 +36,7 @@ cp -r "$HOME"/vortex-gentoo/* /usr/share/plymouth/themes/vortex-gentoo
 # Remove unneeded files.
 rm /usr/share/plymouth/themes/vortex-gentoo/README.md && rm /usr/share/plymouth/themes/vortex-gentoo/screenshot.png
 
-run_step "Removing temporary repository clone from user's home directory..."
+run_step "Cleaning up temporary files..."
 rm -rf "$HOME"/vortex-gentoo
 
 run_step "Applying theme..."
