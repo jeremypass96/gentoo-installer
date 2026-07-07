@@ -26,17 +26,18 @@
 # ---------------------------------------------
 
 echo ">>> Cloning Plymouth theme repo..."
-git -C "$HOME" clone https://gitlab.com/menelkir/plymouth-theme-gentoo-logo-new.git
+git -C "$HOME" clone https://github.com/Schroedingersdoraemon/vortex-gentoo
 
 echo ">>> Making theme directory..."
-mkdir /usr/share/plymouth/themes/gentoo-logo-new
+mkdir /usr/share/plymouth/themes/vortex-gentoo
 
 echo ">>> Copying theme to /usr/share/plymouth/themes/..."
-cp -rv "$HOME"/plymouth-theme-gentoo-logo-new/* /usr/share/plymouth/themes/gentoo-logo-new
-rm /usr/share/plymouth/themes/gentoo-logo-new/README.rst
+cp -r "$HOME"/vortex-gentoo/* /usr/share/plymouth/themes/vortex-gentoo
+# Remove unneeded files.
+rm /usr/share/plymouth/themes/vortex-gentoo/README.md && rm /usr/share/plymouth/themes/vortex-gentoo/screenshot.png
 
-echo ">>> Removing GitHub repo directory from user's home directory..."
-rm -rf "$HOME"/plymouth-theme-gentoo-logo-new
+echo ">>> Removing temporary repository clone from user's home directory..."
+rm -rf "$HOME"/vortex-gentoo
 
 echo ">>> Applying theme..."
-plymouth-set-default-theme -R gentoo-logo-new
+plymouth-set-default-theme -R vortex-gentoo >/dev/null 2>&1
