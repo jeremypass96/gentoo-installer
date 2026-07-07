@@ -238,7 +238,7 @@ fi
 clear
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
-echo ">>> Copying pt2 script and module scripts into '/mnt/gentoo/gentoo-installer'..."
+echo ">>> Copying configure script and module scripts into '/mnt/gentoo/gentoo-installer'..."
 mkdir -p /mnt/gentoo/gentoo-installer
 cp "$SCRIPT_DIR"/configure.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
