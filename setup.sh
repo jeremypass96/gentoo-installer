@@ -21,7 +21,7 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
-dialog --title "Gentoo Linux Installer" --msgbox "Welcome to the Gentoo Linux Installer! \n\nThe installer will perform the following tasks:\n- Detect and partition the target disk.\n- Create the XFS filesystem.\n- Mount the partitions.\n- Create a swapfile.\n- Download and extract the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- Enter the installed system (chroot)." 14 54
+dialog --title "Gentoo Linux Installer" --msgbox "Welcome to the Gentoo Linux Installer! \n\nThe installer will perform the following tasks:\n- Detect and partition the target disk.\n- Create an XFS filesystem on the target partition.\n- Mount the partitions.\n- Create a swapfile.\n- Download and extract the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- Enter the installed system (chroot)." 14 55
 
 # Test if we have a network connection using Google's public IP address.
 ping -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)."
