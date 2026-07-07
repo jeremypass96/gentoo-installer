@@ -1,4 +1,4 @@
-# Gentoo Automated Installer
+# Gentoo Linux Installer
 A fully interactive, dialog-driven installer for Gentoo Linux.
 Provides automatic partitioning, filesystem setup, kernel installation, USE flag configuration, GPU detection, and desktop environment installation.
 
