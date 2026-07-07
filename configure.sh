@@ -138,8 +138,8 @@ DEFAULT_HOSTNAME="GentooBox"
 if command -v dialog >/dev/null 2>&1; then
 	HOSTNAME=$(
 		dialog --clear \
-			--backtitle "Gentoo Installer" \
-			--title "System hostname" \
+			--backtitle "Gentoo Linux Installer" \
+			--title "System Hostname" \
 			--inputbox "Enter a hostname for this machine:" 8 60 "$DEFAULT_HOSTNAME" \
 			3>&1 1>&2 2>&3
 	)
@@ -158,7 +158,7 @@ echo "$HOSTNAME" >/etc/hostname
 # ---------------------------
 TMP_DESKTOP=$(mktemp)
 dialog --clear \
-	--backtitle "Gentoo Installer" \
+	--backtitle "Gentoo Linux Installer" \
 	--title "Desktop Environment" \
 	--menu "Choose a desktop environment to install:" \
 	0 0 0 \
@@ -618,7 +618,7 @@ env-update
 TMP_KERNEL=$(mktemp)
 
 dialog --clear \
-	--backtitle "Gentoo Installer" \
+	--backtitle "Gentoo Linux Installer" \
 	--title "Kernel Selection" \
 	--menu "Choose which Linux kernel to install:" \
 	0 0 0 \
@@ -692,7 +692,7 @@ clear
 TMP_CONSOLE=$(mktemp)
 
 dialog --clear \
-	--backtitle "Gentoo Installer" \
+	--backtitle "Gentoo Linux Installer" \
 	--title "Console Type" \
 	--menu "Choose which Linux console to use:" \
 	0 0 0 \
@@ -749,7 +749,7 @@ emerge -qv app-eselect/eselect-repository
 # -------------------------
 TMP_BROWSER=$(mktemp)
 dialog --clear \
-	--backtitle "Gentoo Installer" \
+	--backtitle "Gentoo Linux Installer" \
 	--no-cancel \
 	--title "Web Browser" \
 	--menu "Choose a web browser to install:" \

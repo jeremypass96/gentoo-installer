@@ -60,10 +60,10 @@ ask_yes_no() {
 
 	if command -v dialog >/dev/null 2>&1; then
 		if [ "$default" = "yes" ]; then
-			dialog --clear --stdout --yesno "$prompt" 0 0
+			dialog --clear --stdout --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
 			return $?
 		else
-			dialog --clear --stdout --defaultno --yesno "$prompt" 0 0
+			dialog --clear --stdout --defaultno --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
 			return $?
 		fi
 	else
@@ -96,7 +96,7 @@ run_step() {
 		local pid=$!
 
 		while kill -0 "$pid" 2>/dev/null; do
-			dialog --infobox "$msg" 3 60
+			dialog --backtitle "Gentoo Linux Installer" --infobox "$msg" 3 60
 			sleep 0.5
 		done
 
@@ -121,7 +121,7 @@ run_step() {
 pause_msg() {
 	local msg="$1"
 	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox "$msg" 10 34
+		dialog --clear --backtitle "Gentoo Linux Installer" --msgbox "$msg" 10 34
 	else
 		echo "$msg"
 		read -r -p "Press Enter to continue..."
