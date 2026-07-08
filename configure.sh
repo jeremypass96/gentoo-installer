@@ -152,6 +152,7 @@ fi
 echo ">>> Using hostname: $HOSTNAME"
 HOSTNAME=${HOSTNAME:-GentooBox}
 echo "$HOSTNAME" >/etc/hostname
+sed -i 's/^hostname=.*/hostname="'"$HOSTNAME"'"/' /etc/conf.d/hostname
 
 # ---------------------------
 # Desktop selection (dialog).
