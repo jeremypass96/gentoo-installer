@@ -280,7 +280,7 @@ UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
 xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 
 # Generate fstab.
-FSTAB_CONTENT=$(genfstab -U /mnt/gentoo)
+FSTAB_CONTENT=$(genfstab /mnt/gentoo)
 
 if command -v dialog >/dev/null 2>&1; then
 	dialog --clear \
@@ -292,7 +292,8 @@ else
 	echo "$FSTAB_CONTENT"
 fi
 
-genfstab -U /mnt/gentoo | tee >/mnt/gentoo/etc/fstab
+printf '%s\n' "$FSTAB_CONTENT" >/mnt/gentoo/etc/fstab
+sed -i '/^#/d;/^$/d' /mnt/gentoo/etc/fstab
 
 if command -v dialog >/dev/null 2>&1; then
 	dialog --clear --msgbox "fstab successfully generated." 6 40
