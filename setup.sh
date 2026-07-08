@@ -282,24 +282,15 @@ xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include=
 # Generate fstab.
 FSTAB_CONTENT=$(genfstab /mnt/gentoo)
 
-if command -v dialog >/dev/null 2>&1; then
-	dialog --clear \
-		--backtitle "Gentoo Linux Installer: fstab Generation" \
-		--title "Preview of /etc/fstab:" \
-		--msgbox "$FSTAB_CONTENT" 14 75
-else
-	echo ">>> Preview of /etc/fstab:"
-	echo "$FSTAB_CONTENT"
-fi
+dialog --clear \
+	--backtitle "Gentoo Linux Installer" \
+	--title "Generated /etc/fstab" \
+	--msgbox "$FSTAB_CONTENT" 0 0
 
 printf '%s\n' "$FSTAB_CONTENT" >/mnt/gentoo/etc/fstab
 sed -i '/^#/d;/^$/d' /mnt/gentoo/etc/fstab
 
-if command -v dialog >/dev/null 2>&1; then
-	dialog --clear --msgbox "fstab successfully generated." 6 40
-else
-	echo ">>> fstab successfully generated."
-fi
+dialog --clear --msgbox "/etc/fstab successfully generated." 6 40
 
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
