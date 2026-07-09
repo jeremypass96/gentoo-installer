@@ -187,7 +187,7 @@ CHOSEN_SWAP=$(
 		--backtitle "Gentoo Linux Installer" \
 		--no-cancel \
 		--title "Swapfile Size" \
-		--menu "Select swapfile size (GB):" 15 35 5 \
+		--menu "Select swapfile size (GB):" 15 30 5 \
 		2 "2 GB" \
 		4 "4 GB" \
 		6 "6 GB" \
