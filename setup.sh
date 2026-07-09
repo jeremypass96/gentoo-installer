@@ -184,8 +184,9 @@ SWAP_SIZE_GB=8
 
 CHOSEN_SWAP=$(
 	dialog --clear \
-		--backtitle "Gentoo Linux Installer: Swapfile" \
-		--title "Swapfile size" \
+		--backtitle "Gentoo Linux Installer" \
+		--no-cancel \
+		--title "Swapfile Size" \
 		--menu "Select swapfile size (GB):" 15 35 5 \
 		2 "2 GB" \
 		4 "4 GB" \
@@ -221,12 +222,11 @@ if [ "$SWAP_SIZE_GB" -gt 0 ]; then
 
 		wait "$DD_PID"
 		echo 100
-	) | dialog --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 7 35 0
-	dialog --msgbox "Created ${SWAP_SIZE_GB} GB swapfile." 6 28
-
+	) | dialog --backtitle "Gentoo Linux Installer" --gauge "Creating ${SWAP_SIZE_GB} GB swapfile..." 6 32 0
 	chmod 600 /mnt/gentoo/swapfile
-	mkswap /mnt/gentoo/swapfile
-	swapon /mnt/gentoo/swapfile
+	mkswap /mnt/gentoo/swapfile >/dev/null 2>&1 || die "Failed to initialize swapfile."
+	swapon /mnt/gentoo/swapfile || die "Failed to activate swapfile."
+	dialog --backtitle "Gentoo Linux Installer" --msgbox "Swapfile successfully created and activated!" 5 48
 fi
 
 clear
