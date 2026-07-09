@@ -137,6 +137,7 @@ bash "$SCRIPT_DIR"/modules/gpu-autodetect.sh
 DEFAULT_HOSTNAME="GentooBox"
 HOSTNAME=$(
 	dialog --clear \
+		--no-cancel \
 		--backtitle "Gentoo Linux Installer" \
 		--title "System Hostname" \
 		--inputbox "Enter a hostname for this system:" 8 38 "$DEFAULT_HOSTNAME" \
@@ -147,7 +148,7 @@ clear
 dialog --clear \
 	--backtitle "Gentoo Linux Installer" \
 	--title "Hostname Set" \
-	--msgbox "The system hostname has been set to:\n\n$HOSTNAME" 8 41
+	--msgbox "The system hostname has been set to:\n\n$HOSTNAME" 7 41
 HOSTNAME=${HOSTNAME:-GentooBox}
 echo "$HOSTNAME" >/etc/hostname
 sed -i 's/^hostname=.*/hostname="'"$HOSTNAME"'"/' /etc/conf.d/hostname
