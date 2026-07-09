@@ -92,12 +92,12 @@ run_step() {
 	shift
 
 	if command -v dialog >/dev/null 2>&1; then
-		"$@" &
+		"$@" >/dev/null 2>&1 &
 		local pid=$!
 
 		while kill -0 "$pid" 2>/dev/null; do
 			dialog --backtitle "Gentoo Linux Installer" --infobox "$msg" 3 60
-			sleep 0.5
+			sleep 0.50
 		done
 
 		wait "$pid"

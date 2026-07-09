@@ -21,19 +21,38 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
-dialog --backtitle "Gentoo Linux Installer" --title "Welcome" --msgbox "Welcome to the Gentoo Linux Installer! \n\nThe installer will perform the following tasks:\n- Detect and partition the target disk.\n- Create the required filesystems.\n- Mount the /boot and root partitions.\n- Create a swapfile.\n- Download and extract the latest stage3 tarball.\n- Generate the fstab (using genfstab).\n- Enter the installed system (chroot)." 14 53
+dialog --clear \
+	--backtitle "Gentoo Linux Installer" \
+	--title "Welcome" \
+	--msgbox "Welcome to the Gentoo Linux Installer!
+
+The installer will perform the following tasks:
+- Verify network connectivity.
+- Verify DNS resolution and HTTPS access.
+- Synchronize the system clock.
+- Detect and partition the target disk.
+- Create the required filesystems.
+- Mount the /boot and root partitions.
+- Create a swapfile.
+- Download and extract the latest stage3 tarball.
+- Generate the fstab (using genfstab).
+- Enter the installed system (chroot)." \
+	17 53
 
 # Test if we have a network connection using Google's public IP address.
-ping -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)."
+run_step "Verifying network connectivity..." \
+	ping -q -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)."
 
 # Test HTTPS access and DNS resolution.
-curl --location gentoo.org --output /dev/null || die "DNS or HTTPS failed (cannot reach gentoo.org)."
+run_step "Verifying DNS resolution and HTTPS access..." \
+	curl --location gentoo.org --output /dev/null || die "DNS or HTTPS failed (cannot reach gentoo.org)."
 
 # Update the system clock.
-chronyd -q
+run_step "Synchronizing the system clock with chrony..." \
+	chronyd -q
 
 # Detect drive(s).
-run_step "Detecting available disks..."
+run_step "Detecting available installation disks..." true
 mapfile -t DISKS < <(lsblk -bdpno NAME,SIZE,TYPE | awk '$3=="disk" && $2>0 { print $1 }')
 
 # Detect the disk we're currently booted from.
@@ -55,63 +74,46 @@ for disk in "${DISKS[@]}"; do
 done
 
 if [ "${#INSTALL_DISKS[@]}" -eq 0 ]; then
-	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox "No suitable drives are available for installation.\nThe only detected drive appears to be the current boot device.\nThe installer will now exit." 7 66
-	else
-		echo ">>> No suitable drives are available for installation. The only detected drive appears to be the current boot device."
-	fi
+	dialog --clear --backtitle "Gentoo Linux Installer" --title "No Installation Drive Found" --msgbox "No suitable installation drive was found.\nThe only detected drive appears to be the current boot device.\nThe installer will now exit." 7 66
 	exit 1
 elif [ "${#INSTALL_DISKS[@]}" -eq 1 ]; then
 	DRIVE="${INSTALL_DISKS[0]}"
 	SIZE=$(lsblk -dpno SIZE "$DRIVE")
 	MODEL=$(lsblk -dpno MODEL "$DRIVE" | sed 's/^ *//')
-	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --msgbox \
-			"Automatically selected drive:
+	dialog --clear --msgbox \
+		"Automatically selected drive:
 
 			Device:	$DRIVE
 			Size:	$SIZE
 			Model:	$MODEL" \
-			9 50
-	else
-		echo ">>> Automatically selected drive:"
-		echo "Device: $DRIVE"
-		echo "Size: $SIZE"
-		echo "Model: $MODEL"
-	fi
+		9 50
 else
-	if command -v dialog >/dev/null 2>&1; then
-		MENU_ITEMS=()
-		for dev in "${INSTALL_DISKS[@]}"; do
-			info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
-			MENU_ITEMS+=("$dev" "$info")
-		done
+	MENU_ITEMS=()
+	for dev in "${INSTALL_DISKS[@]}"; do
+		info=$(lsblk -dpno SIZE,MODEL "$dev" | sed 's/  */ /g')
+		MENU_ITEMS+=("$dev" "$info")
+	done
 
-		CHOSEN_DISK=$(
-			dialog --clear \
-				--backtitle "Gentoo Linux Installer: Disk Selection" \
-				--title "Select target disk" \
-				--no-cancel \
-				--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
-				13 79 5 \
-				"${MENU_ITEMS[@]}" \
-				3>&1 1>&2 2>&3
-		)
-		clear
+	CHOSEN_DISK=$(
+		dialog --clear \
+			--backtitle "Gentoo Linux Installer" \
+			--title "Disk Selection" \
+			--no-cancel \
+			--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
+			13 79 5 \
+			"${MENU_ITEMS[@]}" \
+			3>&1 1>&2 2>&3
+	)
+	clear
 
-		DRIVE="$CHOSEN_DISK"
-	else
-		echo "Multiple disks detected:"
-		lsblk -dpno NAME,SIZE,MODEL | grep -E "sd|hd|vd|nvme|mmc"
-		read -r -p "Enter disk to use (example: /dev/sda or /dev/nvme0n1): " DRIVE
-	fi
+	DRIVE="$CHOSEN_DISK"
 fi
 
 if [[ -d /sys/firmware/efi ]]; then
 	pause_msg "UEFI detected.\n\nI'm about to create a GPT partition table on this drive:\n\n$DRIVE"
 
-	run_step "Creating GPT partition table on $DRIVE..."
-	parted -s "$DRIVE" mklabel gpt
+	run_step "Creating GPT partition table on $DRIVE..." \
+		parted -s "$DRIVE" mklabel gpt
 
 	part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
 	EFI_PARTITION="$(part "$DRIVE" 1)"
@@ -119,33 +121,33 @@ if [[ -d /sys/firmware/efi ]]; then
 
 	pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
 
-	run_step "Creating and formatting EFI system partition..."
-	parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
+	run_step "Creating and formatting EFI system partition..." \
+		parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 
-	run_step "Marking EFI partition as ESP..."
-	parted -s "$DRIVE" set 1 esp on
+	run_step "Marking EFI partition as ESP..." \
+		parted -s "$DRIVE" set 1 esp on
 
-	run_step "Formatting EFI partition (FAT32)..."
-	mkfs.vfat -F 32 "$EFI_PARTITION"
+	run_step "Formatting EFI partition (FAT32)..." \
+		mkfs.vfat -F 32 "$EFI_PARTITION"
 
-	run_step "Creating root partition..."
-	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+	run_step "Creating root partition..." \
+		parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
-	run_step "Formatting root partition (XFS)..."
-	mkfs.xfs -f "$ROOT_PARTITION"
+	run_step "Formatting root partition (XFS)..." \
+		mkfs.xfs -f "$ROOT_PARTITION"
 
-	run_step "Mounting root partition to /mnt/gentoo..."
-	mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
+	run_step "Mounting root partition to /mnt/gentoo..." \
+		mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
-	run_step "Mounting EFI system partition..."
-	mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot
+	run_step "Mounting EFI system partition..." \
+		mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot
 
 	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot"
 else
 	pause_msg "BIOS detected.\n\n I'm about to create an MBR partition table on this drive:\n\n$DRIVE"
 
-	run_step "Creating MBR partition table on $DRIVE..."
-	parted -s "$DRIVE" mklabel msdos
+	run_step "Creating MBR partition table on $DRIVE..." \
+		parted -s "$DRIVE" mklabel msdos
 
 	part() { [[ "$1" =~ [0-9]$ ]] && echo "${1}p$2" || echo "${1}$2"; }
 	BOOT_PARTITION="$(part "$DRIVE" 1)"
@@ -153,26 +155,26 @@ else
 
 	pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
 
-	run_step "Creating boot partition..."
-	parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
+	run_step "Creating boot partition..." \
+		parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
 
-	run_step "Setting boot flag..."
-	parted -s "$DRIVE" set 1 boot on
+	run_step "Setting boot flag..." \
+		parted -s "$DRIVE" set 1 boot on
 
-	run_step "Formatting boot partition (XFS)..."
-	mkfs.xfs -f "$BOOT_PARTITION"
+	run_step "Formatting boot partition (XFS)..." \
+		mkfs.xfs -f "$BOOT_PARTITION"
 
-	run_step "Creating root partition..."
-	parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
+	run_step "Creating root partition..." \
+		parted -s "$DRIVE" mkpart primary xfs 1GiB 100%
 
-	run_step "Formatting root partition (XFS)..."
-	mkfs.xfs -f "$ROOT_PARTITION"
+	run_step "Formatting root partition (XFS)..." \
+		mkfs.xfs -f "$ROOT_PARTITION"
 
-	run_step "Mounting root partition to /mnt/gentoo..."
-	mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
+	run_step "Mounting root partition to /mnt/gentoo..." \
+		mount --mkdir "$ROOT_PARTITION" /mnt/gentoo
 
-	run_step "Mounting boot partition to /mnt/gentoo/boot..."
-	mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
+	run_step "Mounting boot partition to /mnt/gentoo/boot..." \
+		mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
 
 	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
 fi
@@ -180,34 +182,26 @@ fi
 # Make swapfile and activate it.
 SWAP_SIZE_GB=8
 
-if command -v dialog >/dev/null 2>&1; then
-	CHOSEN_SWAP=$(
-		dialog --clear \
-			--backtitle "Gentoo Linux Installer: Swapfile" \
-			--title "Swapfile size" \
-			--menu "Select swapfile size (GB):" 15 35 5 \
-			2 "2 GB" \
-			4 "4 GB" \
-			6 "6 GB" \
-			8 "8 GB (default)" \
-			10 "10 GB" \
-			12 "12 GB" \
-			14 "14 GB" \
-			16 "16 GB" \
-			3>&1 1>&2 2>&3
-	)
-	clear
+CHOSEN_SWAP=$(
+	dialog --clear \
+		--backtitle "Gentoo Linux Installer: Swapfile" \
+		--title "Swapfile size" \
+		--menu "Select swapfile size (GB):" 15 35 5 \
+		2 "2 GB" \
+		4 "4 GB" \
+		6 "6 GB" \
+		8 "8 GB (default)" \
+		10 "10 GB" \
+		12 "12 GB" \
+		14 "14 GB" \
+		16 "16 GB" \
+		3>&1 1>&2 2>&3
+)
+clear
 
-	# If user pressed ESC, keep default.
-	if [ -n "$CHOSEN_SWAP" ]; then
-		SWAP_SIZE_GB="$CHOSEN_SWAP"
-	fi
-else
-	read -r -p "Swapfile size in GB [8]: " INPUT_SWAP
-	case "$INPUT_SWAP" in
-	"") ;; # keep default
-	*) SWAP_SIZE_GB="$INPUT_SWAP" ;;
-	esac
+# If user pressed ESC, keep default.
+if [ -n "$CHOSEN_SWAP" ]; then
+	SWAP_SIZE_GB="$CHOSEN_SWAP"
 fi
 
 if [ "$SWAP_SIZE_GB" -gt 0 ]; then
