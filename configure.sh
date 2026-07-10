@@ -306,6 +306,7 @@ fi
 # ----------------------------------
 if ask_yes_no "Enable printing support?" yes; then
 	AVAHI_USE+=" python"
+	echo "net-dns/avahi ${AVAHI_USE}" >/etc/portage/package.use/avahi
 	echo "net-print/cups zeroconf" >/etc/portage/package.use/cups
 	chmod go+r /etc/portage/package.use/cups
 	echo "net-print/hplip scanner hpijs" >/etc/portage/package.use/hplip
@@ -315,9 +316,6 @@ else
 	add_global_use_flag "-cups"
 	echo ">>> Printing support disabled."
 fi
-# Apply USE flags for Avahi.
-echo "net-dns/avahi ${AVAHI_USE}" >/etc/portage/package.use/avahi
-chmod go+r /etc/portage/package.use/avahi
 
 # -------------------------------------------
 # Optional: disable mp3 encoding system-wide.
