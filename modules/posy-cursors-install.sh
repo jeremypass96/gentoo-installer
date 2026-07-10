@@ -26,20 +26,20 @@
 # - Removes temporary installation files.
 # -------------------------------------------
 
-echo ">>> Installing Posy cursors..."
-echo ">>> Cloning Posy cursors GitHub repo..."
+status "Installing Posy cursors..."
+status "Cloning Posy cursors GitHub repo..."
 git -C "$HOME" clone https://github.com/Icelk/posy-cursors.git
 
-echo ">>> Copying cursors to /usr/share/icons..."
+status "Copying cursors to /usr/share/icons..."
 cp -rp "$HOME"/posy-cursors/themes/posy-white /usr/share/icons/posy-cursors
 cp -rp "$HOME"/posy-cursors/themes/posy-black /usr/share/icons/posy-cursors-black
 
-echo ">>> Applying correct user permissions..."
+status "Applying correct user permissions..."
 chown -R root:root /usr/share/icons/posy-cursors /usr/share/icons/posy-cursors-black
 find /usr/share/icons/posy-cursors /usr/share/icons/posy-cursors-black -type d -exec chmod 755 {} \;
 find /usr/share/icons/posy-cursors /usr/share/icons/posy-cursors-black -type f -exec chmod 644 {} \;
 
-echo ">>> Removing temporary repository clone from root's home directory..."
+status "Removing temporary repository clone from root's home directory..."
 cd && rm -rf "$HOME"/posy-cursors
 
-echo ">>> Done. Posy cursors are now installed."
+success "Done. Posy cursors are now installed."

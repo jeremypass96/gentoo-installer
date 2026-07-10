@@ -49,6 +49,10 @@ failure() {
 	echo -e "\e[1;31mERROR: $*\e[0m" >&2
 }
 
+info() {
+	echo -e "\e[1;37m>>> $*\e[0m"
+}
+
 require_root() {
 	if [ "$EUID" -ne 0 ]; then
 		die "This script must be run as root."

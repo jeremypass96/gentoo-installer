@@ -35,7 +35,7 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
 
-echo ">>> Configuring timezone..."
+status "Configuring timezone..."
 
 TMP_DIR=$(mktemp -d)
 REGION_FILE="$TMP_DIR/regions.txt"
@@ -77,7 +77,7 @@ REGION_CHOICE=$(dialog --clear \
 
 if [ $? -ne 0 ]; then
 	clear
-	echo "Timezone selection cancelled."
+	failure "Timezone selection cancelled."
 	exit 1
 fi
 
@@ -109,7 +109,7 @@ ZONE_CHOICE=$(dialog --clear \
 
 if [ $? -ne 0 ]; then
 	clear
-	echo "Timezone selection cancelled."
+	failure "Timezone selection cancelled."
 	exit 1
 fi
 
@@ -121,7 +121,7 @@ FULL_TZ="${REGION}/${ZONE}"
 echo "$FULL_TZ" >/etc/timezone
 
 clear
-echo ">>> Setting timezone to: $FULL_TZ"
+status "Setting timezone to: $FULL_TZ"
 emerge --config sys-libs/timezone-data
 
 # Cleanup
@@ -131,7 +131,7 @@ rm -rf "$TMP_DIR"
 if ask_yes_no "Enable local time instead of UTC?\n\nRecommended if you plan to (or already) dual-boot with Windows." yes; then
 	sed -i 's/clock="UTC"/clock="local"/' /etc/conf.d/hwclock
 else
-	echo ">>> Leaving clock set as UTC time."
+	status "Leaving clock set as UTC time."
 fi
 
-echo ">>> Timezone configured successfully."
+success "Timezone configured successfully."

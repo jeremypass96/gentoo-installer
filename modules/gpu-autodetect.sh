@@ -39,9 +39,9 @@ require_chroot
 
 # Ensure lspci exists
 if ! command -v lspci >/dev/null 2>&1; then
-	echo ">>> sys-apps/pciutils (lspci) not found, emerging..."
+	warning "sys-apps/pciutils (lspci) not found, emerging..."
 	emerge -1q sys-apps/pciutils || {
-		echo "ERROR: Failed to install pciutils; cannot continue."
+		failure "Failed to install pciutils; cannot continue."
 		exit 1
 	}
 fi
@@ -49,11 +49,11 @@ fi
 GPU_LINE=$(lspci -nn | grep -Ei 'VGA compatible controller|3D controller|Display controller' | head -n1)
 
 if [ -z "$GPU_LINE" ]; then
-	echo ">>> No GPU found via lspci. Not touching VIDEO_CARDS."
+	warning "No GPU found via lspci. Not touching VIDEO_CARDS."
 	exit 0
 fi
 
-echo ">>> Detected GPU:"
+status ">>> Detected GPU:"
 echo "    $GPU_LINE"
 echo
 
@@ -120,8 +120,8 @@ choose_amd_family() {
 	fi
 
 	if [ -n "$family" ]; then
-		echo ">>> AMD GPU auto-classified as: $family"
-		echo ">>> VIDEO_CARDS -> $flags"
+		info "AMD GPU auto-classified as: $family"
+		info "VIDEO_CARDS -> $flags"
 		echo
 		AMD_FAMILY="$family"
 		VIDEO_FLAGS="$flags"
@@ -130,52 +130,30 @@ choose_amd_family() {
 
 	# If we reach here, we can't reliably guess – ask the user.
 
-	echo ">>> Cannot safely determine exact AMD family from:"
+	warning "Cannot safely determine exact AMD family from:"
 	echo "    $gpu_text"
-	echo ">>> Please choose the correct family according to the Gentoo wiki."
+	warning "Please choose the correct family according to the Gentoo wiki."
 	echo
 
-	if command -v dialog >/dev/null 2>&1; then
-		local tmp
-		tmp=$(mktemp)
+	local tmp
+	tmp=$(mktemp)
 
-		dialog --clear \
-			--backtitle "Gentoo Linux Installer" \
-			--title "AMD / Radeon Family Selection" \
-			--menu "Detected: $gpu_text\n\nSelect your GPU family (see Gentoo Radeon wiki):" \
-			0 0 0 \
-			r100 "R100 - Radeon 7xxx / 320-345 (very old)" \
-			r200 "R200 - Radeon 8xxx–9250" \
-			r300 "R300/R400/R500 - X1300–X2300 / HD2300 etc." \
-			r600 "R600/R700/Evergreen/Northern Islands - HD2400–HD6990" \
-			south "Southern Islands - HD77xx–79xx, R7 240–260, R9 270–280" \
-			sea "Sea Islands - Bonaire, Kabini, Kaveri, Hawaii, etc." \
-			2>"$tmp"
+	dialog --clear \
+		--backtitle "Gentoo Linux Installer" \
+		--title "AMD / Radeon Family Selection" \
+		--menu "Detected: $gpu_text\n\nSelect your GPU family (see Gentoo Radeon wiki):" \
+		0 0 0 \
+		r100 "R100 - Radeon 7xxx / 320-345 (very old)" \
+		r200 "R200 - Radeon 8xxx–9250" \
+		r300 "R300/R400/R500 - X1300–X2300 / HD2300 etc." \
+		r600 "R600/R700/Evergreen/Northern Islands - HD2400–HD6990" \
+		south "Southern Islands - HD77xx–79xx, R7 240–260, R9 270–280" \
+		sea "Sea Islands - Bonaire, Kabini, Kaveri, Hawaii, etc." \
+		2>"$tmp"
 
-		local choice
-		choice=$(<"$tmp")
-		rm -f "$tmp"
-	else
-		echo "1) R100        (Radeon 7xxx / 320-345)"
-		echo "2) R200        (Radeon 8xxx–9250)"
-		echo "3) R300–R500   (X1300–X2300 / HD2300 etc.)"
-		echo "4) R600–NI     (HD2400–HD6990)"
-		echo "5) Southern Islands (HD77xx–79xx, R7 240–260, R9 270–280)"
-		echo "6) Sea Islands      (Bonaire, Kabini, Kaveri, Hawaii, ...)"
-		read -rp "Enter choice [1-6]: " num
-		case "$num" in
-		1) choice="r100" ;;
-		2) choice="r200" ;;
-		3) choice="r300" ;;
-		4) choice="r600" ;;
-		5) choice="south" ;;
-		6) choice="sea" ;;
-		*)
-			echo "Invalid choice"
-			exit 1
-			;;
-		esac
-	fi
+	local choice
+	choice=$(<"$tmp")
+	rm -f "$tmp"
 
 	case "$choice" in
 	r100)
@@ -203,13 +181,13 @@ choose_amd_family() {
 		VIDEO_FLAGS="radeon radeonsi"
 		;;
 	*)
-		echo "ERROR: Unknown selection."
+		failure "Unknown selection."
 		exit 1
 		;;
 	esac
 
-	echo ">>> AMD family selected: $AMD_FAMILY"
-	echo ">>> VIDEO_CARDS -> $VIDEO_FLAGS"
+	info "AMD family selected: $AMD_FAMILY"
+	status "VIDEO_CARDS -> $VIDEO_FLAGS"
 	echo
 }
 
@@ -218,7 +196,7 @@ if [ "$GPU_VENDOR" = "amd" ]; then
 fi
 
 if [ "$GPU_VENDOR" = "unknown" ]; then
-	echo ">>> Unknown GPU vendor. Not modifying VIDEO_CARDS."
+	warning "Unknown GPU vendor. Not modifying VIDEO_CARDS."
 	exit 0
 fi
 
@@ -252,12 +230,12 @@ fi
 # Write /etc/portage/package.use/00video.
 # ---------------------------------------
 
-echo ">>> Writing /etc/portage/package.use/00video ..."
+status "Writing /etc/portage/package.use/00video..."
 cat <<EOF >/etc/portage/package.use/00video
 */* VIDEO_CARDS: -* $VIDEO_FLAGS
 EOF
 chmod go+r /etc/portage/package.use/00video
-echo ">>> Final VIDEO_CARDS setting:"
+status "Final VIDEO_CARDS setting:"
 cat /etc/portage/package.use/00video
 echo
-echo ">>> GPU / VIDEO_CARDS configuration complete."
+success "GPU / VIDEO_CARDS configuration complete."

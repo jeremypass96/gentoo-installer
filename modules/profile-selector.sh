@@ -36,7 +36,7 @@ require_root
 require_chroot
 
 # View and set system profile using dialog
-echo ">>> Configuring system profile..."
+status "Configuring system profile..."
 
 # Collect profiles from eselect
 PROFILE_RAW=$(eselect profile list 2>/dev/null)
@@ -64,7 +64,7 @@ while IFS= read -r line; do
 done <<<"$PROFILE_CLEAN"
 
 if [ "${#PROFILE_MENU[@]}" -eq 0 ]; then
-	echo "ERROR: No profiles found!"
+	failure "No profiles found!"
 	echo "$PROFILE_CLEAN"
 	exit 1
 fi
@@ -82,7 +82,7 @@ dialog --clear \
 PROFILE_CHOICE=$(<"$TMP_PROFILE")
 rm -f "$TMP_PROFILE"
 
-echo ">>> Setting system profile to ${PROFILE_CHOICE}..."
+status "Setting system profile to ${PROFILE_CHOICE}..."
 eselect profile set "${PROFILE_CHOICE}"
 
-echo ">>> Profile updated."
+success "Profile updated."

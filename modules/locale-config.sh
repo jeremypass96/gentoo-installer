@@ -37,9 +37,9 @@ require_root
 require_chroot
 
 # Configure locale using dialog, grouped by language.
-echo ">>> Configuring locale..."
+satus "Configuring locale..."
 
-echo ">>> Building locale map from /etc/locale.gen..."
+status "Building locale map from /etc/locale.gen..."
 
 declare -A CODE_BY_INDEX
 declare -A DESC_BY_INDEX
@@ -81,7 +81,7 @@ while read -r line; do
 done </etc/locale.gen
 
 if [ "${#CODE_BY_INDEX[@]}" -eq 0 ]; then
-	echo "!!! No locale entries found in /etc/locale.gen"
+	failure "No locale entries found in /etc/locale.gen"
 	exit 1
 fi
 
@@ -89,7 +89,7 @@ fi
 # 1) Language group selection.
 ##############################
 
-echo ">>> Building language groups menu..."
+status "Building language groups menu..."
 
 # Build "lang_code<TAB>label" lines and sort by label
 lang_lines=$(
@@ -117,13 +117,13 @@ dialog --clear \
 CHOSEN_LANG=$(<"$TMP_LANG")
 rm -f "$TMP_LANG"
 
-echo ">>> You selected language group: $CHOSEN_LANG"
+info "You selected language group: $CHOSEN_LANG"
 
 ###########################################
 # 2) Locale selection within that language.
 ###########################################
 
-echo ">>> Building locale list for '$CHOSEN_LANG'..."
+status "Building locale list for '$CHOSEN_LANG'..."
 
 # Build "global_idx<TAB>description" for that base language, sorted by description.
 locale_lines=$(
@@ -148,7 +148,7 @@ while IFS=$'\t' read -r global_idx desc; do
 done <<<"$locale_lines"
 
 if [ "${#LOCALE_MENU[@]}" -eq 0 ]; then
-	echo "!!! No locales found for language group '$CHOSEN_LANG'"
+	failure "No locales found for language group '$CHOSEN_LANG'"
 	exit 1
 fi
 
@@ -168,8 +168,8 @@ rm -f "$TMP_LOCALE"
 GLOBAL_INDEX="${LOCAL_TO_GLOBAL[$CHOICE_LOCAL_INDEX]}"
 CHOSEN_CODE="${CODE_BY_INDEX[$GLOBAL_INDEX]}"
 
-echo ">>> You selected locale: $CHOSEN_CODE"
-echo ">>> Updating /etc/locale.gen so only this locale is active..."
+info "You selected locale: $CHOSEN_CODE"
+status "Updating /etc/locale.gen so only this locale is active..."
 
 cp /etc/locale.gen /etc/locale.gen.bak
 
@@ -207,24 +207,24 @@ awk -v code="$CHOSEN_CODE" '
 # Remove backup before locale-gen
 rm -f /etc/locale.gen.bak
 
-echo ">>> Running locale-gen..."
+status "Running locale-gen..."
 locale-gen
 
 ################################
 # 3) Auto-select eselect locale.
 ################################
 
-echo ">>> Auto-selecting eselect locale..."
+status "Auto-selecting eselect locale..."
 
 TARGET_LOCALE="${CHOSEN_CODE}.UTF-8"
 
 # Check if that exact target exists in eselect's list
 if LANG=C LC_ALL=C eselect locale list 2>/dev/null | grep -q " ${TARGET_LOCALE}\b"; then
-	echo ">>> Setting LANG to ${TARGET_LOCALE} via eselect..."
+	status "Setting LANG to ${TARGET_LOCALE} via eselect..."
 	LANG=C LC_ALL=C eselect locale set "${TARGET_LOCALE}"
 else
-	echo "!!! Could not find ${TARGET_LOCALE} in eselect locale list."
-	echo ">>> Available targets are:"
+	warning "Could not find ${TARGET_LOCALE} in eselect locale list."
+	info "Available targets are:"
 	LANG=C LC_ALL=C eselect locale list
 	read -p ">>> Enter the number or name of the locale you want to set: " LOCALE_CHOICE
 	LANG=C LC_ALL=C eselect locale set "${LOCALE_CHOICE}"
@@ -238,7 +238,7 @@ LANG_VAL=$(locale | awk -F= '/^LANG=/{gsub(/"/,"",$2);print $2}')
 
 # Fallback if LANG somehow isn't set.
 if [ -z "$LANG_VAL" ]; then
-	echo ">>> LANG is empty; defaulting L10N to en-US"
+	warning "LANG is empty; defaulting L10N to en-US"
 	L10N_VALUE="en-US"
 else
 	# Strip encoding, e.g. en_US.UTF-8 -> en_US.
@@ -251,12 +251,12 @@ fi
 # Handle weird cases like C or POSIX.
 case "$L10N_VALUE" in
 C | POSIX | "")
-	echo ">>> Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
+	warning "Non-translation locale detected ($L10N_VALUE); defaulting L10N to en-US"
 	L10N_VALUE="en-US"
 	;;
 esac
 
-echo ">>> Setting package L10N to ${L10N_VALUE}..."
+status "Setting package L10N to ${L10N_VALUE}..."
 echo "*/* L10N: -* ${L10N_VALUE}" >/etc/portage/package.use/localization
 
 # Reload env inside chroot

@@ -32,7 +32,7 @@ require_root
 require_chroot
 
 # Add Xlibre overlay.
-echo ">>> Enabling XLibre overlay..."
+status "Enabling XLibre overlay..."
 eselect repository enable xlibre
 emaint sync -r xlibre
 
