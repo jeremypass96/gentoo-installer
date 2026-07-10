@@ -24,7 +24,7 @@
 # -------------------------------------------------------
 
 die() {
-	echo "ERROR: $*" >&2
+	echo -e "\e[1;31mERROR: $*\e[0m" >&2
 	exit 1
 }
 
@@ -56,33 +56,13 @@ require_not_chroot() {
 ask_yes_no() {
 	local prompt="$1"
 	local default="${2:-yes}"
-	local ans
 
-	if command -v dialog >/dev/null 2>&1; then
-		if [ "$default" = "yes" ]; then
-			dialog --clear --stdout --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
-			return $?
-		else
-			dialog --clear --stdout --defaultno --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
-			return $?
-		fi
+	if [ "$default" = "yes" ]; then
+		dialog --clear --stdout --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
+		return $?
 	else
-		while true; do
-			read -r -p "$prompt [y/n] (default: $default): " ans
-			ans="${ans,,}" # lowercase
-			case "$ans" in
-			y | yes) return 0 ;;
-			n | no) return 1 ;;
-			"")
-				if [ "$default" = "yes" ]; then
-					return 0
-				else
-					return 1
-				fi
-				;;
-			*) echo "Please answer y or n." ;;
-			esac
-		done
+		dialog --clear --stdout --defaultno --backtitle "Gentoo Linux Installer" --yesno "$prompt" 0 0
+		return $?
 	fi
 }
 
@@ -91,41 +71,26 @@ run_step() {
 	local msg="$1"
 	shift
 
-	if command -v dialog >/dev/null 2>&1; then
-		"$@" >/dev/null 2>&1 &
-		local pid=$!
+	"$@" >/dev/null 2>&1 &
+	local pid=$!
 
-		while kill -0 "$pid" 2>/dev/null; do
-			dialog --backtitle "Gentoo Linux Installer" --infobox "$msg" 3 60
-			sleep 0.50
-		done
+	while kill -0 "$pid" 2>/dev/null; do
+		dialog --backtitle "Gentoo Linux Installer" --infobox "$msg" 3 60
+		sleep 0.50
+	done
 
-		wait "$pid"
-		local status=$?
+	wait "$pid"
+	local status=$?
 
-		if ((status != 0)); then
-			pause_msg "Command failed:\n$*"
-			exit "$status"
-		fi
-	else
-		echo ">>> $msg"
-		"$@" || {
-			local status=$?
-			echo "Command failed:"
-			echo "  $*"
-			exit $status
-		}
+	if ((status != 0)); then
+		pause_msg "Command failed:\n$*"
+		exit "$status"
 	fi
 }
 
 pause_msg() {
 	local msg="$1"
-	if command -v dialog >/dev/null 2>&1; then
-		dialog --clear --backtitle "Gentoo Linux Installer" --msgbox "$msg" 10 34
-	else
-		echo "$msg"
-		read -r -p "Press Enter to continue..."
-	fi
+	dialog --clear --backtitle "Gentoo Linux Installer" --msgbox "$msg" 10 34
 }
 
 # Global USE flag helper.

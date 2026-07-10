@@ -21,6 +21,9 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
+# Ensure dialog is available.
+command -v dialog >/dev/null 2>&1 || die "The 'dialog' package is required to run this installer."
+
 dialog --clear \
 	--backtitle "Gentoo Linux Installer" \
 	--title "Welcome" \
