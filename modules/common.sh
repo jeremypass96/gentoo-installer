@@ -153,3 +153,12 @@ configure_font_rendering() {
 
 	fc-cache -fv
 }
+
+# Verify the downloaded Gentoo stage3 tarball and its signatures.
+verify_stage3() {
+	sha256sum --check "${STAGE3}.sha256" || return 1
+	gpg --import /usr/share/openpgp-keys/gentoo-release.asc || return 1
+	gpg --verify "${STAGE3}.asc" || return 1
+	gpg --verify "${STAGE3}.DIGESTS" || return 1
+	gpg --verify "${STAGE3}.sha256" || return 1
+}

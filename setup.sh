@@ -245,11 +245,12 @@ cd /mnt/gentoo || exit
 BASEURL="https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-desktop-openrc"
 LATEST_TXT="${BASEURL}/latest-stage3-amd64-desktop-openrc.txt"
 
-echo ">>> Detecting latest stage3 tarball..."
+run_step "Detecting latest stage3 tarball..." true
 STAGE3=$(wget -qO- "${LATEST_TXT}" | awk '/^stage3-amd64-desktop-openrc-/ {print $1; exit}')
 
-echo ">>> Latest stage3 is: ${STAGE3}"
-echo
+dialog --backtitle "Gentoo Linux Installer" \
+	--title "Latest Stage3" \
+	--msgbox "The latest Gentoo stage3 tarball is:\n\n${STAGE3}" 7 55
 
 echo ">>> Downloading stage3 tarball..."
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}"
@@ -262,12 +263,8 @@ wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.DIGESTS"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.asc"
 echo
 
-echo ">>> Verifying stage3 checksums..."
-sha256sum --check "${STAGE3}.sha256"
-gpg --import /usr/share/openpgp-keys/gentoo-release.asc
-gpg --verify "${STAGE3}.asc"
-gpg --output "${STAGE3}.DIGESTS.verified" --verify "${STAGE3}.DIGESTS"
-gpg --output "${STAGE3}.sha256.verified" --verify "${STAGE3}.sha256"
+run_step "Verifying stage3 checksums..." \
+	verify_stage3
 
 echo ">>> Extracting stage3 tarball..."
 UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
