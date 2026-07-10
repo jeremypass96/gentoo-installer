@@ -113,7 +113,7 @@ else
 fi
 
 if [[ -d /sys/firmware/efi ]]; then
-	pause_msg "UEFI detected.\n\nI'm about to create a GPT partition table on this drive:\n\n$DRIVE"
+	pause_msg "UEFI detected.\n\nA GPT partition table will now be created on:\n$DRIVE"
 
 	run_step "Creating GPT partition table on $DRIVE..." \
 		parted -s "$DRIVE" mklabel gpt
@@ -147,7 +147,7 @@ if [[ -d /sys/firmware/efi ]]; then
 
 	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot"
 else
-	pause_msg "BIOS detected.\n\n I'm about to create an MBR partition table on this drive:\n\n$DRIVE"
+	pause_msg "BIOS detected.\n\nAn MBR partition table will now be created on:\n$DRIVE"
 
 	run_step "Creating MBR partition table on $DRIVE..." \
 		parted -s "$DRIVE" mklabel msdos

@@ -90,7 +90,7 @@ run_step() {
 
 pause_msg() {
 	local msg="$1"
-	dialog --clear --backtitle "Gentoo Linux Installer" --msgbox "$msg" 10 34
+	dialog --clear --backtitle "Gentoo Linux Installer" --msgbox "$msg" 0 0
 }
 
 # Global USE flag helper.
