@@ -23,9 +23,22 @@
 # Gentoo Linux Installer.
 # -------------------------------------------------------
 
+# Color-coded terminal/console messages.
 die() {
 	echo -e "\e[1;31mERROR: $*\e[0m" >&2
 	exit 1
+}
+
+success() {
+	echo -e "\e[1;32m>>> $*\e[0m"
+}
+
+step() {
+	echo -e "\e[1;36m>>> $*\e[0m"
+}
+
+status() {
+	echo -e "\e[1;38;5;141m>>> $*\e[0m"
 }
 
 require_root() {

@@ -39,10 +39,10 @@ mirrorselect -i -o >>/etc/portage/make.conf
 # Update repository.
 emerge --sync
 
-# Install dialog.
+# Ensure dialog is available.
 if ! command -v dialog >/dev/null 2>&1; then
-	echo ">>> Installing dialog for interactive menus..."
-	emerge -qv sys-apps/dialog
+	echo ">>> Installing required package: dialog..."
+	emerge -q dev-util/dialog
 fi
 
 # View and set system profile.

@@ -21,8 +21,21 @@ source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
 
+# Test if we have a network connection using Google's public IP address.
+echo ">>> Verifying network connectivity..."
+ping -q -c 4 8.8.8.8 >/dev/null 2>&1 || die "Network unreachable (ping to Google's public DNS server failed)."
+success "Network connectivity verified."
+
+# Test HTTPS access and DNS resolution.
+echo ">>> Verifying DNS resolution and HTTPS access..."
+curl --location gentoo.org --output /dev/null >/dev/null 2>&1 || die "DNS or HTTPS failed (cannot reach gentoo.org)."
+success "DNS resolution and HTTPS access verified."
+
 # Ensure dialog is available.
-command -v dialog >/dev/null 2>&1 || die "The 'dialog' package is required to run this installer."
+if ! command -v dialog >/dev/null 2>&1; then
+	echo ">>> Installing required package: dialog..."
+	emerge -q dev-util/dialog || die "Failed to install the required package: dialog."
+fi
 
 dialog --clear \
 	--backtitle "Gentoo Linux Installer" \
@@ -30,8 +43,6 @@ dialog --clear \
 	--msgbox "Welcome to the Gentoo Linux Installer!
 
 The installer will perform the following tasks:
-- Verify network connectivity.
-- Verify DNS resolution and HTTPS access.
 - Synchronize the system clock.
 - Detect and partition the target disk.
 - Create the required filesystems.
@@ -40,15 +51,7 @@ The installer will perform the following tasks:
 - Download and extract the latest stage3 tarball.
 - Generate the fstab (using genfstab).
 - Enter the installed system (chroot)." \
-	17 53
-
-# Test if we have a network connection using Google's public IP address.
-run_step "Verifying network connectivity..." \
-	ping -q -c 4 8.8.8.8 || die "Network unreachable (ping to Google's public DNS server failed)."
-
-# Test HTTPS access and DNS resolution.
-run_step "Verifying DNS resolution and HTTPS access..." \
-	curl --location gentoo.org --output /dev/null || die "DNS or HTTPS failed (cannot reach gentoo.org)."
+	15 53
 
 # Update the system clock.
 run_step "Synchronizing the system clock with chrony..." \
@@ -289,10 +292,10 @@ dialog --clear --msgbox "/etc/fstab successfully generated." 6 40
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 
-echo ">>> The setup/bootstrap phase of the Gentoo installation is complete."
-echo ">>> Run ./configure.sh to configure and finish installing Gentoo."
-
-echo ">>> Chroot'ing into the Gentoo install..."
+success "The setup phase of the Gentoo installation is complete."
+step "Next, run ./configure.sh to finish installing Gentoo."
+echo
+status "Entering the installed Gentoo system..."
 # Chroot into the new environment (also mounts filesystems).
 touch /mnt/gentoo/.gentoo-installer-chroot
 arch-chroot /mnt/gentoo
