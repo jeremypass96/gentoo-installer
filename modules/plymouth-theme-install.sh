@@ -25,19 +25,20 @@
 # - Sets it as the default Plymouth theme.
 # ---------------------------------------------
 
-run_step "Downloading Plymouth theme..."
-git -C "$HOME" clone https://github.com/Schroedingersdoraemon/vortex-gentoo
+run_step "Downloading Plymouth theme..." \
+	git -C "$HOME" clone https://github.com/Schroedingersdoraemon/vortex-gentoo
 
-run_step "Making theme directory..."
-mkdir /usr/share/plymouth/themes/vortex-gentoo
+run_step "Creating theme directory..." \
+	mkdir /usr/share/plymouth/themes/vortex-gentoo
 
-run_step "Copying theme to /usr/share/plymouth/themes/..."
-cp -r "$HOME"/vortex-gentoo/* /usr/share/plymouth/themes/vortex-gentoo
-# Remove unneeded files.
+run_step "Copying theme to /usr/share/plymouth/themes/..." \
+	cp -r "$HOME"/vortex-gentoo/* /usr/share/plymouth/themes/vortex-gentoo
+
+# Remove unneeded pointless files.
 rm /usr/share/plymouth/themes/vortex-gentoo/README.md && rm /usr/share/plymouth/themes/vortex-gentoo/screenshot.png
 
-run_step "Cleaning up temporary files..."
-rm -rf "$HOME"/vortex-gentoo
+run_step "Cleaning up temporary files..." \
+	rm -rf "$HOME"/vortex-gentoo
 
-run_step "Applying theme..."
-plymouth-set-default-theme -R vortex-gentoo >/dev/null 2>&1
+run_step "Applying theme..." \
+	plymouth-set-default-theme -R vortex-gentoo >/dev/null 2>&1
