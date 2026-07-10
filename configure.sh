@@ -281,9 +281,9 @@ chmod go+r /etc/portage/package.use/installkernel
 if ask_yes_no "Enable global 'dist-kernel' USE flag for all packages (*/* dist-kernel)?\n\nRecommended if you plan to use Gentoo's binary distribution kernel and want automatic module rebuilds." yes; then
 	echo "*/* dist-kernel" >/etc/portage/package.use/module-rebuild
 	chmod go+r /etc/portage/package.use/module-rebuild
-	echo ">>> Enabled global dist-kernel USE flag."
+	success "Enabled global dist-kernel USE flag."
 else
-	echo ">>> Not enabling global dist-kernel USE flag."
+	status "Not enabling global dist-kernel USE flag."
 fi
 
 # Configure USE flags for GRUB.
@@ -311,10 +311,10 @@ if ask_yes_no "Enable printing support?" yes; then
 	chmod go+r /etc/portage/package.use/cups
 	echo "net-print/hplip scanner hpijs" >/etc/portage/package.use/hplip
 	chmod go+r /etc/portage/package.use/hplip
-	echo ">>> Printing support enabled."
+	success "Printing support enabled."
 else
 	add_global_use_flag "-cups"
-	echo ">>> Printing support disabled."
+	status "Printing support disabled."
 fi
 
 # -------------------------------------------
@@ -322,9 +322,9 @@ fi
 # -------------------------------------------
 if ask_yes_no "Disable mp3 encoding support system-wide (set USE=\"-lame\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs like FLAC." yes; then
 	add_global_use_flag "-lame"
-	echo ">>> Global mp3 encoding support disabled via USE flags."
+	success "Global mp3 encoding support disabled via USE flags."
 else
-	echo ">>> Leaving mp3 encoding support enabled globally."
+	status "Leaving mp3 encoding support enabled globally."
 fi
 
 #-------------------------------------
@@ -332,7 +332,7 @@ fi
 # ------------------------------------
 if ask_yes_no "Disable bluetooth support?" yes; then
 	add_global_use_flag "-bluetooth"
-	echo ">>> Bluetooth support disabled."
+	success "Bluetooth support disabled."
 fi
 
 # KDE USE flags.
@@ -399,7 +399,7 @@ fi
 # ---------------------------------
 if ! emerge -avquDN @world; then
 	echo
-	echo ">>> @world update FAILED. Restoring previous USE flag files..."
+	failure "@world update FAILED! Restoring previous USE flag files..."
 	for f in "${USE_FILES[@]}"; do
 		if [[ -f "${BACKUP_DIR}/${f}" ]]; then
 			mv "${BACKUP_DIR}/${f}" "/etc/portage/package.use/${f}"
@@ -407,8 +407,8 @@ if ! emerge -avquDN @world; then
 			rm -f "/etc/portage/package.use/${f}"
 		fi
 	done
-	echo ">>> USE flag configuration rolled back."
-	echo ">>> Fix the problem and rerun this step manually."
+	warning "USE flag configuration rolled back."
+	warning "Fix the problem and rerun this step manually."
 	exit 1
 else
 	rm -rf "${BACKUP_DIR}"
@@ -422,13 +422,13 @@ emerge @preserved-rebuild
 # Desktop-specific installation.
 # ------------------------------
 if [ "$INSTALL_PLASMA" = true ]; then
-	echo ">>> Installing KDE Plasma..."
+	status "Installing KDE Plasma..."
 	emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs kde-apps/audiocd-kio kde-apps/kwalletmanager
 
 	if ask_yes_no "Do you want Dolphin to integrate with Git repositories?" yes; then
 		emerge -qv kde-apps/dolphin-plugins-git
 	else
-		echo ">>> Dolphin Git integration will not be installed."
+		status "Dolphin Git integration will not be installed."
 	fi
 
 	mkdir -p /etc/skel/.config
@@ -440,7 +440,7 @@ if [ "$INSTALL_PLASMA" = true ]; then
 	if ask_yes_no "Do you want to install some KDE games?\n\nThis will install the following games:\n- Kapman\n- KPatience\n- KMines\n- Bomber\n- KSnakeDuel\n- Klickety\n- KBlocks\n- KDiamond\n- KBounce\n- KNetWalk\n- KBreakOut" yes; then
 		emerge -qv kde-apps/kapman kde-apps/kpat kde-apps/kmines kde-apps/bomber kde-apps/ksnakeduel kde-apps/klickety kde-apps/kblocks kde-apps/kdiamond kde-apps/kbounce kde-apps/knetwalk kde-apps/kbreakout
 	else
-		echo ">>> No KDE games will be installed."
+		status "No KDE games will be installed."
 	fi
 
 	# For kde-plasma/kinfocenter.
@@ -463,11 +463,11 @@ if [ "$INSTALL_PLASMA" = true ]; then
 	ufw allow 1714:1764/tcp
 	rc-service ufw restart
 else
-	echo ">>> Skipping KDE Plasma installation (desktop choice: ${DESKTOP_CHOICE})."
+	status "Skipping KDE Plasma installation (desktop choice: ${DESKTOP_CHOICE})."
 fi
 
 if [ "$INSTALL_XFCE" = true ]; then
-	echo ">>> Installing Xfce..."
+	status "Installing Xfce..."
 	emerge -qv1 xfce-extra/xfce4-notifyd
 	emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol x11-misc/mugshot xfce-extra/xfce4-whiskermenu-plugin x11-themes/arc-theme
 	env-update && . /etc/profile
@@ -482,7 +482,7 @@ EOF
 fi
 
 if [ "$INSTALL_MATE" = true ]; then
-	echo ">>> Installing MATE..."
+	status "Installing MATE..."
 	emerge -qv mate-base/mate mate-extra/mate-tweak x11-themes/arc-theme
 
 	# Configure LightDM.
@@ -491,6 +491,7 @@ if [ "$INSTALL_MATE" = true ]; then
 fi
 
 if [ "$INSTALL_CINNAMON" = true ]; then
+	status "Installing Cinnamon..."
 	emerge -av gnome-extra/cinnamon x11-terms/gnome-terminal gnome-extra/gnome-calculator media-gfx/gnome-screenshot media-gfx/eog app-text/evince gnome-extra/gnome-system-monitor app-arch/file-roller app-cdr/brasero x11-themes/arc-theme
 	install -d -m 0750 /etc/sudoers.d
 	tee /etc/sudoers.d/cinnamon >/dev/null <<'EOF'
@@ -519,7 +520,7 @@ EOF
 fi
 
 if [ "$INSTALL_TDE" = true ]; then
-	echo ">>> Installing TDE..."
+	status "Installing TDE..."
 	eselect repository add trinity-official git https://mirror.git.trinitydesktop.org/gitea/TDE/tde-packaging-gentoo.git
 	emaint sync -r trinity-official
 	echo "*/*::trinity-official ~amd64" >/etc/portage/package.accept_keywords/trinity-official
@@ -596,7 +597,7 @@ emerge -qv app-shells/manpager
 emerge -qv app-portage/gentoolkit
 
 # Install Linux firmware.
-echo ">>> Installing Linux firmware..."
+status "Installing Linux firmware..."
 emerge -qv sys-kernel/linux-firmware
 
 # Configure dracut.
@@ -627,25 +628,25 @@ dialog --clear \
 KERNEL_CHOICE=$(<"$TMP_KERNEL")
 rm -f "$TMP_KERNEL"
 
-echo ">>> Kernel choice: $KERNEL_CHOICE"
+status "Kernel choice: $KERNEL_CHOICE"
 echo
 case "$KERNEL_CHOICE" in
 bin)
 	clear
-	echo ">>> Installing Gentoo binary kernel..."
+	status "Installing Gentoo binary kernel..."
 	emerge -qv sys-kernel/gentoo-kernel-bin
 	;;
 
 src)
 	clear
-	echo ">>> Installing source kernel (gentoo-kernel)..."
+	status "Installing source kernel (gentoo-kernel)..."
 	emerge -qv sys-kernel/gentoo-kernel
 	;;
 esac
 
 # Install and enable NetworkManager.
 clear
-echo ">>> Installing NetworkManager..."
+status "Installing NetworkManager..."
 emerge -qv net-misc/networkmanager
 rc-update add NetworkManager default
 
@@ -658,29 +659,29 @@ fi
 
 # Install system logger.
 clear
-echo ">>> Installing Sysklogd..."
+status "Installing Sysklogd..."
 emerge -qv app-admin/sysklogd
 rc-update add sysklogd default
 
 # Install cron daemon.
 clear
-echo ">>> Installing cronie..."
+status "Installing cronie..."
 emerge -qv sys-process/cronie
 rc-update add cronie default
 
 # Add file indexing.
 clear
-echo "Installing plocate..."
+status "Installing plocate..."
 emerge -qv sys-apps/plocate
 
 # Install easy-to-use 'find' utility, fd.
 clear
-echo ">>> Installing fd, an easy-to-use 'find' utility..."
+status "Installing fd, an easy-to-use 'find' utility..."
 emerge -qv sys-apps/fd
 
 # Install and start Chrony.
 clear
-echo ">>> Installing Chrony..."
+status "Installing Chrony..."
 emerge -qv net-misc/chrony
 rc-update add chronyd default
 rc-service chronyd start
@@ -701,17 +702,17 @@ dialog --clear \
 CONSOLE_CHOICE=$(<"$TMP_CONSOLE")
 rm -f "$TMP_CONSOLE"
 
-echo ">>> Console choice: $CONSOLE_CHOICE"
+status "Console choice: $CONSOLE_CHOICE"
 echo
 case "$CONSOLE_CHOICE" in
 agetty)
 	clear
-	echo ">>> Going with the default Linux console..."
+	status "Going with the default Linux console..."
 	;;
 
 kmscon)
 	clear
-	echo ">>> Installing Kmscon..."
+	status "Installing Kmscon..."
 	echo "sys-apps/kmscon freetype" >/etc/portage/package.use/kmscon
 	cat >/etc/portage/package.accept_keywords/kmscon <<EOF
 sys-apps/kmscon ~amd64
@@ -733,13 +734,19 @@ EOF
 	;;
 esac
 
-# Add IO Scheduler udev rules.
+# Install I/O Scheduler udev rules.
+clear
+status "Installing I/O Scheduler udev rules..."
 emerge -qv sys-block/io-scheduler-udev-rules
 
 # Install filesystem tools.
+clear
+status "Installing filesystem tools..."
 emerge -qv sys-fs/xfsprogs sys-fs/ntfs3g
 
 # Install eselect repository tool.
+clear
+status "Installing eselect repository tool..."
 emerge -qv app-eselect/eselect-repository
 
 # -------------------------
@@ -781,7 +788,7 @@ helium) INSTALL_HELIUM=true ;;
 none | *) ;;
 esac
 
-echo ">>> Browser choice: ${BROWSER_CHOICE}"
+status "Browser choice: ${BROWSER_CHOICE}"
 echo
 
 if [ "$INSTALL_BRAVE" = true ]; then
@@ -790,19 +797,19 @@ if [ "$INSTALL_BRAVE" = true ]; then
 	emerge -qv www-client/brave-browser
 	rm -f /usr/share/applications/com.brave.Browser.desktop
 else
-	echo ">>> Skipping Brave installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Brave installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_CHROMIUM" = true ]; then
 	emerge -qv www-client/chromium
 else
-	echo ">>> Skipping Chromium installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Chromium installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_VIVALDI" = true ]; then
 	emerge -qv www-client/vivaldi
 else
-	echo ">>> Skipping Vivaldi installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Vivaldi installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_UNG_CHROMIUM" = true ]; then
@@ -810,7 +817,7 @@ if [ "$INSTALL_UNG_CHROMIUM" = true ]; then
 	emerge --sync pf4public
 	emerge -qv www-client/ungoogled-chromium-bin
 else
-	echo ">>> Skipping Ungoogled Chromium installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Ungoogled Chromium installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_CROMITE" = true ]; then
@@ -820,7 +827,7 @@ if [ "$INSTALL_CROMITE" = true ]; then
 	chmod go+r /etc/portage/package.accept_keywords/cromite-bin
 	emerge -qv www-client/cromite-bin
 else
-	echo ">>> Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Cromite installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$INSTALL_HELIUM" = true ]; then
@@ -830,17 +837,17 @@ if [ "$INSTALL_HELIUM" = true ]; then
 	chmod go+r /etc/portage/package.accept_keywords/helium-bin
 	emerge -qv www-client/helium-bin
 else
-	echo ">>> Skipping Helium installation (Browser choice: ${BROWSER_CHOICE})."
+	status "Skipping Helium installation (Browser choice: ${BROWSER_CHOICE})."
 fi
 
 if [ "$BROWSER_CHOICE" = "none" ]; then
-	echo ">>> No web browser installed."
-	echo ">>> I assume you are installing a CLI-only system with no DE."
+	warning "No web browser selected."
+	status "Continuing without a graphical web browser."
 fi
 
 # Install Nerd fonts.
 clear
-echo ">>> Installing Nerd fonts..."
+status "Installing Nerd fonts..."
 eselect repository enable xarblu-overlay
 emerge --sync xarblu-overlay
 echo "media-fonts/nerd-fonts" >/etc/portage/package.accept_keywords/nerd-fonts
@@ -853,7 +860,7 @@ emerge -qv media-fonts/nerd-fonts
 
 # Install 'Source Sans Pro' font.
 clear
-echo ">>> Installing Source Sans Pro font..."
+status "Installing Source Sans Pro font..."
 emerge -qv media-fonts/source-sans
 
 # Clean up Noto fonts.
@@ -864,27 +871,31 @@ EOF
 chmod go+r /etc/portage/package.use/noto-font
 
 # Update USE flags.
+clear
+status "Updating USE flags..."
 emerge -qvuND @world
 
 # Clean up any orphaned/unneeded dependencies.
+clear
+status "Removing any orphaned/undeeded dependencies..."
 emerge -ac
 emerge @preserved-rebuild
 
 # Configure font rendering.
 configure_font_rendering
 
-# To modify NetworkManager connections without needing to enter the root password, adding our new user to the 'plugdev' group.
-echo ">>> To modify NetworkManager connections as a normal user, adding your user account to the 'plugdev' group..."
+# Allow the user to modify NetworkManager connections without root privileges.
+clear
+status "Adding your user account to the 'plugdev' group..."
 gpasswd -a "$name" plugdev
 
 # Install sudo.
-clear
-echo ">>> Installing sudo..."
+status "Installing sudo..."
 emerge -qv app-admin/sudo
 
 # Install bat (cat clone with color, line numbers, etc.).
 clear
-echo ">>> Installing bat..."
+status "Installing and configuring bat..."
 echo "sys-apps/bat ~amd64" >/etc/portage/package.accept_keywords/bat
 chmod go+r /etc/portage/package.accept_keywords/bat
 emerge -qv sys-apps/bat
@@ -900,7 +911,7 @@ bat cache --build
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
 clear
-echo ">>> Installing Zsh with Gentoo's Zsh completions..."
+status "Installing and configuring Zsh with Gentoo's Zsh completions..."
 emerge -qv app-shells/zsh app-shells/gentoo-zsh-completions
 eselect repository enable mv
 emerge --sync mv
@@ -962,13 +973,14 @@ sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN
 sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"/' /root/.zshrc
 sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"|' /root/.zshrc
 sed -i '/^# Run fastfetch\.$/,/^$/d' /root/.zshrc
-echo ">>> Installing command-not-found..."
+status "Installing command-not-found..."
 emerge -qv app-portage/command-not-found
 echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
 chmod go+r /etc/portage/package.use/pfl
 emerge -qv app-portage/pfl
 
 # Install and configure BOFH fortunes.
+status "Installing BOFH fortunes..."
 emerge -qv games-misc/fortune-mod-bofh-excuses
 cat >>/root/.zshrc <<'EOF'
 
@@ -976,9 +988,9 @@ cat >>/root/.zshrc <<'EOF'
 fortune bofh-excuses | cowsay -f tux
 EOF
 
-# Install and configure fastfetch.
+# Install and configure Fastfetch.
 clear
-echo ">>> Installing fastfetch..."
+status "Installing and configuring Fastfetch..."
 mkdir -p /etc/skel/.config/fastfetch
 wcurl --curl-options="--progress-bar" -o /etc/skel/.config/fastfetch/config.jsonc https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
 emerge -qv app-misc/fastfetch
@@ -988,9 +1000,9 @@ chown -R "$name":"$name" /home/"$name"/.config/fastfetch
 chmod go+r /home/"$name"/.config/fastfetch/config.jsonc
 mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~/.config/fastfetch/
 
-# Install and configure LSD (LSDeluxe).
+# Install and configure LSDeluxe.
 clear
-echo ">>> Installing LSDeluxe..."
+status "Installing and configuring LSDeluxe..."
 mkdir -p /etc/skel/.config/lsd
 wcurl --curl-options="--progress-bar" -o /etc/skel/.config/lsd/config.yaml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
 emerge -qv sys-apps/lsd
@@ -1002,7 +1014,7 @@ mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
 
 # Install and configure Helix editor.
 clear
-echo "Installing Helix text editor..."
+status "Installing and configuring the Helix text editor..."
 mkdir -p /etc/skel/.config/helix
 wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/config.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/config.toml
 wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/languages.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/languages.toml
@@ -1029,26 +1041,30 @@ fi
 chown -R "$name":"$name" /home/"$name"/.config
 
 # Change user's shell to Zsh. Better shell.
-echo ">>> Changing root/user's shell to Zsh..."
-echo ">>> Changing root's shell..."
+status "Changing root/user's shell to Zsh..."
+status "Setting the root user's default shell to Zsh..."
 chsh -s /bin/zsh
-echo ">>> Changing user's shell..."
+status "Setting the user's default shell to Zsh..."
 chsh -s /bin/zsh "$name"
 
 # Remove leftover junk.
+status "Removing temporary installation files..."
 rm /stage3-*.tar.*
 rm -rf /gentoo-installer
 rm /.gentoo-installer-chroot
 
-# Install proper adduser script.
+# Install an enhanced adduser utility.
+status "Installing superadduser..."
 emerge -qv app-admin/superadduser
 
 # Install GRUB.
+status "Installing GRUB..."
 emerge -qv sys-boot/grub
+status "Configuring GRUB..."
 sed -i 's|^#GRUB_CMDLINE_LINUX=".*"|GRUB_CMDLINE_LINUX="nowatchdog nmi_watchdog=0 net.ifnames=0"|' /etc/default/grub
 
 # Install Plymouth (optional).
-if ask_yes_no "Do you want a Plymouth graphical boot splash?" yes; then
+if ask_yes_no "Install the Plymouth graphical boot splash?" yes; then
 	echo "sys-boot/plymouth-openrc-plugin ~amd64" >/etc/portage/package.accept_keywords/plymouth-openrc-plugin
 	chmod go+r /etc/portage/package.accept_keywords/plymouth-openrc-plugin
 	emerge -qv sys-boot/plymouth sys-boot/plymouth-openrc-plugin
@@ -1063,7 +1079,7 @@ ROOT_DEV=$(findmnt -no SOURCE /)
 DISK_NAME=$(lsblk -no PKNAME "$ROOT_DEV")
 DRIVE="/dev/${DISK_NAME}"
 if [[ -d /sys/firmware/efi ]]; then
-	echo ">>> UEFI detected — installing GRUB for EFI..."
+	status "UEFI detected — installing GRUB for EFI..."
 	mountpoint -q /boot || mount "${DRIVE}1" /boot
 	mkdir -p /boot/EFI
 	grub-install --efi-directory=/boot --bootloader-id=Gentoo
@@ -1071,12 +1087,12 @@ if [[ -d /sys/firmware/efi ]]; then
 	env-update
 	grub-mkconfig -o /boot/EFI/Gentoo/grub.cfg
 else
-	echo ">>> BIOS detected — installing GRUB for BIOS on $DRIVE..."
+	status "BIOS detected — installing GRUB for BIOS on $DRIVE..."
 	grub-install "$DRIVE"
 	grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
-echo "This ends the Gentoo installation script. Reboot and enjoy!"
+success "This ends the Gentoo installation script. Reboot and enjoy!"
 
 # Exit chroot.
 exit

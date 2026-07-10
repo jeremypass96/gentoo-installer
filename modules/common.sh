@@ -25,7 +25,7 @@
 
 # Color-coded terminal/console messages.
 die() {
-	echo -e "\e[1;31mERROR: $*\e[0m" >&2
+	failure "$*"
 	exit 1
 }
 
@@ -39,6 +39,14 @@ step() {
 
 status() {
 	echo -e "\e[1;38;5;141m>>> $*\e[0m"
+}
+
+warning() {
+	echo -e "\e[1;33m>>> $*\e[0m"
+}
+
+failure() {
+	echo -e "\e[1;31mERROR: $*\e[0m" >&2
 }
 
 require_root() {
@@ -129,7 +137,7 @@ configure_font_rendering() {
 	eselect fontconfig disable 10-autohint.conf
 	eselect fontconfig enable 70-no-bitmaps-except-emoji.conf
 
-	fc-cache -fv
+	fc-cache -fv >/dev/null 2>&1
 }
 
 # Verify the downloaded Gentoo stage3 tarball and its signatures.
