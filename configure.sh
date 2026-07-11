@@ -312,7 +312,7 @@ fi
 # -------------------------------------------
 # Optional: disable mp3 encoding system-wide.
 # -------------------------------------------
-if ask_yes_no "Disable mp3 encoding support system-wide (set USE=\"-lame\")?\n\nRecommended if you think MP3 is a garbage file format and prefer modern (and better) codecs like FLAC." yes; then
+if ask_yes_no "Disable mp3 encoding support system-wide?\n\nRecommended if you prefer lossless codecs like FLAC." yes; then
 	add_global_use_flag "-lame"
 fi
 
