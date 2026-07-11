@@ -286,8 +286,7 @@ dialog --clear \
 
 printf '%s\n' "$FSTAB_CONTENT" >/mnt/gentoo/etc/fstab
 sed -i '/^#/d;/^$/d' /mnt/gentoo/etc/fstab
-
-dialog --clear --msgbox "/etc/fstab successfully generated." 6 40
+info "/etc/fstab written."
 
 # Copy DNS info to the new system.
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
