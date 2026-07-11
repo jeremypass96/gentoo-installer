@@ -22,18 +22,18 @@ require_root
 require_not_chroot
 
 # Test if we have a network connection using Google's public IP address.
-echo ">>> Verifying network connectivity..."
+satus "Verifying network connectivity..."
 ping -q -c 4 8.8.8.8 >/dev/null 2>&1 || die "Network unreachable (ping to Google's public DNS server failed)."
 success "Network connectivity verified."
 
 # Test HTTPS access and DNS resolution.
-echo ">>> Verifying DNS resolution and HTTPS access..."
+status "Verifying DNS resolution and HTTPS access..."
 curl --location gentoo.org --output /dev/null >/dev/null 2>&1 || die "DNS or HTTPS failed (cannot reach gentoo.org)."
 success "DNS resolution and HTTPS access verified."
 
 # Ensure dialog is available.
 if ! command -v dialog >/dev/null 2>&1; then
-	echo ">>> Installing required package: dialog..."
+	status "Installing required package: dialog..."
 	emerge -q dev-util/dialog || die "Failed to install the required package: dialog."
 fi
 
@@ -238,7 +238,7 @@ fi
 clear
 
 # Copy scripts to /mnt/gentoo before chroot'ing.
-echo ">>> Copying configure script and module scripts into '/mnt/gentoo/gentoo-installer'..."
+status "Copying configure script and module scripts into '/mnt/gentoo/gentoo-installer'..."
 mkdir -p /mnt/gentoo/gentoo-installer
 cp "$SCRIPT_DIR"/configure.sh /mnt/gentoo/gentoo-installer
 mkdir -p /mnt/gentoo/gentoo-installer/modules
@@ -258,11 +258,11 @@ dialog --backtitle "Gentoo Linux Installer" \
 	--title "Latest Stage3" \
 	--msgbox "The latest Gentoo stage3 tarball is:\n\n${STAGE3}" 7 55
 
-echo ">>> Downloading stage3 tarball..."
+status "Downloading stage3 tarball..."
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}"
 echo
 
-echo ">>> Downloading checksums..."
+status "Downloading checksums..."
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.CONTENTS.gz"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.sha256"
 wcurl --curl-options="--progress-bar" "${BASEURL}/${STAGE3}.DIGESTS"
@@ -272,7 +272,7 @@ echo
 run_step "Verifying stage3 checksums..." \
 	verify_stage3
 
-echo ">>> Extracting stage3 tarball..."
+status "Extracting stage3 tarball..."
 UNPACK_SIZE=$(xz --robot -lv "${STAGE3}" | awk -F'\t' '$1=="totals" {print $5}')
 xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 

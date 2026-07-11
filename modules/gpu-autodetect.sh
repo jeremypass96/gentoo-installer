@@ -129,10 +129,9 @@ choose_amd_family() {
 	fi
 
 	# If we reach here, we can't reliably guess – ask the user.
-
 	warning "Cannot safely determine exact AMD family from:"
 	echo "    $gpu_text"
-	warning "Please choose the correct family according to the Gentoo wiki."
+	step "Please choose the correct family according to the Gentoo wiki."
 	echo
 
 	local tmp
