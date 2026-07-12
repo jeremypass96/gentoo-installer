@@ -59,9 +59,11 @@ require_root() {
 	fi
 }
 
-# Returns 0 if in chroot, 1 if not.
+# Returns 0 if running inside a chroot, 1 otherwise.
+# When not chrooted, / and /proc/1/root refer to the same directory.
+# Inside a chroot they differ, so -ef returns false.
 is_in_chroot() {
-	[ -f "/.gentoo-installer-chroot" ]
+	[[ ! / -ef /proc/1/root ]]
 }
 
 require_chroot() {

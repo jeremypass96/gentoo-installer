@@ -1022,7 +1022,6 @@ chsh -s /bin/zsh "$name"
 status "Removing temporary installation files..."
 rm /stage3-*.tar.*
 rm -rf /gentoo-installer
-rm /.gentoo-installer-chroot
 
 # Install an enhanced adduser utility.
 status "Installing an improved user management utility..."

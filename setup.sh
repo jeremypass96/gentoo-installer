@@ -298,5 +298,4 @@ step "Next, run ./configure.sh to finish installing Gentoo."
 echo
 status "Entering the installed Gentoo system..."
 # Chroot into the new environment (also mounts filesystems).
-touch /mnt/gentoo/.gentoo-installer-chroot
 arch-chroot /mnt/gentoo
