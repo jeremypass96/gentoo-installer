@@ -25,11 +25,13 @@ require_not_chroot
 status "Verifying network connectivity..."
 ping -q -c 4 8.8.8.8 >/dev/null 2>&1 || die "Network unreachable (ping to Google's public DNS server failed)."
 success "Network connectivity verified."
+sleep 1
 
 # Test HTTPS access and DNS resolution.
 status "Verifying DNS resolution and HTTPS access..."
 curl --location gentoo.org --output /dev/null >/dev/null 2>&1 || die "DNS or HTTPS failed (cannot reach gentoo.org)."
 success "DNS resolution and HTTPS access verified."
+sleep 1
 
 # Ensure dialog is available.
 if ! command -v dialog >/dev/null 2>&1; then
