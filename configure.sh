@@ -129,6 +129,7 @@ while true; do
 done
 
 # Configure VIDEO_CARDS variable.
+status "Detecting graphics hardware..."
 bash "$SCRIPT_DIR"/modules/gpu-autodetect.sh
 
 # -------------

@@ -53,10 +53,6 @@ if [ -z "$GPU_LINE" ]; then
 	exit 0
 fi
 
-status ">>> Detected GPU:"
-echo "    $GPU_LINE"
-echo
-
 GPU_VENDOR="unknown"
 VIDEO_FLAGS=""
 
@@ -120,9 +116,6 @@ choose_amd_family() {
 	fi
 
 	if [ -n "$family" ]; then
-		info "AMD GPU auto-classified as: $family"
-		info "VIDEO_CARDS -> $flags"
-		echo
 		AMD_FAMILY="$family"
 		VIDEO_FLAGS="$flags"
 		return
@@ -186,7 +179,7 @@ choose_amd_family() {
 	esac
 
 	info "AMD family selected: $AMD_FAMILY"
-	status "VIDEO_CARDS -> $VIDEO_FLAGS"
+	info "VIDEO_CARDS -> $VIDEO_FLAGS"
 	echo
 }
 
@@ -228,13 +221,7 @@ fi
 # ---------------------------------------
 # Write /etc/portage/package.use/00video.
 # ---------------------------------------
-
-status "Writing /etc/portage/package.use/00video..."
 cat <<EOF >/etc/portage/package.use/00video
 */* VIDEO_CARDS: -* $VIDEO_FLAGS
 EOF
 chmod go+r /etc/portage/package.use/00video
-status "Final VIDEO_CARDS setting:"
-cat /etc/portage/package.use/00video
-echo
-success "GPU / VIDEO_CARDS configuration complete."
