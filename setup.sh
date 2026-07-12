@@ -22,7 +22,7 @@ require_root
 require_not_chroot
 
 # Test if we have a network connection using Google's public IP address.
-satus "Verifying network connectivity..."
+status "Verifying network connectivity..."
 ping -q -c 4 8.8.8.8 >/dev/null 2>&1 || die "Network unreachable (ping to Google's public DNS server failed)."
 success "Network connectivity verified."
 
