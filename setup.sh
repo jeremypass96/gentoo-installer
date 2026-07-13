@@ -82,19 +82,27 @@ for disk in "${DISKS[@]}"; do
 done
 
 if [ "${#INSTALL_DISKS[@]}" -eq 0 ]; then
-	dialog --clear --backtitle "Gentoo Linux Installer" --title "No Installation Drive Found" --msgbox "No suitable installation drive was found.\nThe only detected drive appears to be the current boot device.\nThe installer will now exit." 7 66
+	dialog --clear \
+		--backtitle "Gentoo Linux Installer" \
+		--title "No Installation Drive Found" \
+		--msgbox "No suitable installation drive was found.
+	The only detected drive appears to be the current boot device.
+	The installer will now exit." \
+		7 66
 	exit 1
 elif [ "${#INSTALL_DISKS[@]}" -eq 1 ]; then
 	DRIVE="${INSTALL_DISKS[0]}"
 	SIZE=$(lsblk -dpno SIZE "$DRIVE")
 	MODEL=$(lsblk -dpno MODEL "$DRIVE" | sed 's/^ *//')
-	dialog --clear --msgbox \
-		"Automatically selected drive:
+	dialog --clear \
+		--backtitle "Gentoo Linux Installer" \
+		--title "Installation Drive Selected" \
+		--msgbox "Automatically selected installation drive:
 
 			Device:	$DRIVE
 			Size:	$SIZE
 			Model:	$MODEL" \
-		9 50
+		9 46
 else
 	MENU_ITEMS=()
 	for dev in "${INSTALL_DISKS[@]}"; do
@@ -107,8 +115,9 @@ else
 			--backtitle "Gentoo Linux Installer" \
 			--title "Disk Selection" \
 			--no-cancel \
-			--menu "Choose the disk to partition and install Gentoo onto (THIS WILL BE WIPED!):" \
-			13 79 5 \
+			--menu "Select the disk where Gentoo will be installed.
+			WARNING: All data on the selected disk will be erased!" \
+			13 58 5 \
 			"${MENU_ITEMS[@]}" \
 			3>&1 1>&2 2>&3
 	)
