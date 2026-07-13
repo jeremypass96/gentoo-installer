@@ -115,8 +115,7 @@ else
 			--backtitle "Gentoo Linux Installer" \
 			--title "Disk Selection" \
 			--no-cancel \
-			--menu "Select the disk where Gentoo will be installed.
-			WARNING: All data on the selected disk will be erased!" \
+			--menu "Select the disk where Gentoo will be installed. WARNING: All data on the selected disk will be erased!" \
 			13 58 5 \
 			"${MENU_ITEMS[@]}" \
 			3>&1 1>&2 2>&3
@@ -136,12 +135,12 @@ if [[ -d /sys/firmware/efi ]]; then
 	EFI_PARTITION="$(part "$DRIVE" 1)"
 	ROOT_PARTITION="$(part "$DRIVE" 2)"
 
-	pause_msg "Partitions that will be used:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
+	pause_msg "The following partitions will be created:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
 
-	run_step "Creating and formatting EFI system partition..." \
+	run_step "Creating EFI system partition..." \
 		parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 
-	run_step "Marking EFI partition as ESP..." \
+	run_step "Setting the EFI system partition flag..." \
 		parted -s "$DRIVE" set 1 esp on
 
 	run_step "Formatting EFI partition (FAT32)..." \

@@ -1,73 +1,94 @@
 # Gentoo Linux Installer
-A fully interactive, dialog-driven installer for Gentoo Linux.
-Provides automatic partitioning, filesystem setup, kernel installation, USE flag configuration, GPU detection, and desktop environment installation.
+A fully interactive, dialog-driven installer for Gentoo Linux designed to simplify the installation process while preserving the Gentoo experience.
 
 ## Features
-* Interactive dialog menus throughout the install.
-* Automatic disk partitioning and formatting.
-* Automatic fstab generation.
+
+### Installation
+* Fully interactive, dialog-driven installer.
+* Automatic disk partitioning and filesystem creation.
 * Automatic swapfile creation.
-* Automatically downloads and extracts Stage3.
-* Automatic kernel installation (_binary or source_).
-* CPU optimization detection (_-march, -mtune_).
-* GPU / VIDEO_CARDS detection (_Radeon, AMDGPU, Intel, NVIDIA_).
+* Automatic `/etc/fstab` generation.
+* Automatic Stage3 download, verification, and extraction.
+* Automatic kernel installation (binary or source).
+
+### Hardware Detection
+* Automatic CPU optimization detection (`-march`, `-mtune`).
+* Automatic GPU detection and `VIDEO_CARDS` configuration (Intel, AMDGPU, Radeon, NVIDIA).
+
+### System Configuration
+* Dialog-based Gentoo profile selection.
 * Locale configuration.
 * Timezone selection.
-* Eselect profile selector (_dialog-based_).
+* Automatic USE flag configuration.
+* User account creation.
+* Automatic service configuration and enabling.
 
-* Desktop environment selector (_dialog-based_):
+### Desktop Environments
+* Dialog-based desktop environment selection:
     * KDE Plasma
     * Xfce
     * MATE
-    * TDE (Trinity Desktop Environment)
+    * Trinity Desktop Environment (TDE)
     * Cinnamon
 
-* Browser selection (_dialog-based_):
+### Web Browsers
+* Dialog-based browser selection:
     * Brave
     * Ungoogled Chromium
     * Vivaldi
     * Cromite
     * Helium
 
-* Optional KDE games installer.
-* Automatic USE flag population.
-* User creation.
-* Automatic service enabling (elogind, SDDM, ufw, etc.).
-* Modular scripts designed to be run in sequence.
+### Optional Components
+* KDE games installation.
+* Wireless networking support.
+* Printing support (CUPS).
+* Plymouth boot splash.
+* Kmscon console.
+* Windows-style hardware notifications.
+
+### Design
+* Modular shell scripts designed to be executed in sequence.
 
 ## Script Overview
 ### setup.sh
-Runs outside the chroot environment of the Gentoo LiveCD/DVD.
+The primary installation script, executed from the Gentoo LiveCD/DVD before entering the Gentoo environment.
 
-* Automatic disk/partition setup.
-* Filesystem creation.
-* Partition mounting.
-* Swapfile creation (_dialog-based_).
-* Stage3 download and extraction.
-* Fstab generation.
-* Chroot preparation.
+* Verifies network connectivity, DNS resolution, and HTTPS access.
+* Installs the required dialog package (if not already available).
+* Synchronizes the system clock using Chrony.
+* Detects available installation disks and automatically excludes the current boot device.
+* Automatically selects the only available installation disk, or presents a selection menu when multiple disks are detected.
+* Creates a GPT (UEFI) or MBR (BIOS) partition table.
+* Creates and formats the required boot and root filesystems.
+* Mounts the target filesystem hierarchy.
+* Creates and activates a configurable swapfile.
+* Copies the installer into the target system for use after entering the chroot environment.
+* Downloads the latest Gentoo Stage3 archive.
+* Verifies the Stage3 archive before extraction.
+* Extracts the Stage3 system.
+* Generates /etc/fstab automatically using genfstab.
+* Copies DNS configuration into the new system.
+* Enters the installed Gentoo environment (arch-chroot).
 
-### configure.sh (This is a **VERY** big script!)
-Runs inside the Gentoo environment.
+### configure.sh
+The primary configuration script, executed inside the Gentoo environment.
 
-* Configures portage/updates the Gentoo repository.
-* Mirror selection w/ Gentoo's "mirrorselect" tool.
-* Profile selection (_dialog-based_).
-* Automatic CPU optimizations.
-* GPU auto-detection.
-* Timezone configuration.
-* Locale configuration.
-* User creation.
-* Hostname configuration.
-* USE flag configuration.
-* Desktop environment installer (_dialog-based_).
-    * KDE games installation when installing KDE, which installs the following games: Kapman, KPatience, KMines, Bomber, KSnakeDuel, Klickety, KBlocks, KDiamond, KBounce, KNetWalk, and KBreakOut (_optional, dialog-based_).
-    * Papirus icon theme installation.
-* Wireless networking installation (_optional, dialog-based_).
-* CUPS installation (_optional, dialog-based_).
-* Kernel installation.
-* NetworkManager installation.
-* Kmscon installation (_optional, dialog-based_).
-* Web browser installer (_dialog-based_).
-* System tools installation.
-* Plymouth boot splash installation (_optional, dialog-based_).
+* Configures Portage and synchronizes the Gentoo repository.
+* Allows interactive selection of Gentoo download mirrors and system profile.
+* Detects the CPU and configures compiler optimizations.
+* Detects the installed graphics hardware and configures VIDEO_CARDS.
+* Configures the system timezone and locale.
+* Creates the root password and a standard user account.
+* Configures the system hostname.
+* Configures package USE flags based on the selected hardware and software.
+* Updates the installed system using the selected USE flag configuration.
+* Installs the selected desktop environment and related software.
+* Optionally installs KDE games, printing support, wireless networking, hardware notifications, and other optional components.
+* Installs either the Gentoo binary kernel or source kernel.
+* Configures networking, system services, and display manager.
+* Allows interactive selection of a web browser.
+* Installs fonts, command-line utilities, Zsh, Helix, and other productivity tools.
+* Installs and configures GRUB.
+* Optionally installs the Plymouth graphical boot splash.
+* Performs final system cleanup and completes the installation.
