@@ -65,8 +65,8 @@ The primary installation script, executed from the Gentoo LiveCD/DVD before ente
 * Creates and activates a configurable swapfile.
 * Copies the installer into the target system for use after entering the chroot environment.
 * Downloads the latest Gentoo Stage3 archive.
-* Verifies the Stage3 archive before extraction.
-* Extracts the Stage3 system.
+* Verifies the stage3 archive before extraction.
+* Extracts the stage3 archive.
 * Generates /etc/fstab automatically using genfstab.
 * Copies DNS configuration into the new system.
 * Enters the installed Gentoo environment (arch-chroot).
