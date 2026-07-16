@@ -37,7 +37,7 @@ require_root
 require_chroot
 
 # Configure locale using dialog, grouped by language.
-satus "Configuring locale..."
+status "Configuring locale..."
 
 status "Building locale map from /etc/locale.gen..."
 
