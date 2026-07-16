@@ -135,7 +135,7 @@ if [[ -d /sys/firmware/efi ]]; then
 	EFI_PARTITION="$(part "$DRIVE" 1)"
 	ROOT_PARTITION="$(part "$DRIVE" 2)"
 
-	pause_msg "The following partitions will be created:\n\nEFI:  $EFI_PARTITION\nROOT: $ROOT_PARTITION"
+	pause_msg "The following partitions will be created:\n\nEFI:  $EFI_PARTITION\nRoot: $ROOT_PARTITION"
 
 	run_step "Creating EFI system partition..." \
 		parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
@@ -158,7 +158,7 @@ if [[ -d /sys/firmware/efi ]]; then
 	run_step "Mounting EFI system partition..." \
 		mount --mkdir "$EFI_PARTITION" /mnt/gentoo/boot
 
-	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot"
+	pause_msg "Disk prep complete.\n\nMounted:\nRoot -> /mnt/gentoo\nEFI  -> /mnt/gentoo/boot"
 else
 	pause_msg "BIOS detected.\n\nAn MBR partition table will now be created on:\n$DRIVE"
 
@@ -169,7 +169,7 @@ else
 	BOOT_PARTITION="$(part "$DRIVE" 1)"
 	ROOT_PARTITION="$(part "$DRIVE" 2)"
 
-	pause_msg "Partitions that will be used:\n\nBOOT: $BOOT_PARTITION\nROOT: $ROOT_PARTITION"
+	pause_msg "The following partitions will be created:\n\nBoot: $BOOT_PARTITION\nRoot: $ROOT_PARTITION"
 
 	run_step "Creating boot partition..." \
 		parted -s "$DRIVE" mkpart primary xfs 1MiB 1GiB
@@ -192,7 +192,7 @@ else
 	run_step "Mounting boot partition to /mnt/gentoo/boot..." \
 		mount --mkdir "$BOOT_PARTITION" /mnt/gentoo/boot
 
-	pause_msg "Disk prep complete.\n\nMounted:\nROOT -> /mnt/gentoo\nBOOT -> /mnt/gentoo/boot"
+	pause_msg "Disk prep complete.\n\nMounted:\nRoot -> /mnt/gentoo\nBoot -> /mnt/gentoo/boot"
 fi
 
 # Make swapfile and activate it.
@@ -203,7 +203,7 @@ CHOSEN_SWAP=$(
 		--backtitle "Gentoo Linux Installer" \
 		--no-cancel \
 		--title "Swapfile Size" \
-		--menu "Select swapfile size (GB):" 15 30 5 \
+		--menu "Select swapfile size:" 15 30 5 \
 		2 "2 GB" \
 		4 "4 GB" \
 		6 "6 GB" \
@@ -288,12 +288,6 @@ xz -dc "${STAGE3}" | pv -s "${UNPACK_SIZE}" -pterb | tar xpf - --xattrs-include=
 
 # Generate fstab.
 FSTAB_CONTENT=$(genfstab /mnt/gentoo)
-
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--title "Generated /etc/fstab" \
-	--msgbox "$FSTAB_CONTENT" 0 0
-
 printf '%s\n' "$FSTAB_CONTENT" >/mnt/gentoo/etc/fstab
 sed -i '/^#/d;/^$/d' /mnt/gentoo/etc/fstab
 info "/etc/fstab written."
