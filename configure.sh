@@ -65,323 +65,24 @@ bash "$SCRIPT_DIR"/modules/timezone-selector.sh
 # Configure locale.
 bash "$SCRIPT_DIR"/modules/locale-config.sh
 
-# Set the root password using dialog.
-while true; do
-	rootpass1="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Root Password" --passwordbox 'Enter root password:' 8 40)"
-	rootpass2="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Confirm Root Password" --passwordbox 'Re-enter root password to confirm:' 8 40)"
-
-	if [ "$rootpass1" != "$rootpass2" ]; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Root passwords do not match! \n\nPlease try again." 0 0
-		continue
-	fi
-
-	if printf '%s\n%s\n' "$rootpass1" "$rootpass1" | passwd >/dev/null 2>&1; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Root Password" --msgbox "Root password set successfully." 6 36
-		break
-	else
-		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Failed to set root password! \n\nPlease try again." 0 0
-	fi
-done
-
 # Add user to the system.
-while true; do
-	name="$(dialog --stdout --no-cancel --backtitle "Gentoo Linux Installer" --title "Username" --inputbox 'Enter the username for the new account (lowercase only):' 8 61)"
-
-	if [ -z "$name" ]; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "Username cannot be empty! \n\nPlease try again." 0 0
-		continue
-	fi
-
-	if ! printf '%s\n' "$name" | grep -qE '^[a-z][a-z0-9_-]*$'; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "Username must be lowercase and may contain letters, digits, underscores, or dashes.\n\nPlease try again." 0 0
-		continue
-	fi
-
-	if id "$name" >/dev/null 2>&1; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Username" --msgbox "User '$name' already exists! \n\nChoose a different name." 0 0
-		continue
-	fi
-
-	if useradd -m -G users,wheel,audio,cdrom,cdrw,usb,lp,video -s /bin/bash "$name"; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Create User" --msgbox "User '$name' created successfully.\n\n" 0 0
-		break
-	else
-		dialog --backtitle "Gentoo Linux Installer" --title "Create User" --msgbox "Failed to create user '$name'.\n\nPlease try again." 0 0
-	fi
-done
-
-# Set the user's password.
-while true; do
-	userpass1="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "User Password" --passwordbox "Enter a password for user '$name':" 0 0)"
-	userpass2="$(dialog --stdout --insecure --no-cancel --backtitle "Gentoo Linux Installer" --title "Confirm User Password" --passwordbox 'Re-enter password to confirm:' 8 34)"
-
-	if [ "$userpass1" != "$userpass2" ]; then
-		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "User passwords do not match! Please try again.\n\n" 0 0
-		continue
-	fi
-
-	if printf '%s\n%s\n' "$userpass1" "$userpass1" | passwd "$name" >/dev/null 2>&1; then
-		dialog --backtitle "Gentoo Linux Installer" --title "User Password" --msgbox "Password for '$name' set successfully.\n\n" 0 0
-		break
-	else
-		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Failed to set password for '$name'.\n\nPlease try again." 0 0
-	fi
-done
+bash "$SCRIPT_DIR"/modules/create-user.sh
 
 # Configure VIDEO_CARDS variable.
 status "Detecting graphics hardware..."
 bash "$SCRIPT_DIR"/modules/gpu-autodetect.sh
 
-# -------------
 # Set hostname.
-# -------------
-DEFAULT_HOSTNAME="GentooBox"
-HOSTNAME=$(
-	dialog --clear \
-		--no-cancel \
-		--backtitle "Gentoo Linux Installer" \
-		--title "System Hostname" \
-		--inputbox "Enter a hostname for this system:" 8 38 "$DEFAULT_HOSTNAME" \
-		3>&1 1>&2 2>&3
-)
-clear
-[ -z "$HOSTNAME" ] && HOSTNAME="$DEFAULT_HOSTNAME"
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--title "Hostname Set" \
-	--msgbox "The system hostname has been set to:\n\n$HOSTNAME" 7 41
-HOSTNAME=${HOSTNAME:-GentooBox}
-echo "$HOSTNAME" >/etc/hostname
-sed -i 's/^hostname=.*/hostname="'"$HOSTNAME"'"/' /etc/conf.d/hostname
+bash "$SCRIPT_DIR"/modules/hostname.sh
 
-# ---------------------------
-# Desktop selection (dialog).
-# ---------------------------
-TMP_DESKTOP=$(mktemp)
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--title "Desktop Environment" \
-	--menu "Choose a desktop environment to install:" \
-	0 0 0 \
-	plasma "KDE Plasma" \
-	xfce "Xfce" \
-	mate "MATE" \
-	cinnamon "Cinnamon" \
-	tde "Trinity Desktop Environment (fork of KDE 3)" \
-	none "No desktop (CLI-only, or you'll configure it later yourself.)" \
-	2>"$TMP_DESKTOP"
+# Select a desktop environment.
+source "$SCRIPT_DIR"/modules/desktop-selector.sh
 
-if [ $? -ne 0 ]; then
-	DESKTOP_CHOICE="none"
-else
-	DESKTOP_CHOICE=$(<"$TMP_DESKTOP")
-fi
-rm -f "$TMP_DESKTOP"
+# Backup existing package.use files.
+bash "$SCRIPT_DIR"/modules/package-use-backup.sh
 
-INSTALL_PLASMA=false
-INSTALL_XFCE=false
-INSTALL_MATE=false
-INSTALL_CINNAMON=false
-INSTALL_TDE=false
-
-case "$DESKTOP_CHOICE" in
-plasma) INSTALL_PLASMA=true ;;
-xfce) INSTALL_XFCE=true ;;
-mate) INSTALL_MATE=true ;;
-cinnamon) INSTALL_CINNAMON=true ;;
-tde) INSTALL_TDE=true ;;
-none | *) ;;
-esac
-
-# ------------------------------
-# Failsafe for USE flag changes.
-# ------------------------------
-USE_FILES=(
-	qttools
-	sudo
-	vscodium
-	vlc
-	audacity
-	portaudio
-	pipewire
-	avahi
-	man-db
-	manpager
-	installkernel
-	module-rebuild
-	grub
-	networkmanager
-	cups
-	hplip
-	kde
-	xfce
-	mate
-	cinnamon
-	lightdm
-)
-
-BACKUP_DIR="/etc/portage/package.use/.install-backup.$(date +%s)"
-mkdir -p "${BACKUP_DIR}"
-
-# Backup existing files (if they exist).
-for f in "${USE_FILES[@]}"; do
-	if [[ -f "/etc/portage/package.use/${f}" ]]; then
-		cp "/etc/portage/package.use/${f}" "${BACKUP_DIR}/${f}"
-	fi
-done
-
-# --------------------
 # Configure USE flags.
-# --------------------
-
-# Configure USE flags for Qt tools.
-echo "dev-qt/qttools -assistant -qml -designer" >/etc/portage/package.use/qttools
-chmod go+r /etc/portage/package.use/qttools
-
-# Configure USE flags for sudo.
-echo "app-admin/sudo offensive -sendmail -ssl" >/etc/portage/package.use/sudo
-chmod go+r /etc/portage/package.use/sudo
-
-# Configure USE flag for VSCodium.
-echo "app-editors/vscodium -wayland" >/etc/portage/package.use/vscodium
-chmod go+r /etc/portage/package.use/vscodium
-
-# Configure USE flags for VLC.
-echo "media-video/vlc -bluray -chromaprint -chromecast -macosx-notifications -jack -mtp -vnc -sid -skins libplacebo theora matroska live" >/etc/portage/package.use/vlc
-chmod go+r /etc/portage/package.use/vlc
-
-# Configure USE flags for Audacity (PipeWire-as-JACK, no ALSA).
-echo "media-sound/audacity id3tag -alsa" >/etc/portage/package.use/audacity
-chmod go+r /etc/portage/package.use/audacity
-echo "media-libs/portaudio jack -alsa" >/etc/portage/package.use/portaudio
-chmod go+r /etc/portage/package.use/portaudio
-echo "media-video/pipewire jack-sdk" >/etc/portage/package.use/pipewire
-chmod go+r /etc/portage/package.use/pipewire
-
-# Configure USE flags for Avahi.
-AVAHI_USE="-gtk -qt6"
-echo "net-dns/avahi ${AVAHI_USE}" >/etc/portage/package.use/avahi
-chmod go+r /etc/portage/package.use/avahi
-
-# Configure USE flag for man-db.
-echo "sys-apps/man-db -manpager" >/etc/portage/package.use/man-db
-chmod go+r /etc/portage/package.use/man-db
-
-# Configure USE flag for replacement manpager.
-echo "app-text/ansifilter -gui" >/etc/portage/package.use/manpager
-chmod go+r /etc/portage/package.use/manpager
-
-# Configure USE flags for the kernel.
-echo "sys-kernel/installkernel dracut grub" >/etc/portage/package.use/installkernel
-chmod go+r /etc/portage/package.use/installkernel
-
-# Optional: global dist-kernel.
-if ask_yes_no "Enable global 'dist-kernel' USE flag for all packages (*/* dist-kernel)?\n\nRecommended if you plan to use Gentoo's binary distribution kernel and want automatic module rebuilds." yes; then
-	echo "*/* dist-kernel" >/etc/portage/package.use/module-rebuild
-	chmod go+r /etc/portage/package.use/module-rebuild
-fi
-
-# Configure USE flags for GRUB.
-echo "sys-boot/grub -themes fonts" >/etc/portage/package.use/grub
-chmod go+r /etc/portage/package.use/grub
-
-# -------------------------------------
-# Optional: enable wireless networking.
-# -------------------------------------
-if ask_yes_no "Are you on a laptop and want to install wireless networking tools?" yes; then
-	echo "net-misc/networkmanager -wext -modemmanager -ppp" >/etc/portage/package.use/networkmanager
-	chmod go+r /etc/portage/package.use/networkmanager
-else
-	echo "net-misc/networkmanager -wifi -wext -modemmanager -ppp" >/etc/portage/package.use/networkmanager
-	chmod go+r /etc/portage/package.use/networkmanager
-fi
-
-# ----------------------------------
-# Optional: enable printing support.
-# ----------------------------------
-if ask_yes_no "Enable printing support?" yes; then
-	AVAHI_USE+=" python"
-	echo "net-dns/avahi ${AVAHI_USE}" >/etc/portage/package.use/avahi
-	echo "net-print/cups zeroconf" >/etc/portage/package.use/cups
-	chmod go+r /etc/portage/package.use/cups
-	echo "net-print/hplip scanner hpijs" >/etc/portage/package.use/hplip
-	chmod go+r /etc/portage/package.use/hplip
-else
-	add_global_use_flag "-cups"
-fi
-
-# -------------------------------------------
-# Optional: disable mp3 encoding system-wide.
-# -------------------------------------------
-if ask_yes_no "Disable mp3 encoding support system-wide?\n\nRecommended if you prefer lossless codecs like FLAC." yes; then
-	add_global_use_flag "-lame"
-fi
-
-#-------------------------------------
-# Optional: Disable bluetooth support.
-# ------------------------------------
-if ask_yes_no "Disable bluetooth support?" yes; then
-	add_global_use_flag "-bluetooth"
-fi
-
-# KDE USE flags.
-if [ "$INSTALL_PLASMA" = true ]; then
-	cat <<EOF >/etc/portage/package.use/kde
-kde-plasma/plasma-meta -sdk -discover -flatpak -plymouth -thunderbolt -unsupported -wacom -xwayland
-kde-apps/kde-apps-meta -pim -education -games -accessibility -graphics -multimedia -network -sdk -utils
-kde-apps/kdecore-meta -webengine
-kde-apps/ark zip
-kde-apps/kdeutils-meta -webengine -gpg -plasma 7zip
-kde-plasma/plasma-login-sessions -wayland
-dev-qt/qtpositioning geoclue
-kde-apps/thumbnailers video
-kde-plasma/powerdevil brightness-control
-app-misc/ddcutil user-permissions
-EOF
-fi
-
-# Xfce USE flags.
-if [ "$INSTALL_XFCE" = true ]; then
-	cat <<EOF >/etc/portage/package.use/xfce
-xfce-base/xfce4-meta archive editor image search
-app-text/poppler -qt5
-dev-libs/libdbusmenu gtk3
-x11-libs/gdk-pixbuf jpeg tiff
-gnome-base/gvfs mtp
-xfce-extra/xfce4-whiskermenu-plugin accountsservice
-x11-themes/arc-theme xfce
-EOF
-	chmod go+r /etc/portage/package.use/xfce
-fi
-
-# MATE USE flags.
-if [ "$INSTALL_MATE" = true ]; then
-	cat <<EOF >/etc/portage/package.use/mate
-media-libs/libmatemixer pulseaudio
-gnome-base/gvfs mtp
-x11-themes/arc-theme mate
-EOF
-	chmod go+r /etc/portage/package.use/mate
-	sed -i 's/ -modemmanager//' /etc/portage/package.use/networkmanager
-fi
-
-# Cinnamon USE flags.
-if [ "$INSTALL_CINNAMON" = true ]; then
-	cat <<EOF >/etc/portage/package.use/cinnamon
-x11-libs/xapp introspection
-dev-libs/libxmlb introspection
-x11-terms/gnome-terminal -gnome-shell -nautilus
-x11-themes/arc-theme cinnamon
-EOF
-	chmod go+r /etc/portage/package.use/cinnamon
-	sed -i 's/ -modemmanager//' /etc/portage/package.use/networkmanager
-fi
-
-# LightDM USE flags.
-if [ "$INSTALL_XFCE" = true ] || [ "$INSTALL_MATE" = true ]; then
-	echo "x11-misc/lightdm -X -gnome" >/etc/portage/package.use/lightdm
-	chmod go+r /etc/portage/package.use/lightdm
-fi
+source "$SCRIPT_DIR"/modules/package-use.sh
 
 # ---------------------------------
 # Update system with new USE flags.
@@ -410,169 +111,8 @@ status "Rebuilding packages using preserved libraries..."
 emerge @preserved-rebuild
 success "System cleanup complete."
 
-# ------------------------------
-# Desktop-specific installation.
-# ------------------------------
-if [ "$INSTALL_PLASMA" = true ]; then
-	status "Installing KDE Plasma..."
-	emerge -qv kde-plasma/plasma-meta kde-apps/kde-apps-meta kde-apps/kdecore-meta kde-plasma/kwallet-pam kde-apps/kcalc kde-apps/kcharselect kde-apps/sweeper kde-misc/kweather sys-block/partitionmanager app-cdr/dolphin-plugins-mountiso kde-misc/kclock kde-misc/kdeconnect kde-apps/okular kde-apps/gwenview kde-apps/filelight kde-apps/ark kde-apps/ffmpegthumbs kde-apps/audiocd-kio kde-apps/kwalletmanager
-
-	if ask_yes_no "Do you want Dolphin to integrate with Git repositories?" yes; then
-		emerge -qv kde-apps/dolphin-plugins-git
-	fi
-
-	mkdir -p /etc/skel/.config
-	wcurl --curl-options="--progress-bar" -o /etc/skel/.config/kdeglobals https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/kdeglobals
-	mkdir -p /home/"$name"/.config
-	cp -v /etc/skel/.config/kdeglobals /home/"$name"/.config/kdeglobals
-	chown "$name":"$name" /home/"$name"/.config/kdeglobals
-
-	if ask_yes_no "Do you want to install some KDE games?\n\nThis will install the following games:\n- Kapman\n- KPatience\n- KMines\n- Bomber\n- KSnakeDuel\n- Klickety\n- KBlocks\n- KDiamond\n- KBounce\n- KNetWalk\n- KBreakOut" yes; then
-		emerge -qv kde-apps/kapman kde-apps/kpat kde-apps/kmines kde-apps/bomber kde-apps/ksnakeduel kde-apps/klickety kde-apps/kblocks kde-apps/kdiamond kde-apps/kbounce kde-apps/knetwalk kde-apps/kbreakout
-	fi
-
-	# For kde-plasma/kinfocenter.
-	emerge -qv x11-apps/xdpyinfo sys-apps/pciutils
-	rc-update add power-profiles-daemon default
-
-	# For kde-frameworks/kfilemetadata.
-	emerge -qv app-text/catdoc
-
-	# Enable SDDM and elogind.
-	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="sddm"/' /etc/conf.d/display-manager
-	rc-update add display-manager default
-	rc-update add elogind boot && rc-service elogind start
-
-	# Enable ufw.
-	rc-update add ufw boot && rc-service ufw start
-
-	# Fix KDE Connect bug.
-	ufw allow 1714:1764/udp
-	ufw allow 1714:1764/tcp
-	rc-service ufw restart
-fi
-
-if [ "$INSTALL_XFCE" = true ]; then
-	status "Installing Xfce..."
-	emerge -qv1 xfce-extra/xfce4-notifyd
-	emerge -qv xfce-base/xfce4-meta xfce-extra/xfce4-pulseaudio-plugin xfce-extra/xfce4-taskmanager x11-themes/xfwm4-themes app-cdr/xfburn xfce-extra/xfce4-sensors-plugin media-sound/pavucontrol x11-misc/mugshot xfce-extra/xfce4-whiskermenu-plugin x11-themes/arc-theme
-	env-update && . /etc/profile
-	cat <<EOF >/etc/pam.d/xfce4-screensaver
-auth include system-auth
-password include system-auth
-EOF
-
-	# Configure LightDM.
-	echo XSESSION=\"Xfce4\" >/etc/env.d/90xsession
-	env-update && source /etc/profile
-fi
-
-if [ "$INSTALL_MATE" = true ]; then
-	status "Installing MATE..."
-	emerge -qv mate-base/mate mate-extra/mate-tweak x11-themes/arc-theme
-
-	# Configure LightDM.
-	echo XSESSION=\"Mate\" >/etc/env.d/90xsession
-	env-update && source /etc/profile
-fi
-
-if [ "$INSTALL_CINNAMON" = true ]; then
-	status "Installing Cinnamon..."
-	emerge -av gnome-extra/cinnamon x11-terms/gnome-terminal gnome-extra/gnome-calculator media-gfx/gnome-screenshot media-gfx/eog app-text/evince gnome-extra/gnome-system-monitor app-arch/file-roller app-cdr/brasero x11-themes/arc-theme
-	install -d -m 0750 /etc/sudoers.d
-	tee /etc/sudoers.d/cinnamon >/dev/null <<'EOF'
-%wheel  ALL=(root) NOPASSWD: /sbin/reboot
-%wheel  ALL=(root) NOPASSWD: /sbin/halt
-%wheel  ALL=(root) NOPASSWD: /sbin/poweroff
-%wheel  ALL=(root) NOPASSWD: /sbin/shutdown
-EOF
-	chmod 440 /etc/sudoers.d/cinnamon
-	visudo -cf /etc/sudoers.d/cinnamon
-	visudo -c
-
-	cat <<EOF >/etc/polkit-1/rules.d/55-allowing-actions.rules
-polkit.addRule (function (action, subject)
-{
-  if (action.id == "org.freedesktop.upower.hibernate" ||
-      action.id == "org.freedesktop.upower.suspend" ||
-      action.id == "org.freedesktop.consolekit.system.stop" ||
-      action.id == "org.freedesktop.consolekit.system.restart" &&
-      subject.isInGroup ("wheel"))
-      {
-        return polkit.Result.YES;
-      }
-});
-EOF
-fi
-
-if [ "$INSTALL_TDE" = true ]; then
-	status "Installing TDE..."
-	eselect repository add trinity-official git https://mirror.git.trinitydesktop.org/gitea/TDE/tde-packaging-gentoo.git
-	emaint sync -r trinity-official
-	echo "*/*::trinity-official ~amd64" >/etc/portage/package.accept_keywords/trinity-official
-	chmod go+r /etc/portage/package.accept_keywords/trinity-official
-	emerge -qv trinity-base/tdebase-meta trinity-base/tdm
-	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="tdm"/' /etc/conf.d/display-manager
-	rc-update add display-manager default
-	rc-update add elogind boot && rc-service elogind start
-	add_global_use_flag "pulseaudio pipewire"
-	emerge -qv media-video/pipewire && echo "gentoo-pipewire-launcher &" /home/"$name"/.xprofile
-	emerge -qv media-sound/pavucontrol
-fi
-
-# --------------------------------------
-# Display Manager for Xfce/MATE/Cinnamon: LightDM
-# --------------------------------------
-case "$DESKTOP_CHOICE" in
-xfce | mate | cinnamon)
-	status "Installing LightDM display manager for $DESKTOP_CHOICE..."
-	emerge -qv x11-misc/lightdm x11-misc/lightdm-gtk-greeter
-
-	# Set LightDM as display manager.
-	sed -i 's/DISPLAYMANAGER="xdm"/DISPLAYMANAGER="lightdm"/' /etc/conf.d/display-manager
-	rc-update add display-manager default
-
-	# Make sure dbus is running.
-	rc-update add dbus default && rc-service dbus start
-
-	# Make sure elogind is running (needed for session management).
-	rc-update add elogind boot && rc-service elogind start
-
-	if [ "$DESKTOP_CHOICE" = "cinnamon" ]; then
-		emerge -qv gnome-extra/openrc-settingsd
-		rc-update add openrc-settingsd default && rc-service openrc-settingsd start
-
-		if grep -q '^hosts:' /etc/nsswitch.conf; then
-			if ! grep -q '^hosts:.*\<myhostname\>' /etc/nsswitch.conf; then
-				sed -i '/^hosts:/ s/$/ myhostname/' /etc/nsswitch.conf
-			fi
-		fi
-	fi
-
-	env-update && source /etc/profile
-
-	success "LightDM configured for $DESKTOP_CHOICE."
-	;;
-esac
-
-if [ "$DESKTOP_CHOICE" != "none" ]; then
-	emerge -qv x11-themes/papirus-icon-theme
-	bash "$SCRIPT_DIR"/modules/posy-cursors-install.sh
-	bash "$SCRIPT_DIR"/modules/xlibre-install.sh
-	# Enable 'haveged', a RNG.
-	emerge -qv sys-apps/haveged
-	rc-update add haveged boot && rc-service haveged start
-	if ask_yes_no "Enable Windows-style hardware notifications?"; then
-		bash "$SCRIPT_DIR"/modules/hardware-notify.sh
-		if [ "$DESKTOP_CHOICE" = "plasma" ]; then
-			echo "X-KDE-autostart-after=panel" >>"/home/$name/.config/autostart/hardware-notify.desktop"
-		fi
-	fi
-fi
-
-if [ "$DESKTOP_CHOICE" = "none" ]; then
-	pause_msg "No desktop will be installed.\n\nSystem remains CLI-only; you can install a desktop later."
-fi
+# Install selected desktop environment.
+source "$SCRIPT_DIR/modules/desktop-install.sh"
 
 # Install a better manpager.
 clear
@@ -592,12 +132,12 @@ status "Installing Linux firmware..."
 emerge -qv sys-kernel/linux-firmware
 
 # Configure dracut.
-status "Configuring dracut..."
 mkdir -p /etc/dracut.conf.d
 echo 'kernel_cmdline+=" nowatchdog nmi_watchdog=0 net.ifnames=0 "' >/etc/dracut.conf.d/kernel.conf
-status "Generating initramfs..."
-dracut -f >/dev/null 2>&1
-success "Initramfs generated."
+# Generate initramfs.
+run_step "Generating initramfs..." \
+	dracut -f >/dev/null 2>&1
+success "Initramfs successfully generated!"
 
 # Install sys-kernel/installkernel.
 clear
@@ -607,36 +147,8 @@ emerge -qv sys-kernel/installkernel
 # Update environment variables.
 env-update >/dev/null 2>&1
 
-# ----------------
-# Kernel Selection
-# ----------------
-TMP_KERNEL=$(mktemp)
-
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--title "Kernel Selection" \
-	--menu "Choose which Linux kernel to install:" \
-	0 0 0 \
-	bin "Gentoo Binary Kernel (gentoo-kernel-bin) - Fast, easy, works for everyone." \
-	src "Gentoo Source Kernel (gentoo-kernel) - For custom configs via menuconfig." \
-	2>"$TMP_KERNEL"
-
-KERNEL_CHOICE=$(<"$TMP_KERNEL")
-rm -f "$TMP_KERNEL"
-
-case "$KERNEL_CHOICE" in
-bin)
-	clear
-	status "Installing Gentoo binary kernel..."
-	emerge -qv sys-kernel/gentoo-kernel-bin
-	;;
-
-src)
-	clear
-	status "Installing Gentoo source kernel..."
-	emerge -qv sys-kernel/gentoo-kernel
-	;;
-esac
+# Install kernel.
+bash "$SCRIPT_DIR"/modules/kernel-install.sh
 
 # Install and enable NetworkManager.
 clear
@@ -681,52 +193,7 @@ rc-update add chronyd default
 rc-service chronyd start
 
 # Install kmscon (optional).
-clear
-TMP_CONSOLE=$(mktemp)
-
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--title "Console Type" \
-	--menu "Choose which text console to use:" \
-	0 0 0 \
-	agetty "Traditional Linux virtual console." \
-	kmscon "Modern graphical console with improved Unicode support." \
-	2>"$TMP_CONSOLE"
-
-CONSOLE_CHOICE=$(<"$TMP_CONSOLE")
-rm -f "$TMP_CONSOLE"
-
-info "Selected console: $CONSOLE_CHOICE"
-echo
-case "$CONSOLE_CHOICE" in
-agetty)
-	clear
-	info "Using the standard Linux virtual console."
-	;;
-
-kmscon)
-	clear
-	status "Installing and configuring Kmscon..."
-	echo "sys-apps/kmscon freetype" >/etc/portage/package.use/kmscon
-	cat >/etc/portage/package.accept_keywords/kmscon <<EOF
-sys-apps/kmscon ~amd64
-dev-libs/libtsm ~amd64
-EOF
-	emerge -qv sys-apps/kmscon
-	grep -q '^ERASECHAR[[:space:]]\+0177' /etc/login.defs || sed -Ei 's/^#[[:space:]]*(ERASECHAR[[:space:]]+0177)/\1/' /etc/login.defs
-	cd /etc/init.d && chmod +x ./kmsconvt
-	for n in $(seq 1 6); do
-		ln -sf kmsconvt "kmsconvt.tty$n"
-		rc-update add "kmsconvt.tty$n" default
-	done
-	cd || return
-	cp -v /etc/kmscon/kmscon.conf.example /etc/kmscon/kmscon.conf && chmod go+r /etc/kmscon/kmscon.conf
-	sed -i 's/#switchvt/switchvt/' /etc/kmscon/kmscon.conf
-	sed -i 's/#font-name=Hack Nerd Font/font-name=Hurmit Nerd Font/' /etc/kmscon/kmscon.conf
-	sed -i 's/#hwaccel/hwaccel/' /etc/kmscon/kmscon.conf
-	sed -i 's/#palette=solarized/palette=base16-dark/' /etc/kmscon/kmscon.conf
-	;;
-esac
+bash "$SCRIPT_DIR"/modules/console-install.sh
 
 # Install I/O Scheduler udev rules.
 status "Installing I/O Scheduler udev rules..."
@@ -742,106 +209,15 @@ clear
 status "Installing eselect repository tool..."
 emerge -qv app-eselect/eselect-repository
 
-# -------------------------
 # Web browser installation.
-# -------------------------
-TMP_BROWSER=$(mktemp)
-dialog --clear \
-	--backtitle "Gentoo Linux Installer" \
-	--no-cancel \
-	--title "Web Browser" \
-	--menu "Choose a web browser to install:" \
-	0 0 0 \
-	brave "Brave (Privacy-based browser with ad-blocking, fingerprinting protection, etc.)" \
-	chromium "Chromium (Open-source version of Google Chrome.)" \
-	vivaldi "Vivaldi" \
-	ungchromium "Ungoogled Chromium" \
-	cromite "Similar to Brave. A fork of the Bromite Android browser that runs on PCs." \
-	helium "Similar to Brave, but with no cloud-based data sync or password manager." \
-	none "No web browser." \
-	2>"$TMP_BROWSER"
-BROWSER_CHOICE=$(<"$TMP_BROWSER")
-
-rm -f "$TMP_BROWSER"
-
-INSTALL_BRAVE=false
-INSTALL_CHROMIUM=false
-INSTALL_VIVALDI=false
-INSTALL_UNG_CHROMIUM=false
-INSTALL_CROMITE=false
-INSTALL_HELIUM=false
-
-case "$BROWSER_CHOICE" in
-brave) INSTALL_BRAVE=true ;;
-chromium) INSTALL_CHROMIUM=true ;;
-vivaldi) INSTALL_VIVALDI=true ;;
-ungchromium) INSTALL_UNG_CHROMIUM=true ;;
-cromite) INSTALL_CROMITE=true ;;
-helium) INSTALL_HELIUM=true ;;
-none | *) ;;
-esac
-
-if [ "$INSTALL_BRAVE" = true ]; then
-	eselect repository enable another-brave-overlay
-	emerge --sync another-brave-overlay
-	emerge -qv www-client/brave-browser
-	rm -f /usr/share/applications/com.brave.Browser.desktop
-fi
-
-if [ "$INSTALL_CHROMIUM" = true ]; then
-	emerge -qv www-client/chromium
-fi
-
-if [ "$INSTALL_VIVALDI" = true ]; then
-	emerge -qv www-client/vivaldi
-fi
-
-if [ "$INSTALL_UNG_CHROMIUM" = true ]; then
-	eselect repository enable pf4public
-	emerge --sync pf4public
-	emerge -qv www-client/ungoogled-chromium-bin
-fi
-
-if [ "$INSTALL_CROMITE" = true ]; then
-	eselect repository enable pf4public
-	emerge --sync pf4public
-	echo "www-client/cromite-bin ~amd64" >/etc/portage/package.accept_keywords/cromite-bin
-	chmod go+r /etc/portage/package.accept_keywords/cromite-bin
-	emerge -qv www-client/cromite-bin
-fi
-
-if [ "$INSTALL_HELIUM" = true ]; then
-	eselect repository enable guru
-	emerge --sync guru
-	echo "www-client/helium-bin ~amd64" >/etc/portage/package.accept_keywords/helium-bin
-	chmod go+r /etc/portage/package.accept_keywords/helium-bin
-	emerge -qv www-client/helium-bin
-fi
-
-if [ "$BROWSER_CHOICE" = "none" ]; then
-	info "No web browser selected."
-	status "Continuing without a graphical web browser..."
-fi
+bash "$SCRIPT_DIR"/modules/browser-install.sh
 
 clear
 status "Installing fonts..."
-# Configure Portage for nerd fonts.
-eselect repository enable xarblu-overlay
-emerge --sync xarblu-overlay
-echo "media-fonts/nerd-fonts" >/etc/portage/package.accept_keywords/nerd-fonts
-chmod go+r /etc/portage/package.accept_keywords/nerd-fonts
-echo "media-fonts/nerd-fonts hermit" >/etc/portage/package.use/nerd-fonts
-chmod go+r /etc/portage/package.use/nerd-fonts
-echo "media-fonts/nerd-fonts Vic-Fieger-License" >>/etc/portage/package.license
-chmod go+r /etc/portage/package.license
+# Configure Nerd fonts.
+bash "$SCRIPT_DIR"/modules/nerd-fonts-config.sh
 # Install fonts.
 emerge -qv media-fonts/nerd-fonts media-fonts/source-sans
-# Configure Noto font USE flags.
-cat <<EOF >>/etc/portage/package.use/noto-font
-media-fonts/noto -extra
-media-fonts/noto-emoji icons
-EOF
-chmod go+r /etc/portage/package.use/noto-font
 
 # Update USE flags.
 status "Updating USE flags..."
@@ -864,149 +240,13 @@ status "Installing sudo..."
 emerge -qv app-admin/sudo
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
-clear
-status "Installing and configuring Zsh..."
-emerge -qv app-shells/zsh app-shells/gentoo-zsh-completions
-eselect repository enable mv
-emerge --sync mv
-emerge -aqv app-shells/oh-my-zsh
-cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
-sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
-sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
-sed -i 's/# HYPHEN_INSENSITIVE="true"/HYPHEN_INSENSITIVE="true"/' /etc/skel/.zshrc
-sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" /etc/skel/.zshrc
-sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
-sed -i 's/# COMPLETION_WAITING_DOTS="true"/COMPLETION_WAITING_DOTS="true"/' /etc/skel/.zshrc
-sed -i 's/# DISABLE_UNTRACKED_FILES_DIRTY="true"/DISABLE_UNTRACKED_FILES_DIRTY="true"/' /etc/skel/.zshrc
-sed -i 's|# HIST_STAMPS="mm/dd/yyyy"|HIST_STAMPS="mm/dd/yyyy"|' /etc/skel/.zshrc
-sed -i 's/plugins=(git)/plugins=(git extract safe-paste sudo copypath zsh-autosuggestions zsh-syntax-highlighting)/' /etc/skel/.zshrc
-ZSH_CUSTOM=/usr/share/zsh/site-contrib/oh-my-zsh/custom
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
-git clone https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/jpassarelli.zsh-theme ${ZSH_CUSTOM}/themes
-# Configure the Zsh environment.
-status "Configuring the Zsh environment..."
-cat <<EOF >>/etc/skel/.zshrc
-# Set the default umask.
-umask 022
-
-# Disable highlighting of pasted text.
-zle_highlight=('paste:none')
-
-# Apply sensible history settings.
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_FIND_NO_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_SAVE_NO_DUPS
-
-# Make some sensible aliases.
-alias ls="lsd"
-alias cat="bat"
-alias emerge-autoremove="sudo emerge -ac"
-alias update-world="sudo emerge -auvqDN @world"
-alias update-system="sudo emerge -auvqDN @world"
-alias wcurl='wcurl --curl-options="--progress-bar"'
-alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
-
-# Run fastfetch.
-fastfetch
-
-# Enable Gentoo autocompletion.
-autoload -U compinit
-compinit
-zstyle ':completion::complete:*' use-cache 1
-
-# Enable command-not-found.
-source /etc/bash/bashrc.d/command-not-found.sh
-EOF
-# Installing user's .zshrc.
-status "Applying Zsh configuration..."
-cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
-chown "$name":"$name" /home/"$name"/.zshrc
-cp -v /etc/skel/.zshrc /root/.zshrc
-sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"/' /root/.zshrc
-sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"/' /root/.zshrc
-sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"/' /root/.zshrc
-sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"|' /root/.zshrc
-sed -i '/^# Run fastfetch\.$/,/^$/d' /root/.zshrc
-status "Installing command suggestion support..."
-# Configure Portage for command suggestion support.
-echo "sys-apps/util-linux caps" >/etc/portage/package.use/pfl
-chmod go+r /etc/portage/package.use/pfl
-# Install command suggestion packages.
-emerge -qv app-portage/command-not-found app-portage/pfl
-
-# Install and configure BOFH fortunes.
-status "Installing humorous system administrator excuses..."
-emerge -qv games-misc/fortune-mod-bofh-excuses
-cat >>/root/.zshrc <<'EOF'
-
-# Fun BOFH excuses, because why not!
-fortune bofh-excuses | cowsay -f tux
-EOF
+source "$SCRIPT_DIR"/modules/zsh-install.sh
 
 # Install and configure command-line utilities.
-status "Installing and configuring command-line utilities..."
-# Configure Portage for bat.
-echo "sys-apps/bat ~amd64" >/etc/portage/package.accept_keywords/bat
-chmod go+r /etc/portage/package.accept_keywords/bat
-# Install command-line utilities.
-emerge -qv sys-apps/bat app-misc/fastfetch sys-apps/lsd
-
-# Configure bat (cat clone with color, line numbers, etc.).
-wcurl --curl-options="--progress-bar" -o /etc/bat/config https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/bat/config
-chmod go+r /etc/bat/config
-echo 'BAT_CONFIG_PATH="/etc/bat"' >>/etc/env.d/99bat && env-update
-chmod go+r /etc/env.d/99bat
-mkdir -p /etc/bat/themes
-wget -P /etc/bat/themes https://github.com/catppuccin/bat/raw/main/themes/Catppuccin%20Mocha.tmTheme
-chmod 755 /etc/bat/themes
-chmod go+r /etc/bat/themes/Catppuccin\ Mocha.tmTheme
-bat cache --build
-
-# Configure Fastfetch.
-mkdir -p /etc/skel/.config/fastfetch
-wcurl --curl-options="--progress-bar" -o /etc/skel/.config/fastfetch/config.jsonc https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/fastfetch/config.jsonc
-mkdir -p /home/"$name"/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc /home/"$name"/.config/fastfetch
-chmod go+r /etc/skel/.config/fastfetch/config.jsonc
-chown -R "$name":"$name" /home/"$name"/.config/fastfetch
-chmod go+r /home/"$name"/.config/fastfetch/config.jsonc
-mkdir -p ~/.config/fastfetch && cp -v /etc/skel/.config/fastfetch/config.jsonc ~/.config/fastfetch/
-
-# Configure LSDeluxe.
-mkdir -p /etc/skel/.config/lsd
-wcurl --curl-options="--progress-bar" -o /etc/skel/.config/lsd/config.yaml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/lsd/config.yaml
-mkdir -p /home/"$name"/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml /home/"$name"/.config/lsd
-chmod go+r /etc/skel/.config/lsd/config.yaml
-chown -R "$name":"$name" /home/"$name"/.config/lsd
-chmod go+r /home/"$name"/.config/lsd/config.yaml
-mkdir -p ~/.config/lsd && cp -v /etc/skel/.config/lsd/config.yaml ~/.config/lsd
+source "$SCRIPT_DIR"/modules/cli-utils-install.sh
 
 # Install and configure Helix editor.
-status "Installing and configuring the Helix text editor..."
-mkdir -p /etc/skel/.config/helix
-wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/config.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/config.toml
-wcurl --curl-options="--progress-bar" -o /etc/skel/.config/helix/languages.toml https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/Dotfiles/config/helix/languages.toml
-mkdir -p /home/"$name"/.config/helix
-cp -v /etc/skel/.config/helix/config.toml /home/"$name"/.config/helix/config.toml
-cp -v /etc/skel/.config/helix/languages.toml /home/"$name"/.config/helix/languages.toml
-chmod go+r /home/"$name"/.config/helix/*.toml
-chown -R "$name":"$name" /home/"$name"/.config/helix
-# Install Helix formatter/language-server tooling.
-emerge -qv marksman
-# Install Homebrew (needed for toplo, shfmt, and dprint).
-if su - "$name" -c 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'; then
-	for zshrc in /root/.zshrc /home/"$name"/.zshrc /etc/skel/.zshrc; do
-		cat >>"$zshrc" <<'EOF'
-
-# Homebrew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
-EOF
-	done
-	su - "$name" -c 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)" && brew install taplo shfmt dprint'
-fi
+source "$SCRIPT_DIR"/modules/helix-install.sh
 
 # Fix user's config permissions!
 chown -R "$name":"$name" /home/"$name"/.config
@@ -1028,42 +268,7 @@ status "Installing an improved user management utility..."
 emerge -qv app-admin/superadduser
 
 # Install GRUB.
-status "Installing and configuring GRUB..."
-emerge -qv sys-boot/grub
-sed -i 's|^#GRUB_CMDLINE_LINUX=".*"|GRUB_CMDLINE_LINUX="nowatchdog nmi_watchdog=0 net.ifnames=0"|' /etc/default/grub
-
-# Install Plymouth (optional).
-if ask_yes_no "Install the Plymouth graphical boot splash?" yes; then
-	echo "sys-boot/plymouth-openrc-plugin ~amd64" >/etc/portage/package.accept_keywords/plymouth-openrc-plugin
-	chmod go+r /etc/portage/package.accept_keywords/plymouth-openrc-plugin
-	emerge -qv sys-boot/plymouth sys-boot/plymouth-openrc-plugin
-	sed -i 's|^#GRUB_CMDLINE_LINUX_DEFAULT=".*"|GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"|' /etc/default/grub
-	bash "$SCRIPT_DIR"/modules/plymouth-theme-install.sh
-fi
-
-# Install GRUB.
-# Get the block device backing /.
-ROOT_DEV=$(findmnt -no SOURCE /)
-# Get the parent disk (e.g. sda from sda2, or nvme0n1 from nvme0n1p2).
-DISK_NAME=$(lsblk -no PKNAME "$ROOT_DEV")
-DRIVE="/dev/${DISK_NAME}"
-if [[ -d /sys/firmware/efi ]]; then
-	status "UEFI detected — installing GRUB for EFI..."
-	mountpoint -q /boot || mount "${DRIVE}1" /boot
-	mkdir -p /boot/EFI
-	grub-install --efi-directory=/boot --bootloader-id=Gentoo
-	echo "GRUB_CFG=/boot/EFI/Gentoo/grub.cfg" >/etc/env.d/99grub
-	env-update
-	grub-mkconfig -o /boot/EFI/Gentoo/grub.cfg
-	success "GRUB installed successfully."
-else
-	status "BIOS detected — installing GRUB for BIOS on $DRIVE..."
-	grub-install "$DRIVE"
-	grub-mkconfig -o /boot/grub/grub.cfg
-	success "GRUB installed successfully."
-fi
-
-success "Installation complete! Reboot and enjoy your new Gentoo system!"
+bash "$SCRIPT_DIR"/modules/grub-install.sh
 
 # Exit chroot.
 exit
