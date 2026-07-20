@@ -35,7 +35,7 @@ dialog --clear \
 	--title "Desktop Environment" \
 	--menu "Choose a desktop environment to install:" \
 	0 0 0 \
-	plasma "KDE Plasma" \
+	sonicde "Sonic Desktop Environment (SonicDE)" \
 	xfce "Xfce" \
 	mate "MATE" \
 	cinnamon "Cinnamon" \
@@ -50,14 +50,14 @@ else
 fi
 rm -f "$TMP_DESKTOP"
 
-INSTALL_PLASMA=false
+INSTALL_SONICDE=false
 INSTALL_XFCE=false
 INSTALL_MATE=false
 INSTALL_CINNAMON=false
 INSTALL_TDE=false
 
 case "$DESKTOP" in
-plasma) INSTALL_PLASMA=true ;;
+sonicde) INSTALL_SONICDE=true ;;
 xfce) INSTALL_XFCE=true ;;
 mate) INSTALL_MATE=true ;;
 cinnamon) INSTALL_CINNAMON=true ;;
