@@ -34,7 +34,7 @@ sync-type = git
 sync-uri = https://github.com/sonicde-gentoo/portage
 EOF
 	emaint sync -r sonicde
-	echo "*/*::sonicde **" >/etc/portage/package.accept_keywords/00-sonicde
+	echo "*/*::sonicde ~amd64" >/etc/portage/package.accept_keywords/00-sonicde
 	cat <<EOF >/etc/portage/package.accept_keywords/kde
 kde-plasma/*
 kde-frameworks/*
