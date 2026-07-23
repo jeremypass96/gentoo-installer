@@ -93,17 +93,29 @@ chmod go+r /etc/portage/package.use/grub
 # -----------------------------------
 # Configure USE flags for Noto fonts.
 # -----------------------------------
-cat <<EOF >>/etc/portage/package.use/noto-font
+cat <<EOF >>/etc/portage/package.use/noto-fonts
 media-fonts/noto -extra
 media-fonts/noto-emoji icons
 EOF
-chmod go+r /etc/portage/package.use/noto-font
+chmod go+r /etc/portage/package.use/noto-fonts
 #
 # -----------------------------------
 # Configure USE flags for Nerd fonts.
 # -----------------------------------
 echo "media-fonts/nerd-fonts hermit" >/etc/portage/package.use/nerd-fonts
 chmod go+r /etc/portage/package.use/nerd-fonts
+#
+# -------------------------------
+# Configure USE flags for OpenRC.
+# -------------------------------
+echo "sys-apps/openrc audit" >/etc/portage/package.use/openrc
+chmod go+r /etc/portage/package.use/openrc
+#
+# ---------------------------------------
+# Configure USE flags for Linux firmware.
+# ---------------------------------------
+echo "sys-kernel/linux-firmware compress-xz deduplicate" >/etc/portage/package.use/linux-firmware
+chmod go+r /etc/portage/package.use/linux-firmware
 #
 # Optional package.use entries.
 #

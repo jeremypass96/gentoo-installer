@@ -39,8 +39,12 @@ USE_FILES=(
 	man-db
 	manpager
 	installkernel
-	module-rebuild
 	grub
+	noto-fonts
+	nerd-fonts
+	openrc
+	linux-firmware
+	module-rebuild
 	networkmanager
 	cups
 	hplip
