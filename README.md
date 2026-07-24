@@ -2,10 +2,12 @@
 
 A fully interactive, dialog-driven installer for Gentoo Linux designed to simplify the installation process while preserving the Gentoo experience.
 
+> [!NOTE]
+An LLM was used as a development aid for portions of this project, including code suggestions, troubleshooting, and documentation. All code has been reviewed, tested, and integrated by the project maintainer.
+
 ## Features
 
 ### Installation
-
 * Fully interactive, dialog-driven installer.
 * Automatic disk partitioning and filesystem creation.
 * Automatic swapfile creation.
@@ -14,12 +16,10 @@ A fully interactive, dialog-driven installer for Gentoo Linux designed to simpli
 * Automatic kernel installation (*binary or source*).
 
 ### Hardware Detection
-
 * Automatic CPU optimization detection (`-march`, `-mtune`).
 * Automatic GPU detection and `VIDEO_CARDS` configuration (Intel, AMDGPU, Radeon, NVIDIA).
 
 ### System Configuration
-
 * Dialog-based Gentoo profile selection.
 * Locale configuration.
 * Timezone selection.
@@ -28,7 +28,6 @@ A fully interactive, dialog-driven installer for Gentoo Linux designed to simpli
 * Automatic service configuration and enabling.
 
 ### Desktop Environments
-
 * Dialog-based desktop environment selection:
   * KDE Plasma
   * Xfce
@@ -37,7 +36,6 @@ A fully interactive, dialog-driven installer for Gentoo Linux designed to simpli
   * Cinnamon
 
 ### Web Browsers
-
 * Dialog-based browser selection:
   * Brave
   * Ungoogled Chromium
@@ -46,7 +44,6 @@ A fully interactive, dialog-driven installer for Gentoo Linux designed to simpli
   * Helium
 
 ### Optional Components
-
 * KDE games installation.
 * Wireless networking support.
 * Printing support (CUPS).
@@ -55,13 +52,11 @@ A fully interactive, dialog-driven installer for Gentoo Linux designed to simpli
 * Windows-style hardware notifications.
 
 ### Design
-
 * Modular shell scripts designed to be executed in sequence.
 
 ## Script Overview
 
 ### setup.sh
-
 The primary **installation** script, executed from the Gentoo LiveCD/DVD before entering the Gentoo environment.
 
 * Verifies network connectivity, DNS resolution, and HTTPS access.
@@ -82,7 +77,6 @@ The primary **installation** script, executed from the Gentoo LiveCD/DVD before 
 * Enters the installed Gentoo environment using `arch-chroot`.
 
 ### configure.sh
-
 The primary **configuration** script, executed within the Gentoo environment.
 
 * Configures Portage and synchronizes the Gentoo repository.
