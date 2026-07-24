@@ -31,9 +31,9 @@ clear
 # --------------------------
 status "Installing and configuring Zsh..."
 emerge -qv app-shells/zsh app-shells/gentoo-zsh-completions
-eselect repository enable mv
-emerge --sync mv
-emerge -aqv app-shells/oh-my-zsh
+eselect repository enable guru
+emerge --sync guru
+emerge -aqv app-shells/ohmyzsh
 cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
 sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
