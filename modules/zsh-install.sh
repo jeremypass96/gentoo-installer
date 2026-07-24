@@ -33,6 +33,8 @@ status "Installing and configuring Zsh..."
 emerge -qv app-shells/zsh app-shells/gentoo-zsh-completions
 eselect repository enable guru
 emerge --sync guru
+echo "app-shells/ohmyzsh **" >/etc/portage/package.accept_keywords/ohmyzsh
+chmod go+r /etc/portage/package.accept_keywords/ohmyzsh
 emerge -aqv app-shells/ohmyzsh
 cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
 sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
