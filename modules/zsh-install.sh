@@ -73,9 +73,6 @@ setopt HIST_SAVE_NO_DUPS
 # Make some sensible aliases.
 alias ls="lsd"
 alias cat="bat"
-alias emerge-autoremove="sudo emerge -ac"
-alias update-world="sudo emerge -auvqDN @world"
-alias update-system="sudo emerge -auvqDN @world"
 alias wcurl='wcurl --curl-options="--progress-bar"'
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 

@@ -36,7 +36,7 @@ chmod go+r /etc/portage/package.accept_keywords/bat
 # --------------------------------------
 # Install command-line utility packages.
 # --------------------------------------
-emerge -qv sys-apps/bat app-misc/fastfetch sys-apps/lsd
+emerge -qv sys-apps/bat app-misc/fastfetch sys-apps/lsd app-portage/epkg
 
 # --------------------------------------------------------
 # Configure bat (cat clone with color, line numbers, etc.)
