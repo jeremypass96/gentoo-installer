@@ -44,6 +44,7 @@ USE_FILES=(
 	nerd-fonts
 	openrc
 	linux-firmware
+	nano
 	module-rebuild
 	networkmanager
 	cups

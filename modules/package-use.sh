@@ -117,6 +117,12 @@ chmod go+r /etc/portage/package.use/openrc
 echo "sys-kernel/linux-firmware compress-xz deduplicate" >/etc/portage/package.use/linux-firmware
 chmod go+r /etc/portage/package.use/linux-firmware
 #
+# -----------------------------
+# Configure USE flags for nano.
+# -----------------------------
+echo "app-editors/nano magic" >/etc/portage/package.use/nano
+chmod go+r /etc/portage/package.use/nano
+#
 # Optional package.use entries.
 #
 # ------------------------------------
