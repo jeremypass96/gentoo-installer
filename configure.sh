@@ -66,7 +66,7 @@ bash "$SCRIPT_DIR"/modules/timezone-selector.sh
 bash "$SCRIPT_DIR"/modules/locale-config.sh
 
 # Add user to the system.
-bash "$SCRIPT_DIR"/modules/create-user.sh
+source "$SCRIPT_DIR"/modules/create-user.sh
 
 # Configure VIDEO_CARDS variable.
 status "Detecting graphics hardware..."
@@ -82,7 +82,7 @@ source "$SCRIPT_DIR"/modules/desktop-selector.sh
 bash "$SCRIPT_DIR"/modules/package-use-backup.sh
 
 # Configure USE flags.
-source "$SCRIPT_DIR"/modules/package-use.sh
+bash "$SCRIPT_DIR"/modules/package-use.sh
 
 # ---------------------------------
 # Update system with new USE flags.
@@ -112,7 +112,7 @@ emerge @preserved-rebuild
 success "System cleanup complete."
 
 # Install selected desktop environment.
-source "$SCRIPT_DIR/modules/desktop-install.sh"
+bash "$SCRIPT_DIR/modules/desktop-install.sh"
 
 # Install a better manpager.
 clear
@@ -240,13 +240,13 @@ status "Installing sudo..."
 emerge -qv app-admin/sudo
 
 # Install Zsh (and oh-my-zsh from 'mv' overlay).
-source "$SCRIPT_DIR"/modules/zsh-install.sh
+bash "$SCRIPT_DIR"/modules/zsh-install.sh
 
 # Install and configure command-line utilities.
-source "$SCRIPT_DIR"/modules/cli-utils-install.sh
+bash "$SCRIPT_DIR"/modules/cli-utils-install.sh
 
 # Install and configure Helix editor.
-source "$SCRIPT_DIR"/modules/helix-install.sh
+bash "$SCRIPT_DIR"/modules/helix-install.sh
 
 # Fix user's config permissions!
 chown -R "$name":"$name" /home/"$name"/.config

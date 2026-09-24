@@ -25,7 +25,8 @@
 # ------------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+# Don't redefine SCRIPT_DIR here.
+source "$SCRIPT_DIR/modules/common.sh"
 require_root
 require_chroot
 clear
@@ -92,3 +93,5 @@ while true; do
 		dialog --backtitle "Gentoo Linux Installer" --title "Password Error" --msgbox "Failed to set password for '$name'.\n\nPlease try again." 0 0
 	fi
 done
+
+export name

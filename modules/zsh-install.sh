@@ -119,6 +119,8 @@ emerge -qv app-portage/command-not-found app-portage/pfl
 # Install BOFH fortunes.
 # ----------------------
 status "Installing humorous system administrator excuses..."
+echo "games-misc/fortune-mod-bofh-excuses ~amd64" >/etc/portage/package.accept_keywords/fortune-bofh
+chmod go+r /etc/portage/package.accept_keywords/fortune-bofh
 emerge -qv games-misc/fortune-mod-bofh-excuses
 cat >>/root/.zshrc <<'EOF'
 

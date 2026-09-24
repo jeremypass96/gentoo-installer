@@ -24,7 +24,8 @@
 # ----------------------------------------------------------------
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+# Don't redefine SCRIPT_DIR here.
+source "$SCRIPT_DIR/modules/common.sh"
 require_root
 require_chroot
 clear
@@ -64,3 +65,5 @@ cinnamon) INSTALL_CINNAMON=true ;;
 tde) INSTALL_TDE=true ;;
 none | *) ;;
 esac
+
+export DESKTOP

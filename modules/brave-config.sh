@@ -45,7 +45,6 @@ jq '
     .bookmark_bar.show_tab_groups = false |
     .brave.location_bar_is_wide = true |
     .omnibox.prevent_url_elisions = true |
-    .browser.show_home_button = true |
     .brave.rewards.show_brave_rewards_button_in_location_bar = false |
     .brave.wallet.show_wallet_icon_on_toolbar = false |
     .brave.new_tab_page.show_brave_news = false |
