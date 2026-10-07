@@ -34,10 +34,18 @@ emerge-webrsync
 
 # Select mirrors.
 emerge -qv1 app-portage/mirrorselect
-mirrorselect -i -o >>/etc/portage/make.conf
+status "Auto-selecting download mirrors..."
+mirrorselect -s10 -b10 -D -o >>/etc/portage/make.conf
 
 # Update repository.
-emerge --sync
+status "Syncing Portage repository..."
+emerge --sync >/dev/null 2>&1
+
+# Install eselect module for adding repositories to the system.
+if ! eselect modules has repository >/dev/dull 2>&1; then
+	status "Installing 'repository' eselect module for adding repos to Gentoo..."
+	emerge -q app-eselect/eselect-repository
+fi
 
 # Ensure dialog is available.
 if ! command -v dialog >/dev/null 2>&1; then
