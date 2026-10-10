@@ -53,6 +53,38 @@ info() {
 	echo -e "\e[1;37m>>> $*\e[0m"
 }
 
+status_with_spinner() {
+	local message=$1
+	shift
+
+	local frames=('|' '/' '-' '\')
+	local i=0
+	local pid rc
+
+	"$@" >/tmp/gentoo-installer.log 2>&1 &
+	pid=$!
+
+	while kill -0 "$pid" 2>/dev/null; do
+		printf '\r\033[K\033[1;38;5;141m>>> %s %s\033[0m' \
+			"$message" "${frames[i]}"
+
+		i=$(((i + 1) % ${#frames[@]}))
+		sleep 0.1
+	done
+
+	wait "$pid"
+	rc=$?
+
+	if ((rc != 0)); then
+		printf '\r\033[K'
+		failure "$message failed. See /tmp/gentoo-installer.log."
+		return "$rc"
+	fi
+
+	printf '\r\033[K'
+	success "$message"
+}
+
 require_root() {
 	if [ "$EUID" -ne 0 ]; then
 		die "This script must be run as root."

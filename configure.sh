@@ -24,33 +24,36 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_chroot
+clear
 
 # Configure portage.
 mkdir -p /etc/portage/repos.conf
 cp /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf
 
-# Update the Gentoo ebuild repository
-emerge-webrsync
+# Update Gentoo ebuild repository.
+status_with_spinner "Bootstrapping Gentoo ebuild repository..." \
+	emerge-webrsync
 
 # Select mirrors.
-emerge -qv1 app-portage/mirrorselect
-status "Auto-selecting download mirrors..."
-mirrorselect -s10 -b10 -D -o >>/etc/portage/make.conf
+status_with_spinner "Temporarily installing mirrorselect to configure download mirrors..." \
+	emerge -qv1 app-portage/mirrorselect
+status_with_spinner "Auto-selecting download mirrors..." \
+	mirrorselect -s10 -b10 -D -o >>/etc/portage/make.conf
 
 # Update repository.
-status "Syncing Portage repository..."
-emerge --sync >/dev/null 2>&1
+status_with_spinner "Syncing Portage repository..." \
+	emerge --sync
 
 # Install eselect module for adding repositories to the system.
 if ! eselect modules has repository >/dev/dull 2>&1; then
-	status "Installing 'repository' eselect module for adding repos to Gentoo..."
-	emerge -q app-eselect/eselect-repository
+	status "Installing 'repository' eselect module for adding repos to Gentoo..." \
+		emerge -q app-eselect/eselect-repository
 fi
 
 # Ensure dialog is available.
 if ! command -v dialog >/dev/null 2>&1; then
-	status "Installing required package: dialog..."
-	emerge -q dev-util/dialog
+	status "Installing required package: dialog..." \
+		emerge -q dev-util/dialog
 fi
 
 # View and set system profile.
