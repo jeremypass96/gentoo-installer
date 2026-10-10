@@ -20,6 +20,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/modules/common.sh"
 require_root
 require_not_chroot
+clear
 
 # Test if we have a network connection using Google's public IP address.
 status "Verifying network connectivity..."
@@ -32,12 +33,6 @@ status "Verifying DNS resolution and HTTPS access..."
 curl --location gentoo.org --output /dev/null >/dev/null 2>&1 || die "DNS or HTTPS failed (cannot reach gentoo.org)."
 success "DNS resolution and HTTPS access verified."
 sleep 1
-
-# Ensure dialog is available.
-if ! command -v dialog >/dev/null 2>&1; then
-	status "Installing required package: dialog..."
-	emerge -q dev-util/dialog || die "Failed to install the required package: dialog."
-fi
 
 dialog --clear \
 	--backtitle "Gentoo Linux Installer" \
