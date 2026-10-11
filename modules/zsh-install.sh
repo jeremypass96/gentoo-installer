@@ -37,8 +37,9 @@ echo "app-shells/ohmyzsh **" >/etc/portage/package.accept_keywords/ohmyzsh
 chmod go+r /etc/portage/package.accept_keywords/ohmyzsh
 emerge -aqv app-shells/ohmyzsh
 cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
+# shellcheck disable=SC2016
 sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
-sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
+# sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
 sed -i 's/# HYPHEN_INSENSITIVE="true"/HYPHEN_INSENSITIVE="true"/' /etc/skel/.zshrc
 sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" /etc/skel/.zshrc
 sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
@@ -49,13 +50,13 @@ sed -i 's/plugins=(git)/plugins=(git extract safe-paste sudo copypath zsh-autosu
 ZSH_CUSTOM=/usr/share/zsh/site-contrib/oh-my-zsh/custom
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
-wcurl --curl-options="--progress-bar" -o ${ZSH_CUSTOM}/themes/jpassarelli.zsh-theme https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/jpassarelli.zsh-theme
+# wcurl --curl-options="--progress-bar" -o ${ZSH_CUSTOM}/themes/jpassarelli.zsh-theme https://raw.githubusercontent.com/jeremypass96/linux-stuff/refs/heads/main/jpassarelli.zsh-theme
 
 # -----------------------------
 # Configure the default .zshrc.
 # -----------------------------
 status "Configuring the Zsh environment..."
-cat <<EOF >>/etc/skel/.zshrc
+cat <<'EOF' >>/etc/skel/.zshrc
 # Set the default umask.
 umask 022
 
@@ -86,12 +87,16 @@ zstyle ':completion::complete:*' use-cache 1
 
 # Enable command-not-found.
 source /etc/bash/bashrc.d/command-not-found.sh
+
+# Oh My Posh
+eval "$(oh-my-posh init zsh --config "$HOME/.config/ohmyposh/jpassarelli.omp.json")"
 EOF
 
 # -------------------------
 # Configure the user shell.
 # -------------------------
 status "Applying Zsh configuration..."
+# shellcheck disable=SC2154
 cp -v /etc/skel/.zshrc /home/"$name"/.zshrc
 chown "$name":"$name" /home/"$name"/.zshrc
 
@@ -100,7 +105,6 @@ chown "$name":"$name" /home/"$name"/.zshrc
 # -------------------------
 cp -v /etc/skel/.zshrc /root/.zshrc
 sed -i 's/emerge-autoremove="sudo emerge -ac"/emerge-autoremove="emerge -ac"/' /root/.zshrc
-sed -i 's/update-world="sudo emerge -auvqDN @world"/update-world="emerge -auvqDN @world"/' /root/.zshrc
 sed -i 's/update-system="sudo emerge -auvqDN @world"/update-system="emerge -auvqDN @world"/' /root/.zshrc
 sed -i 's|update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"|update-grub="grub-mkconfig -o /boot/grub/grub.cfg"|' /root/.zshrc
 sed -i '/^# Run fastfetch\.$/,/^$/d' /root/.zshrc
