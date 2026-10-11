@@ -20,6 +20,11 @@
 # installs a default set of Gentoo bookmarks for new users.
 # ---------------------------------------------------------
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+require_root
+require_chroot
+
 if ! command -v jq >/dev/null 2>&1; then
 	info "Installing 'jq' package for Brave configuration..."
 	emerge -q app-misc/jq
@@ -148,5 +153,5 @@ cp "$BOOKMARKS" "$USER_BRAVE/Bookmarks"
 chown -R "$name:$name" "$USER_HOME/.config/BraveSoftware"
 
 # Cleanup
-emerge -ac app-misc/jq
+emerge -c app-misc/jq
 rm -rf "$BRAVE_TEMPLATE"
