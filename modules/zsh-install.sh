@@ -39,7 +39,7 @@ emerge -aqv app-shells/ohmyzsh
 cp -v /usr/share/zsh/site-contrib/oh-my-zsh/templates/zshrc.zsh-template /etc/skel/.zshrc
 # shellcheck disable=SC2016
 sed -i 's|ZSH="$HOME/.oh-my-zsh"|ZSH="/usr/share/zsh/site-contrib/oh-my-zsh"|' /etc/skel/.zshrc
-# sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
+sed -i 's/ZSH_THEME="robbyrussell"/#ZSH_THEME="jpassarelli"/' /etc/skel/.zshrc
 sed -i 's/# HYPHEN_INSENSITIVE="true"/HYPHEN_INSENSITIVE="true"/' /etc/skel/.zshrc
 sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" /etc/skel/.zshrc
 sed -i 's/# ENABLE_CORRECTION="true"/ENABLE_CORRECTION="true"/' /etc/skel/.zshrc
